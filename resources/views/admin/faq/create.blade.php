@@ -7,7 +7,7 @@
             <div class="section-body">
                 <form action="{{ url('admin/faq-store') }}" method="POST">
                     @csrf
-                    <a href="{{ url('/admin/faq') }}" class="btn mb-3" style="background: #ff5608;">Back</a>
+                    <a href="{{ url('/admin/faq') }}" class="btn mb-3" style="background: #009245;">Back</a>
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card">

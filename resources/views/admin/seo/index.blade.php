@@ -3,7 +3,7 @@
 <style>
     /* For the active tab */
     .nav-pills .nav-link.active {
-        background-color: #ff5608 !important;
+        background-color: #009245 !important;
         color: white !important;
         /* Optional: change text color for better contrast */
     }
@@ -12,7 +12,7 @@
     .nav-pills .nav-link:hover:not(.active) {
         background-color: #ff560833;
         /* 33 = 20% opacity */
-        color: #ff5608;
+        color: #009245;
     }
 </style>
 

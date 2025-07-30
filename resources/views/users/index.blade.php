@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-@section('title', 'Users')
+@section('title', 'Customers')
 
 @section('content')
     <div class="main-content" style="min-height: 562px;">
@@ -9,7 +9,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Users</h4>
+                                <h4>Customers</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
                                 @if (Auth::guard('admin')->check() ||
@@ -73,7 +73,7 @@
                                                         </form>
 
                                                         <button class="show_confirm btn d-flex gap-4"
-                                                            style="background-color: #ff5608;"
+                                                            style="background-color: #009245;"
                                                             data-form="delete-form-{{ $user->id }}" type="button">
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>

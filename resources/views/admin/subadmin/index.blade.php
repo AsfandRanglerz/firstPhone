@@ -75,7 +75,7 @@
                                                             </form>
 
                                                             <button class="show_confirm btn"
-                                                                style="background-color: #cb84fe;"
+                                                                style="background-color: #009245;"
                                                                 data-form="delete-form-{{ $subAdmin->id }}" type="button">
                                                                 <span><i class="fa fa-trash"></i></span>
                                                             </button>

@@ -43,13 +43,30 @@
 
             @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('view')))
+                <li class="dropdown">
+                    <a href="#" class="menu-toggle nav-link has-dropdown">
+                        <i data-feather="layout"></i> <!-- Icon for header section -->
+                        <span>Users</span>
+                    </a>
+                     <ul
+                        class="dropdown-menu {{ request()->is('admin/user*') || request()->is('admin/vendor*') ? 'show' : '' }}">
                 <li class="dropdown {{ request()->is('admin/user*') ? 'active' : '' }}">
                     <a href="{{ url('admin/user') }}" class="nav-link">
                         <i data-feather="users"></i>
-                        <span>Users</span>
+                        <span>Customers</span>
                     </a>
                 </li>
             @endif
+             @if (Auth::guard('admin')->check() ||
+                    ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
+                <a href="{{ url('admin/vendor') }}" class="nav-link">
+                    <i data-feather="users"></i>
+                    <span>Vendors</span>
+                </a>
+            </li>
+            @endif
+            </ul>
 
 
 
@@ -84,14 +101,13 @@
 
             {{--  Blogs --}}
 
-            @if (Auth::guard('admin')->check() ||
+            {{-- @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Blogs') && $sideMenuPermissions['Blogs']->contains('view')))
-                {{-- FAQS --}}
                 <li class="dropdown {{ request()->is('admin/blogs*') ? 'active' : '' }}">
                     <a href="{{ url('admin/blogs-index') }}" class="nav-link"><i
                             data-feather="book-open"></i><span>Blogs</span></a>
                 </li>
-            @endif
+            @endif --}}
 
 
             {{--  Privacy Policy --}}

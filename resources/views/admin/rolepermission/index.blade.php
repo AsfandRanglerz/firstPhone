@@ -42,7 +42,7 @@
                                                 <td>
                                                     @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('Roles') && $sideMenuPermissions['Roles']->contains('view')))
-                                                        <a class="btn" style="background-color: #cb84fe;"
+                                                        <a class="btn" style="background-color: #009245;"
                                                             href="{{ route('role.permissions', $role->id) }}"><i
                                                                 class="fa fa-eye"></i></a>
                                                     @endif
@@ -61,7 +61,7 @@
 
                                                         <!-- Delete Button -->
                                                         <button class="show_confirm btn d-flex gap-4"
-                                                            style="background-color: #cb84fe;"
+                                                            style="background-color: #009245;"
                                                             data-form="delete-form-{{ $role->id }}" type="button">
                                                             <span><i class="fa fa-trash"></i></span>
 

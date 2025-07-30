@@ -96,7 +96,7 @@
 
                                                             <!-- Delete Button -->
                                                             <button class="show_confirm btn d-flex "
-                                                                style="background-color: #ff5608
+                                                                style="background-color: #009245
 ;"
                                                                 data-form="delete-form-{{ $blog->id }}" type="button">
                                                                 <span><i class="fa fa-trash"></i></span>

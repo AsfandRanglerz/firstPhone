@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
- use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Auth;
-use App\Models\UserRolePermission;
 use App\Models\SubAdmin;
+ use Illuminate\Support\Facades\View;
+use App\Models\UserRolePermission;
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
     }
 
     /**
