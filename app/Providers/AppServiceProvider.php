@@ -29,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
 
 public function boot()
 {
+        User::observe(UserObserver::class);
+
     View::composer('*', function ($view) {
         $sideMenuPermissions = collect();
 
