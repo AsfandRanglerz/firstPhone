@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameRoleColumnInSubAdminsTable extends Migration
+class CreateSideMenusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class RenameRoleColumnInSubAdminsTable extends Migration
      */
     public function up()
     {
-        Schema::table('sub_admins', function (Blueprint $table) {
-    $table->renameColumn('role', 'role_name');
-});
+        Schema::create('side_menus', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -25,8 +26,6 @@ class RenameRoleColumnInSubAdminsTable extends Migration
      */
     public function down()
     {
-        Schema::table('sub_admins', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('side_menus');
     }
 }
