@@ -66,7 +66,7 @@
 
                                                             <button class="show_confirm btn"
                                                                 data-form="delete-form-{{ $faq->id }}" type="button"
-                                                                style="background-color: #ff5608;">
+                                                                style="background-color: #009245;">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
                                                         @endif

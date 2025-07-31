@@ -24,7 +24,7 @@
                             <div class="card-body table-striped table-bordered table-responsive">
                                 @if (Auth::guard('admin')->check() ||
                                         ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('create')))
-                                    <a class="btn mb-3 text-white" data-bs-toggle="modal" style="background-color: #ff5608;"
+                                    <a class="btn mb-3 text-white" data-bs-toggle="modal" style="background-color: #009245;"
                                         data-bs-target="#createUserModal">Create</a>
                                 @endif
 

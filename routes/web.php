@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
@@ -105,7 +106,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
 
     // ############ Users #################
 
-    Route::get('/user', [UserController::class, 'Index'])->name('user.index') ->middleware('check.permission:Users,view');
+Route::get('/user', [UserController::class, 'Index'])->name('user.index') ->middleware('check.permission:Users,view');
 Route::get('/user-create', [UserController::class, 'createview'])->name('user.createview') ->middleware('check.permission:Users,create');
 Route::post('/user-store', [UserController::class, 'create'])->name('user.create') ->middleware('check.permission:Users,create');
 Route::get('/user-edit/{id}', [UserController::class, 'edit'])->name('user.edit') ->middleware('check.permission:Users,edit');
@@ -116,6 +117,15 @@ Route::delete('/users-destory/{id}', [UserController::class, 'delete'])->name('u
 Route::delete('/users/{id}/force', [UserController::class, 'forceDelete'])->name('user.forceDelete') ->middleware('check.permission:Users,delete');
 
 Route::post('/users/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
+
+    // ############ Vendors #################
+Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index') ->middleware('check.permission:Vendors,view');
+Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview') ->middleware('check.permission:Vendors,create');
+Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create') ->middleware('check.permission:Vendors,create');
+Route::get('/vendor-edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit') ->middleware('check.permission:Vendors,edit');
+Route::post('/vendor-update/{id}', [VendorController::class, 'update'])->name('vendor.update') ->middleware('check.permission:Vendors,edit');
+Route::delete('/vendor-destroy/{id}', [VendorController::class, 'delete'])->name('vendor.delete') ->middleware('check.permission:Vendors,delete');
+Route::post('/vendor/toggle-status', [VendorController::class, 'toggleStatus'])->name('vendor.toggle-status');
 
 
 

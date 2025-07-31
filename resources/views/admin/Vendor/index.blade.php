@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-@section('title', 'Customers')
+@section('title', 'Vendors')
 
 @section('content')
     <div class="main-content" style="min-height: 562px;">
@@ -9,13 +9,13 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Customers</h4>
+                                <h4>Vendors</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
                                 @if (Auth::guard('admin')->check() ||
-                                        ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('create')))
+                                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
                                     <a class="btn btn-primary mb-3 text-white"
-                                        href="{{ url('/admin/user-create') }}">Create</a>
+                                        href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif
 
                                 {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('users') && $sideMenuPermissions['users']->contains('view')))
@@ -56,8 +56,8 @@
                                                 </td>
                                                 <td>
                                                     @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('edit')))
-                                                        <a href="{{ route('user.edit', $user->id) }}"
+                                                            ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('edit')))
+                                                        <a href="{{ route('vendor.edit', $user->id) }}"
                                                             class="btn btn-primary me-2"
                                                             style="float: left; margin-right: 8px;">
                                                             <i class="fa fa-edit"></i>
@@ -65,9 +65,9 @@
                                                     @endif
 
                                                     @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('delete')))
+                                                            ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('delete')))
                                                         <form id="delete-form-{{ $user->id }}"
-                                                            action="{{ route('user.delete', $user->id) }}" method="POST">
+                                                            action="{{ route('vendor.delete', $user->id) }}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
                                                         </form>

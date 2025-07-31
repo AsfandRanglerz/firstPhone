@@ -1,18 +1,18 @@
 @extends('admin.layout.app')
-@section('title', 'Create Customer')
+@section('title', 'Create Vendor')
 @section('content')
 
     <div class="main-content">
         <section class="section">
             <div class="section-body">
-                <a class="btn btn-primary mb-3" href="{{ route('user.index') }}">Back</a>
+                <a class="btn btn-primary mb-3" href="{{ route('vendor.index') }}">Back</a>
 
-                <form id="edit_farmer" action="{{ route('user.create') }}" method="POST" enctype="multipart/form-data">
+                <form id="edit_vendor" action="{{ route('vendor.create') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card">
-                                <h4 class="text-center my-4">Create Customer</h4>
+                                <h4 class="text-center my-4">Create Vendor</h4>
                                 <div class="row mx-0 px-4">
 
                                     <!-- Name -->
