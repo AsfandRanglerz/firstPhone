@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\SubAdmin;
+use App\Models\User;
  use Illuminate\Support\Facades\View;
+use App\Models\SubAdmin;
 use App\Models\UserRolePermission;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
 public function boot()
 {
-        User::observe(UserObserver::class);
+        // User::observe(UserObserver::class);
 
     View::composer('*', function ($view) {
         $sideMenuPermissions = collect();

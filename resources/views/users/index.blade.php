@@ -55,11 +55,12 @@
                                                     </label>
                                                 </td>
                                                 <td>
+                                                    <div class="d-flex gap-1">
                                                     @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('edit')))
                                                         <a href="{{ route('user.edit', $user->id) }}"
-                                                            class="btn btn-primary me-2"
-                                                            style="float: left; margin-right: 8px;">
+                                                            class="btn btn-primary"
+                                                            style="margin-left: 10px;">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                     @endif
@@ -78,6 +79,7 @@
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
                                                     @endif
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach

@@ -59,7 +59,7 @@
                                                             ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('edit')))
                                                         <a href="{{ route('vendor.edit', $user->id) }}"
                                                             class="btn btn-primary me-2"
-                                                            style="float: left; margin-right: 8px;">
+                                                            style="float: left; margin-left: 10px;">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                     @endif

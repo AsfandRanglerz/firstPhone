@@ -56,11 +56,11 @@
                                                     </label>
                                                 </td>
                                                 <td>
-                                                    <div class="d-flex">
+                                                    <div class="d-flex gap-1">
                                                         @if (Auth::guard('admin')->check() ||
                                                                 ($sideMenuPermissions->has('Sub Admins') && $sideMenuPermissions['Sub Admins']->contains('edit')))
                                                             <a href="{{ route('subadmin.edit', $subAdmin->id) }}"
-                                                                class="btn btn-primary mr-1">
+                                                                class="btn btn-primary">
                                                                 <i class="fa fa-edit"></i>
                                                             </a>
                                                         @endif
