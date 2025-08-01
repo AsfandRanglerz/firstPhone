@@ -3,14 +3,16 @@
 namespace App\Providers;
 
 use App\Models\SubAdmin;
- use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\View;
 use App\Models\UserRolePermission;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\VendorRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\NotificationRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
+use App\Repositories\Interfaces\NotificationRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
     }
 
     /**
@@ -30,39 +33,35 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-  
 
-public function boot()
-{
-    View::composer('*', function ($view) {
-        $sideMenuPermissions = collect();
 
-        if (Auth::guard('subadmin')->check()) {
-            $user = Auth::guard('subadmin')->user();
+    public function boot()
+    {
+        View::composer('*', function ($view) {
+            $sideMenuPermissions = collect();
 
-            // Load roles from pivot
-            $role = $user->roles()->first(); // assumes 1 role per subadmin
+            if (Auth::guard('subadmin')->check()) {
+                $user = Auth::guard('subadmin')->user();
 
-            if ($role) {
-                $roleId = $role->id;
+                // Load roles from pivot
+                $role = $user->roles()->first(); // assumes 1 role per subadmin
 
-                $sideMenuPermissions = UserRolePermission::with(['permission', 'sideMenue'])
-                    ->where('role_id', $roleId)
-                    ->get()
-                    ->groupBy(function ($item) {
-                        return $item->sideMenue->name ?? 'undefined';
-                    })
-                    ->map(function ($items) {
-                        return $items->pluck('permission.name');
-                    });
+                if ($role) {
+                    $roleId = $role->id;
+
+                    $sideMenuPermissions = UserRolePermission::with(['permission', 'sideMenue'])
+                        ->where('role_id', $roleId)
+                        ->get()
+                        ->groupBy(function ($item) {
+                            return $item->sideMenue->name ?? 'undefined';
+                        })
+                        ->map(function ($items) {
+                            return $items->pluck('permission.name');
+                        });
+                }
             }
-        }
 
-        $view->with('sideMenuPermissions', $sideMenuPermissions);
-    });
-}
-
-
-
-
+            $view->with('sideMenuPermissions', $sideMenuPermissions);
+        });
+    }
 }
