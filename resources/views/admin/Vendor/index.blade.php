@@ -171,14 +171,9 @@
                 let reason = $('#deactivationReason').val();
                 if (reason.trim() === '') {
                     toastr.error('Please provide a deactivation reason');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 800);
                     return;
                 }
 
-                $('#deactivationModal').modal('hide');
-                $('#deactivationReason').val('');
                 updateUserStatus(currentUserId, 0, reason);
             });
 
@@ -186,14 +181,14 @@
                 if ($('#deactivationReason').val().trim() === '') {
                     setTimeout(() => {
                         location.reload();
-                    }, 500);
+                    }, 1000);
                 }
             });
 
             function updateUserStatus(userId, status, reason = null) {
                 let $descriptionSpan = currentToggle.siblings('.custom-switch-description');
                 $.ajax({
-                    url: "{{ route('user.toggle-status') }}",
+                    url: "{{ route('vendor.toggle-status') }}",
                     type: "POST",
                     data: {
                         _token: '{{ csrf_token() }}',
