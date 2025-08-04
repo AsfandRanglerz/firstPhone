@@ -89,6 +89,7 @@
                                         <tr>
                                             <th>Sr.</th>
                                             <th>User Type</th>
+                                            <th>Users</th>
                                             {{-- <th>Image</th> --}}
                                             <th>Title</th>
                                             <th>Message</th>
@@ -101,6 +102,13 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ ucfirst($notification->user_type) }}</td>
+                                                <td>
+                                                    @foreach ($notification->targets as $key => $target)
+                                                        {{ $target->targetable?->name ?? 'N/A' }}@if (!$loop->last)
+                                                            ,
+                                                        @endif
+                                                    @endforeach
+                                                </td>
                                                 <td>{{ $notification->title }}</td>
                                                 <td>{{ \Illuminate\Support\Str::limit(strip_tags($notification->description), 150, '...') }}
                                                 </td>
@@ -137,7 +145,7 @@
     <!-- Create Notification Modal -->
     <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <form id="createUserForm" method="POST" action="{{ route('notification.store') }}"
                     enctype="multipart/form-data">
@@ -148,91 +156,75 @@
                     </div>
 
                     <div class="modal-body">
-                        {{-- <input type="hidden" name="user_type" value="user"> --}}
+                        <div class="row">
+                            {{-- <input type="hidden" name="user_type" value="user"> --}}
 
-                        <div class="form-group">
-                            <label><strong>User Type <span style="color:red;">*</span></strong></label>
-                            <select id="user_type" name="user_type" class="form-control">
-                                <option value="">Select user type</option>
-                                <option value="customers">Customers</option>
-                                <option value="vendors">Vendors</option>
-                            </select>
-                            @error('user_type')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        {{-- <div class="form-group" id="user_field" style="display: none;">
-                            <label><strong>Users <span style="color: red;">*</span></strong></label>
-                            <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
-                                <input type="checkbox" id="select_all_users" class="form-check-input">
-                                <label class="form-check-label" for="select_all_users">Select All</label>
-                            </div>
-                            <select name="users[]" id="users" class="form-control select2" multiple>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}"
-                                        {{ old('users') && in_array($user->id, old('users')) ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('users')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
-                        <div class="form-group" id="user_field" style="display: none;">
-                            <label><strong>Users <span style="color: red;">*</span></strong></label>
-
-                            <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
-                                <input type="checkbox" id="select_all_users" class="form-check-input">
-                                <label class="form-check-label" for="select_all_users">Select All</label>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>User Type <span style="color:red;">*</span></strong></label>
+                                    <select id="user_type" name="user_type" class="form-control">
+                                        <option value="">Select user type</option>
+                                        <option value="customers">Customers</option>
+                                        <option value="vendors">Vendors</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                    @error('user_type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <select name="users[]" id="users" class="form-control select2" multiple></select>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>Title <span style="color:red;">*</span></strong></label>
+                                    <input type="text" id="title" name="title" class="form-control"
+                                        placeholder="Title">
+                                    @error('title')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                            {{-- Hidden preload lists --}}
-                            <select id="customers_list" style="display: none;">
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
+                            <div class="col-md-6">
+                                <div class="form-group" id="user_field" style="display: none;">
+                                    <label><strong>Users <span style="color: red;">*</span></strong></label>
 
-                            <select id="vendors_list" style="display: none;">
-                                @foreach ($vendors as $vendor)
-                                    <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
-                                @endforeach
-                            </select>
+                                    <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
+                                        <input type="checkbox" id="select_all_users" class="form-check-input">
+                                        <label class="form-check-label" for="select_all_users">Select All</label>
+                                    </div>
 
-                            @error('users')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                                    <select name="users[]" id="users" class="form-control select2" multiple></select>
 
+                                    {{-- Hidden preload lists --}}
+                                    <select id="customers_list" style="display: none;">
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
 
+                                    <select id="vendors_list" style="display: none;">
+                                        @foreach ($vendors as $vendor)
+                                            <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                        @endforeach
+                                    </select>
 
-                        {{-- <div class="form-group">
-                            <label for="userImage">Image <span style="color: red;">*</span></label>
-                            <input type="file" class="form-control-file" id="userImage" name="image" accept="image/*"
-                                required>
-                            <small class="text-danger">Max 2MB image size allowed.</small>
-                        </div> --}}
+                                    @error('users')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label><strong>Title <span style="color:red;">*</span></strong></label>
-                            <input type="text" id="title" name="title" class="form-control" placeholder="Title">
-                            @error('title')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Description <span style="color:red;">*</span></strong></label>
-                            <textarea name="description" id="description" class="form-control" placeholder="Type your message here..."
-                                rows="4"></textarea>
-                            @error('description')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>Description <span style="color:red;">*</span></strong></label>
+                                    <textarea name="description" id="description" class="form-control" placeholder="Type your message here..."
+                                        rows="4"></textarea>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -339,10 +331,9 @@
                         form.submit();
                     }
                 });
-
             });
+
             $('.delete_all').click(function(event) {
-                // delete_all'
                 event.preventDefault();
 
                 var form = $(this).closest("form");
@@ -373,12 +364,12 @@
                 if (userType === 'customers') {
                     $('#users').html($('#customers_list').html());
                     $('#user_field').slideDown(function() {
-                        $('#users').select2('destroy'); // destroy any previous
+                        $('#users').select2('destroy');
                         $('#users').select2({
                             dropdownParent: $('#createUserModal'),
                             placeholder: "Select customers",
                             allowClear: true,
-                            width: '100%' // <-- force full width
+                            width: '100%'
                         });
                     });
                 } else if (userType === 'vendors') {
@@ -388,6 +379,18 @@
                         $('#users').select2({
                             dropdownParent: $('#createUserModal'),
                             placeholder: "Select vendors",
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    });
+                } else if (userType === 'all') {
+                    const combinedOptions = $('#customers_list').html() + $('#vendors_list').html();
+                    $('#users').html(combinedOptions);
+                    $('#user_field').slideDown(function() {
+                        $('#users').select2('destroy');
+                        $('#users').select2({
+                            dropdownParent: $('#createUserModal'),
+                            placeholder: "Select users",
                             allowClear: true,
                             width: '100%'
                         });

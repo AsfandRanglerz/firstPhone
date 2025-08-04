@@ -29,7 +29,7 @@ class NotificationController extends Controller
 
     public function index()
     {
-        $notifications = Notification::latest()->get();
+        $notifications = Notification::with('targets.targetable')->latest()->get();
         $users = User::all();
         $subadmin = SubAdmin::all();
         $vendors = Vendor::all();
@@ -40,15 +40,15 @@ class NotificationController extends Controller
 
             $user = Auth::guard('subadmin')->user()->load('roles');
 
-            // ✅ 1. Get role_id of subadmin
+            // 1. Get role_id of subadmin
             $roleId = $user->role_id;
 
-            // ✅ 2. Get all permissions assigned to this role
+            // 2. Get all permissions assigned to this role
             $permissions = UserRolePermission::with(['permission', 'sideMenue'])
                 ->where('role_id', $roleId)
                 ->get();
 
-            // ✅ 3. Group permissions by side menu
+            // 3. Group permissions by side menu
             $sideMenuPermissions = $permissions->groupBy('sideMenue.name')->map(function ($items) {
                 return $items->pluck('permission.name');
             });
@@ -59,25 +59,45 @@ class NotificationController extends Controller
 
     public function store(NotificationRequest $request)
     {
+        $users = [];
+
         if ($request->user_type === 'customers') {
             $request->validate([
                 'users.*' => 'exists:users,id',
             ]);
-        } else {
+            $users = $request->users;
+        } elseif ($request->user_type === 'vendors') {
             $request->validate([
                 'users.*' => 'exists:vendors,id',
             ]);
+            $users = $request->users;
+        } elseif ($request->user_type === 'all') {
+            // Fetch valid user and vendor IDs
+            $userIds = User::whereIn('id', $request->users)->pluck('id')->toArray();
+            $vendorIds = Vendor::whereIn('id', $request->users)->pluck('id')->toArray();
+
+            if (empty($userIds) && empty($vendorIds)) {
+                return back()->withErrors(['users' => 'No valid customer or vendor IDs provided.']);
+            }
+
+            // Merge into a single flat array of IDs
+            $users = array_merge(
+                array_map(fn($id) => ['id' => $id, 'type' => 'users'], $userIds),
+                array_map(fn($id) => ['id' => $id, 'type' => 'vendors'], $vendorIds),
+            );
         }
 
-        // Pass data to repository
+        // Pass to repo
         $this->notificationRepository->createNotification([
             'user_type' => $request->user_type,
             'title' => $request->title,
             'description' => $request->description,
-        ], $request->users);
+        ], $users);
 
         return redirect()->route('notification.index')->with('success', 'Notification sent successfully.');
     }
+
+
 
 
     public function destroy(Request $request, $id)

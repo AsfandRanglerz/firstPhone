@@ -24,7 +24,7 @@ class NotificationRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_type' => 'required|in:customers,vendors',
+            'user_type' => 'required|in:customers,vendors,all',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'users' => 'required|array',
