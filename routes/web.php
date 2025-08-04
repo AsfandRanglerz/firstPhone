@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -119,16 +120,22 @@ Route::delete('/users/{id}/force', [UserController::class, 'forceDelete'])->name
 Route::post('/users/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
 
     // ############ Vendors #################
-Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index') ->middleware('check.permission:Vendors,view');
-Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview') ->middleware('check.permission:Vendors,create');
-Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create') ->middleware('check.permission:Vendors,create');
-Route::get('/vendor-edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit') ->middleware('check.permission:Vendors,edit');
-Route::post('/vendor-update/{id}', [VendorController::class, 'update'])->name('vendor.update') ->middleware('check.permission:Vendors,edit');
-Route::delete('/vendor-destroy/{id}', [VendorController::class, 'delete'])->name('vendor.delete') ->middleware('check.permission:Vendors,delete');
+Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
+Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
+Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create')->middleware('check.permission:Vendors,create');
+Route::get('/vendor-edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit')->middleware('check.permission:Vendors,edit');
+Route::post('/vendor-update/{id}', [VendorController::class, 'update'])->name('vendor.update')->middleware('check.permission:Vendors,edit');
+Route::delete('/vendor-destroy/{id}', [VendorController::class, 'delete'])->name('vendor.delete')->middleware('check.permission:Vendors,delete');
 Route::post('/vendor/toggle-status', [VendorController::class, 'toggleStatus'])->name('vendor.toggle-status');
 
+// ############ Mobile Listings #################
+Route::get('/mobilelisting', [MobileListingController::class, 'index'])->name('mobile.index')->middleware('check.permission:Vendors,view');
+Route::get('/mobilelisting-edit/{id}', [MobileListingController::class, 'edit'])->name('mobile.edit')->middleware('check.permission:Vendors,edit');
+Route::post('/mobilelisting-update/{id}', [MobileListingController::class, 'update'])->name('mobile.update')->middleware('check.permission:Vendors,edit');
+Route::delete('/mobilelisting-destroy/{id}', [MobileListingController::class, 'delete'])->name('mobile.delete')->middleware('check.permission:Vendors,delete');
 
-
+Route::post('/mobilelistingActivate/{id}', [MobileListingController::class, 'active'])->name('mobile.activate');
+    Route::post('/mobilelistingDeactivate/{id}', [MobileListingController::class, 'deactive'])->name('mobile.deactivate');
 
     // ############ Sub Admin #################
     Route::controller(SubAdminController::class)->group(function () {
