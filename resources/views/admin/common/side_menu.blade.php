@@ -137,16 +137,16 @@
                 </li>
             @endif
 
-            {{--  Roles --}}
+            {{--  SEO --}}
 
-            @if (Auth::guard('admin')->check() ||
+            {{-- @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Roles') && $sideMenuPermissions['seo']->contains('seo')))
-                {{-- FAQS --}}
+                
                 <li class="dropdown {{ request()->is('admin/seo*') ? 'active' : '' }}">
                     <a href="{{ url('admin/seo') }}" class="nav-link"><i
                             data-feather="trending-up"></i><span>SEO</span></a>
                 </li>
-            @endif
+            @endif --}}
 
             {{-- Contact Us  --}}
 

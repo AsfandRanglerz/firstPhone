@@ -18,7 +18,8 @@ class CreateUsersRolePermissionsTable extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
-            $table->foreignId('side_menue_id')->constrained('side_menues')->onDelete('cascade');
+            $table->unsignedBigInteger('side_menu_id');
+            $table->foreign('side_menu_id')->references('id')->on('side_menus')->onDelete('cascade');
             $table->timestamps();
         });
     }

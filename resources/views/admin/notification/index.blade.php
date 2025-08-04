@@ -3,15 +3,60 @@
 
 @section('content')
     <style>
-        .select2-container {
-            width: 100% !important;
+        /* Style each selected option (chip) */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding-right: 20px !important;
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin: 2px 5px 2px 0;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
         }
 
-        .select2-selection {
-            height: calc(2.40rem + 2px) !important;
-            /* match Bootstrap */
+        /* Style the remove (×) icon - hidden by default */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: absolute;
+            right: 5px;
+            top: 2px;
+            color: #333;
+            font-weight: bold;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+        /* Show remove icon only on hover */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice:hover .select2-selection__choice__remove {
+            opacity: 1;
+        }
+
+        /* Optional: remove Chrome/Edge × clear button in input fields */
+        input::-ms-clear,
+        input::-webkit-clear-button,
+        select::-ms-clear,
+        select::-webkit-clear-button {
+            display: none !important;
+            width: 0;
+            height: 0;
+        }
+
+        /* Optional: dropdown scroll */
+        .select2-results__options {
+            max-height: 200px;
+            overflow-y: auto !important;
+        }
+
+        /* Optional: more padding inside the selection box */
+        .select2-container--default .select2-selection--multiple {
+            min-height: 40px;
+            padding: 8px;
         }
     </style>
+
     <div class="main-content" style="min-height: 562px;">
         <section class="section">
             <div class="section-body">
@@ -43,7 +88,9 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
-                                            <th>Image</th>
+                                            <th>User Type</th>
+                                            <th>Users</th>
+                                            {{-- <th>Image</th> --}}
                                             <th>Title</th>
                                             <th>Message</th>
                                             <th>Created At</th>
@@ -54,9 +101,13 @@
                                         @foreach ($notifications as $notification)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>{{ ucfirst($notification->user_type) }}</td>
                                                 <td>
-                                                    <img src="{{ asset($notification->image) }}" alt="Notification Image"
-                                                        width="60" height="60">
+                                                    @foreach ($notification->targets as $key => $target)
+                                                        {{ $target->targetable?->name ?? 'N/A' }}@if (!$loop->last)
+                                                            ,
+                                                        @endif
+                                                    @endforeach
                                                 </td>
                                                 <td>{{ $notification->title }}</td>
                                                 <td>{{ \Illuminate\Support\Str::limit(strip_tags($notification->description), 150, '...') }}
@@ -72,16 +123,15 @@
                                                             @method('DELETE')
                                                         </form>
 
-                                                        <button class="show_confirm btn" style="background-color: #cb84fe;"
+                                                        <button class="show_confirm btn" style="background-color: #009245;"
                                                             data-form="delete-form-{{ $notification->id }}" type="button">
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
                                                     @endif
-
-
                                                 </td>
                                             </tr>
                                         @endforeach
+
                                     </tbody>
                                 </table>
                             </div> <!-- /.card-body -->
@@ -95,7 +145,7 @@
     <!-- Create Notification Modal -->
     <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <form id="createUserForm" method="POST" action="{{ route('notification.store') }}"
                     enctype="multipart/form-data">
@@ -106,90 +156,75 @@
                     </div>
 
                     <div class="modal-body">
-                        {{-- <input type="hidden" name="user_type" value="user"> --}}
+                        <div class="row">
+                            {{-- <input type="hidden" name="user_type" value="user"> --}}
 
-                        <div class="form-group">
-                            <label><strong>User Type <span style="color:red;">*</span></strong></label>
-                            <select id="user_type" name="user_type" class="form-control">
-                                <option value="">Select user type</option>
-                                <option value="customers">Customers</option>
-                                <option value="vendors">Vendors</option>
-                            </select>
-                            @error('user_type')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        {{-- <div class="form-group" id="user_field" style="display: none;">
-                            <label><strong>Users <span style="color: red;">*</span></strong></label>
-                            <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
-                                <input type="checkbox" id="select_all_users" class="form-check-input">
-                                <label class="form-check-label" for="select_all_users">Select All</label>
-                            </div>
-                            <select name="users[]" id="users" class="form-control select2" multiple>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}"
-                                        {{ old('users') && in_array($user->id, old('users')) ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('users')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
-                        <div class="form-group" id="user_field" style="display: none;">
-                            <label><strong>Users <span style="color: red;">*</span></strong></label>
-
-                            <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
-                                <input type="checkbox" id="select_all_users" class="form-check-input">
-                                <label class="form-check-label" for="select_all_users">Select All</label>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>User Type <span style="color:red;">*</span></strong></label>
+                                    <select id="user_type" name="user_type" class="form-control">
+                                        <option value="">Select user type</option>
+                                        <option value="customers">Customers</option>
+                                        <option value="vendors">Vendors</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                    @error('user_type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <select name="users[]" id="users" class="form-control select2" multiple></select>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>Title <span style="color:red;">*</span></strong></label>
+                                    <input type="text" id="title" name="title" class="form-control"
+                                        placeholder="Title">
+                                    @error('title')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                            {{-- Hidden preload lists --}}
-                            <select id="customers_list" style="display: none;">
-                                <option value="1">Customer A</option>
-                                <option value="2">Customer B</option>
-                                <option value="3">Customer C</option>
-                            </select>
+                            <div class="col-md-6">
+                                <div class="form-group" id="user_field" style="display: none;">
+                                    <label><strong>Users <span style="color: red;">*</span></strong></label>
 
-                            <select id="vendors_list" style="display: none;">
-                                <option value="4">Vendor X</option>
-                                <option value="5">Vendor Y</option>
-                                <option value="6">Vendor Z</option>
-                            </select>
+                                    <div class="form-check mb-2" style="line-height: 1.9;padding-left: 1.5em">
+                                        <input type="checkbox" id="select_all_users" class="form-check-input">
+                                        <label class="form-check-label" for="select_all_users">Select All</label>
+                                    </div>
 
-                            @error('users')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                                    <select name="users[]" id="users" class="form-control select2" multiple></select>
 
+                                    {{-- Hidden preload lists --}}
+                                    <select id="customers_list" style="display: none;">
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
 
+                                    <select id="vendors_list" style="display: none;">
+                                        @foreach ($vendors as $vendor)
+                                            <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                        @endforeach
+                                    </select>
 
-                        {{-- <div class="form-group">
-                            <label for="userImage">Image <span style="color: red;">*</span></label>
-                            <input type="file" class="form-control-file" id="userImage" name="image" accept="image/*"
-                                required>
-                            <small class="text-danger">Max 2MB image size allowed.</small>
-                        </div> --}}
+                                    @error('users')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label><strong>Title <span style="color:red;">*</span></strong></label>
-                            <input type="text" id="title" name="title" class="form-control" placeholder="Title">
-                            @error('title')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Description <span style="color:red;">*</span></strong></label>
-                            <textarea name="description" id="description" class="form-control" placeholder="Type your message here..." rows="4"></textarea>
-                            @error('description')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><strong>Description <span style="color:red;">*</span></strong></label>
+                                    <textarea name="description" id="description" class="form-control" placeholder="Type your message here..."
+                                        rows="4"></textarea>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -245,7 +280,7 @@
                 // User Type validation
                 const userType = $('#user_type').val();
                 if (!userType) {
-                    $('#user_type').after('<div class="text-danger mt-1">User type is required.</div>');
+                    $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
                     isValid = false;
                 }
 
@@ -253,21 +288,21 @@
                 const selectedUsers = $('#users').val();
                 if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
                     $('#users').after(
-                        '<div class="text-danger mt-1">Please select at least one user.</div>');
+                        '<div class="text-danger mt-1">Please select at least one user</div>');
                     isValid = false;
                 }
 
                 // Title validation
                 const title = $('#title').val().trim();
                 if (!title) {
-                    $('#title').after('<div class="text-danger mt-1">Title is required.</div>');
+                    $('#title').after('<div class="text-danger mt-1">Title is required</div>');
                     isValid = false;
                 }
 
                 // Description validation
                 const description = $('#description').val().trim();
                 if (!description) {
-                    $('#description').after('<div class="text-danger mt-1">Description is required.</div>');
+                    $('#description').after('<div class="text-danger mt-1">Description is required</div>');
                     isValid = false;
                 }
 
@@ -276,14 +311,11 @@
                     $("#createSpinner").show();
                     $("#createBtnText").hide();
                     $("#createBtn").prop("disabled", true);
-                    this.submit(); // Proceed with form submit
+                    this.submit();
                 }
             });
 
-
-
             // Confirm delete action
-
             $(document).on('click', '.show_confirm', function(event) {
                 var formId = $(this).data("form");
                 var form = document.getElementById(formId);
@@ -299,11 +331,9 @@
                         form.submit();
                     }
                 });
-
             });
-            $('.delete_all').click(function(event) { // Changed from '.deleteAll' to '.
-                // delete_all'
-                alert('Delete All button clicked');
+
+            $('.delete_all').click(function(event) {
                 event.preventDefault();
 
                 var form = $(this).closest("form");
@@ -321,8 +351,7 @@
                 });
             });
         });
-    </script>
-    <script>
+
         $(document).ready(function() {
             $('#user_field').hide();
 
@@ -335,12 +364,12 @@
                 if (userType === 'customers') {
                     $('#users').html($('#customers_list').html());
                     $('#user_field').slideDown(function() {
-                        $('#users').select2('destroy'); // destroy any previous
+                        $('#users').select2('destroy');
                         $('#users').select2({
                             dropdownParent: $('#createUserModal'),
                             placeholder: "Select customers",
                             allowClear: true,
-                            width: '100%' // <-- force full width
+                            width: '100%'
                         });
                     });
                 } else if (userType === 'vendors') {
@@ -350,6 +379,18 @@
                         $('#users').select2({
                             dropdownParent: $('#createUserModal'),
                             placeholder: "Select vendors",
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    });
+                } else if (userType === 'all') {
+                    const combinedOptions = $('#customers_list').html() + $('#vendors_list').html();
+                    $('#users').html(combinedOptions);
+                    $('#user_field').slideDown(function() {
+                        $('#users').select2('destroy');
+                        $('#users').select2({
+                            dropdownParent: $('#createUserModal'),
+                            placeholder: "Select users",
                             allowClear: true,
                             width: '100%'
                         });

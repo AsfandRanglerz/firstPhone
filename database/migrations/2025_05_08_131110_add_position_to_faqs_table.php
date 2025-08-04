@@ -14,9 +14,7 @@ class AddPositionToFaqsTable extends Migration
     public function up()
     {
         Schema::table('faqs', function (Blueprint $table) {
-            //
             $table->integer('position')->default(0);
-
         });
     }
 
@@ -27,8 +25,6 @@ class AddPositionToFaqsTable extends Migration
      */
     public function down()
     {
-        Schema::table('faqs', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('contact_us');
     }
 }

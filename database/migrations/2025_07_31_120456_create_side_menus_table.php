@@ -14,7 +14,8 @@ class CreateSideMenusTable extends Migration
     public function up()
     {
         Schema::create('side_menus', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->string('name')->nullable();
             $table->timestamps();
         });
     }
