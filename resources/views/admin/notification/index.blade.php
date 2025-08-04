@@ -43,7 +43,8 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
-                                            <th>Image</th>
+                                            <th>User Type</th>
+                                            {{-- <th>Image</th> --}}
                                             <th>Title</th>
                                             <th>Message</th>
                                             <th>Created At</th>
@@ -54,10 +55,7 @@
                                         @foreach ($notifications as $notification)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>
-                                                    <img src="{{ asset($notification->image) }}" alt="Notification Image"
-                                                        width="60" height="60">
-                                                </td>
+                                                <td>{{ ucfirst($notification->user_type) }}</td>
                                                 <td>{{ $notification->title }}</td>
                                                 <td>{{ \Illuminate\Support\Str::limit(strip_tags($notification->description), 150, '...') }}
                                                 </td>
@@ -77,11 +75,10 @@
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
                                                     @endif
-
-
                                                 </td>
                                             </tr>
                                         @endforeach
+
                                     </tbody>
                                 </table>
                             </div> <!-- /.card-body -->
@@ -151,15 +148,15 @@
 
                             {{-- Hidden preload lists --}}
                             <select id="customers_list" style="display: none;">
-                                <option value="1">Customer A</option>
-                                <option value="2">Customer B</option>
-                                <option value="3">Customer C</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
                             </select>
 
                             <select id="vendors_list" style="display: none;">
-                                <option value="4">Vendor X</option>
-                                <option value="5">Vendor Y</option>
-                                <option value="6">Vendor Z</option>
+                                @foreach ($vendors as $vendor)
+                                    <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                @endforeach
                             </select>
 
                             @error('users')
@@ -186,7 +183,8 @@
 
                         <div class="form-group">
                             <label><strong>Description <span style="color:red;">*</span></strong></label>
-                            <textarea name="description" id="description" class="form-control" placeholder="Type your message here..." rows="4"></textarea>
+                            <textarea name="description" id="description" class="form-control" placeholder="Type your message here..."
+                                rows="4"></textarea>
                             @error('description')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -276,14 +274,11 @@
                     $("#createSpinner").show();
                     $("#createBtnText").hide();
                     $("#createBtn").prop("disabled", true);
-                    this.submit(); // Proceed with form submit
+                    this.submit();
                 }
             });
 
-
-
             // Confirm delete action
-
             $(document).on('click', '.show_confirm', function(event) {
                 var formId = $(this).data("form");
                 var form = document.getElementById(formId);
@@ -301,9 +296,8 @@
                 });
 
             });
-            $('.delete_all').click(function(event) { // Changed from '.deleteAll' to '.
+            $('.delete_all').click(function(event) {
                 // delete_all'
-                alert('Delete All button clicked');
                 event.preventDefault();
 
                 var form = $(this).closest("form");
@@ -321,8 +315,7 @@
                 });
             });
         });
-    </script>
-    <script>
+
         $(document).ready(function() {
             $('#user_field').hide();
 

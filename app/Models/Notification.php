@@ -8,5 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     use HasFactory;
-    protected $guarded=[];
+
+    protected $fillable = ['user_id', 'user_type', 'title', 'description'];
+
+    public function targets()
+    {
+        return $this->hasMany(NotificationTarget::class);
+    }
 }
