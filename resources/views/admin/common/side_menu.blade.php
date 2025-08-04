@@ -69,7 +69,15 @@
             </ul>
 
 
-
+         @if (Auth::guard('admin')->check() ||
+                    ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
+                <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
+                    <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
+                        <i data-feather="smartphone"></i>
+                        <span>Mobile Listings</span>
+                    </a>
+                </li>
+            @endif
 
 
 

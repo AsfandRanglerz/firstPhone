@@ -15,11 +15,9 @@ class CreateSideMenuHasPermissionsTable extends Migration
     {
         Schema::create('side_menu_has_permissions', function (Blueprint $table) {
             $table->id();
-              // Foreign key to side_menus table
             $table->unsignedBigInteger('side_menu_id');
             $table->foreign('side_menu_id')->references('id')->on('side_menus')->onDelete('cascade');
 
-            // Foreign key to permissions table
             $table->unsignedBigInteger('permission_id');
             $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
 

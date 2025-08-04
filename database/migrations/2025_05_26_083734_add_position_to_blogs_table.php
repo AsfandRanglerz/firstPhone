@@ -14,9 +14,7 @@ class AddPositionToBlogsTable extends Migration
     public function up()
     {
         Schema::table('blogs', function (Blueprint $table) {
-                    $table->integer('position')->nullable()->after('id');
-
-            //
+            $table->integer('position')->nullable()->after('id');
         });
     }
 
@@ -28,9 +26,7 @@ class AddPositionToBlogsTable extends Migration
     public function down()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            //
-                    $table->dropColumn('position');
-
+            $table->dropColumn('position');
         });
     }
 }

@@ -15,7 +15,7 @@ class CreateUserRolesTable extends Migration
     {
         Schema::create('user_roles', function (Blueprint $table) {
             $table->id();
-           $table->foreignId('subadmin_id')->constrained('sub_admins')->onDelete('cascade');
+            $table->foreignId('subadmin_id')->constrained('sub_admins')->onDelete('cascade');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->timestamps();
         });
