@@ -14,9 +14,7 @@ class AddToggleToBlogsTable extends Migration
     public function up()
     {
         Schema::table('blogs', function (Blueprint $table) {
-            //
-        $table->boolean('toggle')->default(0); // 0 = off, 1 = on
-
+            $table->boolean('toggle')->default(0);
         });
     }
 
