@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('toggle')->default(0); // default off
+            $table->boolean('toggle')->default(0);
         });
     }
 

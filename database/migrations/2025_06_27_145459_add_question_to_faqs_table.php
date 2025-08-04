@@ -14,9 +14,7 @@ class AddQuestionToFaqsTable extends Migration
     public function up()
     {
         Schema::table('faqs', function (Blueprint $table) {
-            //
-                    $table->text('question')->after('id'); // or after any other column
-
+            $table->text('question')->after('id');
         });
     }
 

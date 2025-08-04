@@ -14,9 +14,7 @@ class AddRoleToSubAdminsTable extends Migration
     public function up()
     {
         Schema::table('sub_admins', function (Blueprint $table) {
-            
-            $table->string('role')->nullable(); // nullable agar required nahi
-
+            $table->string('role')->nullable(); 
         });
     }
 
@@ -28,9 +26,7 @@ class AddRoleToSubAdminsTable extends Migration
     public function down()
     {
         Schema::table('sub_admins', function (Blueprint $table) {
-            //
             $table->dropColumn('role');
-
         });
     }
 }

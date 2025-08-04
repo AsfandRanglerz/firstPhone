@@ -6,14 +6,16 @@ use App\Models\User;
  use Illuminate\Support\Facades\View;
 use App\Models\SubAdmin;
 use App\Models\UserRolePermission;
-use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\UserRepository;
 use App\Repositories\VendorRepository;
-use Illuminate\Support\ServiceProvider;
 use App\Repositories\NotificationRepository;
+use App\Repositories\Api\AuthRepository;
+use Illuminate\Support\ServiceProvider;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
+use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
+        $this->app->bind(AuthRepositoryInterface::class,AuthRepository::class);
     }
 
     /**

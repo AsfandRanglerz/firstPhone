@@ -15,11 +15,11 @@ class CreateLogActivitiesTable extends Migration
     {
         Schema::create('log_activities', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('performed_by')->nullable(); // admin/sub-admin ID
-            $table->string('role')->nullable(); // admin, sub-admin
-            $table->string('action'); // created, updated, deleted
-            $table->string('model'); // e.g., User
-            $table->unsignedBigInteger('model_id'); // e.g., 5
+            $table->unsignedBigInteger('performed_by')->nullable();
+            $table->string('role')->nullable();
+            $table->string('action');
+            $table->string('model');
+            $table->unsignedBigInteger('model_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });
