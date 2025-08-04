@@ -3,15 +3,60 @@
 
 @section('content')
     <style>
-        .select2-container {
-            width: 100% !important;
+        /* Style each selected option (chip) */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding-right: 20px !important;
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin: 2px 5px 2px 0;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
         }
 
-        .select2-selection {
-            height: calc(2.40rem + 2px) !important;
-            /* match Bootstrap */
+        /* Style the remove (×) icon - hidden by default */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: absolute;
+            right: 5px;
+            top: 2px;
+            color: #333;
+            font-weight: bold;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+        /* Show remove icon only on hover */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice:hover .select2-selection__choice__remove {
+            opacity: 1;
+        }
+
+        /* Optional: remove Chrome/Edge × clear button in input fields */
+        input::-ms-clear,
+        input::-webkit-clear-button,
+        select::-ms-clear,
+        select::-webkit-clear-button {
+            display: none !important;
+            width: 0;
+            height: 0;
+        }
+
+        /* Optional: dropdown scroll */
+        .select2-results__options {
+            max-height: 200px;
+            overflow-y: auto !important;
+        }
+
+        /* Optional: more padding inside the selection box */
+        .select2-container--default .select2-selection--multiple {
+            min-height: 40px;
+            padding: 8px;
         }
     </style>
+
     <div class="main-content" style="min-height: 562px;">
         <section class="section">
             <div class="section-body">
@@ -70,7 +115,7 @@
                                                             @method('DELETE')
                                                         </form>
 
-                                                        <button class="show_confirm btn" style="background-color: #cb84fe;"
+                                                        <button class="show_confirm btn" style="background-color: #009245;"
                                                             data-form="delete-form-{{ $notification->id }}" type="button">
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
@@ -243,7 +288,7 @@
                 // User Type validation
                 const userType = $('#user_type').val();
                 if (!userType) {
-                    $('#user_type').after('<div class="text-danger mt-1">User type is required.</div>');
+                    $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
                     isValid = false;
                 }
 
@@ -251,21 +296,21 @@
                 const selectedUsers = $('#users').val();
                 if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
                     $('#users').after(
-                        '<div class="text-danger mt-1">Please select at least one user.</div>');
+                        '<div class="text-danger mt-1">Please select at least one user</div>');
                     isValid = false;
                 }
 
                 // Title validation
                 const title = $('#title').val().trim();
                 if (!title) {
-                    $('#title').after('<div class="text-danger mt-1">Title is required.</div>');
+                    $('#title').after('<div class="text-danger mt-1">Title is required</div>');
                     isValid = false;
                 }
 
                 // Description validation
                 const description = $('#description').val().trim();
                 if (!description) {
-                    $('#description').after('<div class="text-danger mt-1">Description is required.</div>');
+                    $('#description').after('<div class="text-danger mt-1">Description is required</div>');
                     isValid = false;
                 }
 
