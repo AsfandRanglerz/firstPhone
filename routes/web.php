@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\MobileListingController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
