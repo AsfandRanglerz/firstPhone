@@ -31,7 +31,7 @@ use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
 
 use App\Repositories\Api\AuthRepository;
-use App\Repositories\Interfaces\AuthRepositoryInterface;
+use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 
 
 class AppServiceProvider extends ServiceProvider
