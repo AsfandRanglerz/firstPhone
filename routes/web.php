@@ -19,7 +19,11 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\NotificationController;
+<<<<<<<<< Temporary merge branch 1
 use App\Http\Controllers\Admin\MobileListingController;
+=========
+use App\Http\Controllers\Admin\OrderController;
+>>>>>>>>> Temporary merge branch 2
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -63,23 +67,21 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     
 
     // ############ Term & Condition #################
-    Route::get('term-condition', [SecurityController::class, 'TermCondition']) ->middleware('check.permission:Terms & Conditions,view');
+   Route::get('term-condition', [SecurityController::class, 'TermCondition']) ->middleware('check.permission:Terms & Conditions,view');
     Route::get('term-condition-edit', [SecurityController::class, 'TermConditionEdit']) ->middleware('check.permission:Terms & Conditions,edit');
-    Route::post('term-condition-update', [SecurityController::class, 'TermConditionUpdate']) ->middleware('check.permission:Terms & Conditions
-,edit');
+    Route::post('term-condition-update', [SecurityController::class, 'TermConditionUpdate']);
     Route::get('term-condition-view', [SecurityController::class, 'TermConditionView']) ->middleware('check.permission:Terms & Conditions
 ,view');
-
     // ############ About Us #################
-    Route::get('about-us', [SecurityController::class, 'AboutUs']) ->middleware('check.permission:About us,view');
+      Route::get('about-us', [SecurityController::class, 'AboutUs']) ->middleware('check.permission:About us,view');
     Route::get('about-us-edit', [SecurityController::class, 'AboutUsEdit']) ->middleware('check.permission:About us,edit');
-    Route::post('about-us-update', [SecurityController::class, 'AboutUsUpdate']) ->middleware('check.permission:About us,edit');
+    Route::post('about-us-update', [SecurityController::class, 'AboutUsUpdate']);
     Route::get('about-us-view', [SecurityController::class, 'AboutUsView']) ->middleware('check.permission:About us,view');
 
-    Route::get('logout', [AdminController::class, 'logout']);
+    Route::get('logout', [AdminController::class, 'logout'])->name('user.logout');
 
         // ############ Faq #################
-    Route::get('faq', [FaqController::class, 'Faq'])->middleware('check.permission:Faqs,view');
+  Route::get('faq', [FaqController::class, 'Faq'])->middleware('check.permission:Faqs,view');
     Route::get('faq-edit/{id}', [FaqController::class, 'FaqsEdit'])->name('faq.edit') ->middleware('check.permission:Faqs,edit');
     Route::post('faq-update/{id}', [FaqController::class, 'FaqsUpdate'])->middleware('check.permission:Faqs,edit');
     Route::get('faq-view', [FaqController::class, 'FaqView']) ->middleware('check.permission:Faqs,view');
@@ -87,6 +89,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('faq-store', [FaqController::class, 'Faqsstore']) ->middleware('check.permission:Faqs,create');
       Route::delete('faq-destroy/{id}', [FaqController::class, 'faqdelete'])->name('faq.destroy');
     Route::post('/faqs/reorder', [FaqController::class, 'reorder'])->name('faq.reorder');
+=========
+>>>>>>>>> Temporary merge branch 2
 
     // ############ Users #################
     Route::get('/user', [UserController::class, 'Index'])->name('user.index')->middleware('check.permission:Users,view');
@@ -99,6 +103,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('/users/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
 
     // ############ Vendors #################
+<<<<<<<<< Temporary merge branch 1
 Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
 Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
 Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create')->middleware('check.permission:Vendors,create');
@@ -116,6 +121,16 @@ Route::delete('/mobilelisting-destroy/{id}', [MobileListingController::class, 'd
 
 Route::post('/mobilelistingActivate/{id}', [MobileListingController::class, 'active'])->name('mobile.activate');
     Route::post('/mobilelistingDeactivate/{id}', [MobileListingController::class, 'deactive'])->name('mobile.deactivate');
+=========
+    Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
+    Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
+    Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create')->middleware('check.permission:Vendors,create');
+    Route::get('/vendor-edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit')->middleware('check.permission:Vendors,edit');
+    Route::post('/vendor-update/{id}', [VendorController::class, 'update'])->name('vendor.update')->middleware('check.permission:Vendors,edit');
+    Route::delete('/vendor-destroy/{id}', [VendorController::class, 'delete'])->name('vendor.delete')->middleware('check.permission:Vendors,delete');
+    Route::post('/vendor/toggle-status', [VendorController::class, 'toggleStatus'])->name('vendor.toggle-status');
+
+>>>>>>>>> Temporary merge branch 2
 
     // ############ Sub Admin #################
     Route::controller(SubAdminController::class)->group(function () {
