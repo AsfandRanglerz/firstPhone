@@ -12,8 +12,7 @@
                                 <h4>Orders</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
-                                {{-- @if (Auth::guard('admin')->check() ||
-                                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
+                                {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
                                     <a class="btn btn-primary mb-3 text-white"
                                         href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif --}}
@@ -27,16 +26,49 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Toggle</th>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Products</th>
+                                            <th>Payment Status</th>
+                                            <th>Delivery Method</th>
+                                            <th>Order Status</th>
+                                            <th>Delivery Tracking</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                       
-                                    </tbody>
+                                     <tbody>
+        <!-- Loop through orders -->
+        <tr>
+            <td>1</td>
+            <td>#ORD12345</td>
+            <td>Ali Raza<br><small>ali@email.com</small></td>
+            <td>
+                • iPhone 14 Pro (1)<br>
+                • AirPods Pro (2)
+            </td>
+            <td>
+                <span class="badge bg-success">Paid</span>
+            </td>
+            <td>Cash on Delivery</td>
+            <td>
+                <select class="form-select form-select-sm">
+                    <option value="confirmed">Confirmed</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </td>
+            <td>
+                <a href="#" class="btn btn-info btn-sm">Track</a>
+            </td>
+            <td>
+                <button class="btn btn-primary btn-sm">View</button>
+                <button class="btn btn-danger btn-sm">Cancel</button>
+                <button class="btn btn-warning btn-sm">Refund</button>
+            </td>
+        </tr>
+    </tbody>
                                 </table>
                             </div> <!-- /.card-body -->
                         </div> <!-- /.card -->
@@ -47,7 +79,7 @@
     </div>
 
 
-    
+
 @endsection
 
 @section('js')
@@ -66,7 +98,7 @@
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
