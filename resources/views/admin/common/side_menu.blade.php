@@ -67,8 +67,8 @@
                 @endif
             </ul>
 
-        
-             @if (Auth::guard('admin')->check() ||
+
+         @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
                 <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
                     <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
@@ -76,15 +76,15 @@
                         <span>Mobile Listings</span>
                         <div id="updatemobilelistingCounter"
                             class="badge {{ request()->is('admin/mobilelisting*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
-                            style="display: inline-flex; justify-content: center; align-items: center;
-                            min-width: 22px; height: 22px; border-radius: 50%;
+                            style="display: inline-flex; justify-content: center; align-items: center; 
+                            min-width: 22px; height: 22px; border-radius: 50%; 
                             text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
                             0
                         </div>
                     </a>
                 </li>
             @endif
-
+            
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))

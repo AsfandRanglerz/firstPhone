@@ -19,12 +19,11 @@ use App\Models\TermsAndConditions;
 use App\Models\UserRolePermission;
 use App\Observers\SubAdminObserver;
 
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\VendorRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SubAdminActivityService;
-
-use App\Repositories\UserRepository;
-use App\Repositories\VendorRepository;
 use App\Repositories\NotificationRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
