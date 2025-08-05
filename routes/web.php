@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
+use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\OrderController;
@@ -96,7 +97,18 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::delete('/users-destory/{id}', [UserController::class, 'delete'])->name('user.delete')->middleware('check.permission:Users,delete');
     Route::delete('/users/{id}/force', [UserController::class, 'forceDelete'])->name('user.forceDelete')->middleware('check.permission:Users,delete');
     Route::post('/users/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
-
+    
+    
+    Route::get('/mobilelisting/count', [MobileListingController::class,'mobileListingCounter'])->name('mobile.counter');
+    Route::get('/mobilelisting', [MobileListingController::class, 'index'])->name('mobile.index')->middleware('check.permission:MobileListing,view');
+    Route::get('/mobilelisting-show/{id}', [MobileListingController::class, 'show'])->name('mobile.show')->middleware('check.permission:MobileListing,edit');
+    Route::post('/mobilelisting-update/{id}', [MobileListingController::class, 'update'])->name('mobile.update')->middleware('check.permission:MobileListing,edit');
+    Route::delete('/mobilelisting-destroy/{id}', [MobileListingController::class, 'delete'])->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
+    
+    Route::post('/mobilelistingActivate/{id}', [MobileListingController::class, 'active'])->name('mobile.activate');
+    Route::post('/mobilelistingDeactivate/{id}', [MobileListingController::class, 'deactive'])->name('mobile.deactivate');
+ 
+ 
     // ############ Vendors #################
 Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
 Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
