@@ -103,15 +103,74 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ ucfirst($notification->user_type) }}</td>
                                                 <td>
-                                                    @foreach ($notification->targets as $key => $target)
-                                                        {{ $target->targetable?->name ?? 'N/A' }}@if (!$loop->last)
-                                                            ,
+                                                    @php
+                                                        $targetNames = $notification->targets
+                                                            ->pluck('targetable.name')
+                                                            ->filter()
+                                                            ->values();
+                                                    @endphp
+
+                                                    {{-- Preview (first 2 names as badges) --}}
+                                                    <span id="user-preview-{{ $notification->id }}">
+                                                        @foreach ($targetNames->take(2) as $name)
+                                                            <span class="badge me-1 mb-1"
+                                                                style="background-color: #009245; color: #fff;">
+                                                                {{ $name }}
+                                                            </span>
+                                                        @endforeach
+
+                                                        @if ($targetNames->count() > 2)
+                                                            <a href="javascript:void(0);"
+                                                                onclick="toggleUsers({{ $notification->id }})">...more</a>
                                                         @endif
-                                                    @endforeach
+                                                    </span>
+
+                                                    {{-- Full list of names as badges, hidden initially --}}
+                                                    <div id="user-full-{{ $notification->id }}" style="display: none;">
+                                                        @foreach ($targetNames as $name)
+                                                            <span class="badge me-1 mb-1"
+                                                                style="background-color: #009245; color: #fff;">
+                                                                {{ $name }}
+                                                            </span>
+                                                        @endforeach
+                                                        <a href="javascript:void(0);"
+                                                            onclick="toggleUsers({{ $notification->id }})">less</a>
+                                                    </div>
                                                 </td>
+
+
+
                                                 <td>{{ $notification->title }}</td>
-                                                <td>{{ \Illuminate\Support\Str::limit(strip_tags($notification->description), 150, '...') }}
+                                                <td>
+                                                    @php
+                                                        $fullMsg = strip_tags($notification->description);
+                                                        $previewMsg = \Illuminate\Support\Str::words(
+                                                            $fullMsg,
+                                                            4,
+                                                            '...',
+                                                        );
+                                                        $wordCount = str_word_count($fullMsg);
+                                                    @endphp
+
+                                                    <span id="msg-preview-{{ $notification->id }}">
+                                                        {{ $previewMsg }}
+                                                        @if ($wordCount > 4)
+                                                            <a href="javascript:void(0);"
+                                                                onclick="toggleMessage({{ $notification->id }})">read
+                                                                more</a>
+                                                        @endif
+                                                    </span>
+
+                                                    @if ($wordCount > 4)
+                                                        <div id="msg-full-{{ $notification->id }}" style="display: none;">
+                                                            {{ $fullMsg }}
+                                                            <a href="javascript:void(0);"
+                                                                onclick="toggleMessage({{ $notification->id }})">read
+                                                                less</a>
+                                                        </div>
+                                                    @endif
                                                 </td>
+
                                                 <td>{{ $notification->created_at->format('d M Y') }}</td>
                                                 <td>
                                                     @if (Auth::guard('admin')->check() ||
@@ -243,177 +302,163 @@
 @endsection
 
 @section('js')
-    <script>
-        $(document).ready(function() {
-            $('#table_id_events').DataTable();
+<script>
+    $(document).ready(function () {
+        // Initialize DataTable
+        $('#table_id_events').DataTable();
+
+        // Initial Select2
+        $('.select2').select2({
+            placeholder: "Select sellers",
+            allowClear: true
+        });
+
+        // Re-initialize Select2 inside modal
+        $('#createUserModal').on('shown.bs.modal', function () {
             $('.select2').select2({
+                dropdownParent: $('#createUserModal'),
                 placeholder: "Select sellers",
                 allowClear: true
             });
+        });
 
-            // Re-initialize Select2 when modal opens (fix for hidden content)
-            $('#createUserModal').on('shown.bs.modal', function() {
-                $('.select2').select2({
+        // Handle Select All
+        $('#select_all_users').on('change', function () {
+            $('#users > option').prop('selected', this.checked).trigger('change');
+        });
+
+        // Check/uncheck Select All checkbox based on selection
+        $('#users').on('change', function () {
+            $('#select_all_users').prop('checked', $('#users option:selected').length === $('#users option').length);
+        });
+
+        // Form Validation
+        $('form#createUserForm').submit(function (e) {
+            e.preventDefault();
+            $('.text-danger').remove();
+            let isValid = true;
+
+            const userType = $('#user_type').val();
+            const title = $('#title').val().trim();
+            const description = $('#description').val().trim();
+            const selectedUsers = $('#users').val();
+
+            if (!userType) {
+                $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
+                isValid = false;
+            }
+
+            if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
+                $('#users').after('<div class="text-danger mt-1">Please select at least one user</div>');
+                isValid = false;
+            }
+
+            if (!title) {
+                $('#title').after('<div class="text-danger mt-1">Title is required</div>');
+                isValid = false;
+            }
+
+            if (!description) {
+                $('#description').after('<div class="text-danger mt-1">Description is required</div>');
+                isValid = false;
+            }
+
+            if (isValid) {
+                $("#createSpinner").show();
+                $("#createBtnText").hide();
+                $("#createBtn").prop("disabled", true);
+                this.submit();
+            }
+        });
+
+        // Delete single
+        $(document).on('click', '.show_confirm', function (event) {
+            event.preventDefault();
+            let formId = $(this).data("form");
+            let form = document.getElementById(formId);
+            swal({
+                title: "Are you sure you want to delete this record?",
+                text: "If you delete this, it will be gone forever.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    form.submit();
+                }
+            });
+        });
+
+        // Delete all
+        $('.delete_all').click(function (event) {
+            event.preventDefault();
+            const form = $(this).closest("form");
+
+            swal({
+                title: 'Are you sure you want to delete all records?',
+                text: "This will permanently remove all records and cannot be undone.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    form.submit();
+                }
+            });
+        });
+
+        // User type change handling
+        $('#user_field').hide();
+        $('#user_type').on('change', function () {
+            const userType = $(this).val();
+            $('#users').empty();
+            $('#select_all_users').prop('checked', false);
+
+            if (userType === 'customers') {
+                $('#users').html($('#customers_list').html());
+                $('#user_field').slideDown(initSelect2("Select customers"));
+            } else if (userType === 'vendors') {
+                $('#users').html($('#vendors_list').html());
+                $('#user_field').slideDown(initSelect2("Select vendors"));
+            } else if (userType === 'all') {
+                const allOptions = $('#customers_list').html() + $('#vendors_list').html();
+                $('#users').html(allOptions);
+                $('#user_field').slideDown(initSelect2("Select users"));
+            } else {
+                $('#user_field').slideUp();
+            }
+
+            $('#users').val(null).trigger('change');
+        });
+
+        // Helper to re-init select2 with placeholder
+        function initSelect2(placeholderText) {
+            return function () {
+                $('#users').select2('destroy').select2({
                     dropdownParent: $('#createUserModal'),
-                    placeholder: "Select sellers",
-                    allowClear: true
+                    placeholder: placeholderText,
+                    allowClear: true,
+                    width: '100%'
                 });
-            });
+            };
+        }
+    });
 
-            $('#select_all_users').on('change', function() {
-                $('#users > option').prop('selected', this.checked).trigger('change');
-            });
+    // Toggle full user list
+    function toggleUsers(id) {
+        const preview = document.getElementById(`user-preview-${id}`);
+        const full = document.getElementById(`user-full-${id}`);
+        preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
+        full.style.display = full.style.display === 'none' ? 'inline' : 'none';
+    }
 
-            $('#users').on('change', function() {
-                $('#select_all_users').prop('checked', $('#users option:selected').length === $(
-                    '#users option').length);
-            });
-
-            $('form#createUserForm').submit(function(e) {
-                e.preventDefault();
-
-                // Remove all old error messages
-                $('.text-danger').remove();
-
-                let isValid = true;
-
-                // User Type validation
-                const userType = $('#user_type').val();
-                if (!userType) {
-                    $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
-                    isValid = false;
-                }
-
-                // Users dropdown validation (only if shown)
-                const selectedUsers = $('#users').val();
-                if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
-                    $('#users').after(
-                        '<div class="text-danger mt-1">Please select at least one user</div>');
-                    isValid = false;
-                }
-
-                // Title validation
-                const title = $('#title').val().trim();
-                if (!title) {
-                    $('#title').after('<div class="text-danger mt-1">Title is required</div>');
-                    isValid = false;
-                }
-
-                // Description validation
-                const description = $('#description').val().trim();
-                if (!description) {
-                    $('#description').after('<div class="text-danger mt-1">Description is required</div>');
-                    isValid = false;
-                }
-
-                // Submit if everything is okay
-                if (isValid) {
-                    $("#createSpinner").show();
-                    $("#createBtnText").hide();
-                    $("#createBtn").prop("disabled", true);
-                    this.submit();
-                }
-            });
-
-            // Confirm delete action
-            $(document).on('click', '.show_confirm', function(event) {
-                var formId = $(this).data("form");
-                var form = document.getElementById(formId);
-                event.preventDefault();
-                swal({
-                    title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
-            });
-
-            $('.delete_all').click(function(event) {
-                event.preventDefault();
-
-                var form = $(this).closest("form");
-
-                swal({
-                    title: 'Are you sure you want to delete all records?',
-                    text: "This will permanently remove all records and cannot be undone.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-
-        $(document).ready(function() {
-            $('#user_field').hide();
-
-            $('#user_type').on('change', function() {
-                const userType = $(this).val();
-
-                $('#users').empty();
-                $('#select_all_users').prop('checked', false);
-
-                if (userType === 'customers') {
-                    $('#users').html($('#customers_list').html());
-                    $('#user_field').slideDown(function() {
-                        $('#users').select2('destroy');
-                        $('#users').select2({
-                            dropdownParent: $('#createUserModal'),
-                            placeholder: "Select customers",
-                            allowClear: true,
-                            width: '100%'
-                        });
-                    });
-                } else if (userType === 'vendors') {
-                    $('#users').html($('#vendors_list').html());
-                    $('#user_field').slideDown(function() {
-                        $('#users').select2('destroy');
-                        $('#users').select2({
-                            dropdownParent: $('#createUserModal'),
-                            placeholder: "Select vendors",
-                            allowClear: true,
-                            width: '100%'
-                        });
-                    });
-                } else if (userType === 'all') {
-                    const combinedOptions = $('#customers_list').html() + $('#vendors_list').html();
-                    $('#users').html(combinedOptions);
-                    $('#user_field').slideDown(function() {
-                        $('#users').select2('destroy');
-                        $('#users').select2({
-                            dropdownParent: $('#createUserModal'),
-                            placeholder: "Select users",
-                            allowClear: true,
-                            width: '100%'
-                        });
-                    });
-                } else {
-                    $('#user_field').slideUp();
-                }
-
-                $('#users').val(null).trigger('change');
-            });
-
-
-            $('#select_all_users').on('change', function() {
-                $('#users > option').prop('selected', this.checked).trigger('change');
-            });
-
-            $('#users').on('change', function() {
-                $('#select_all_users').prop('checked', $('#users option:selected').length === $(
-                    '#users option').length);
-            });
-        });
-    </script>
-
-
-
+    // Toggle full message
+    function toggleMessage(id) {
+        const preview = document.getElementById(`msg-preview-${id}`);
+        const full = document.getElementById(`msg-full-${id}`);
+        preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
+        full.style.display = full.style.display === 'none' ? 'inline' : 'none';
+    }
+</script>
 @endsection
+

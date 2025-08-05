@@ -15,7 +15,7 @@ use App\Http\Requests\NotificationRequest;
 use App\Models\NotificationTarget;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
-use Illuminate\Support\Facades\DB;
+use App\Jobs\SendNotificationJob;
 
 class NotificationController extends Controller
 {
@@ -57,6 +57,7 @@ class NotificationController extends Controller
         return view('admin.notification.index', compact('notifications', 'sideMenuPermissions', 'users', 'subadmin', 'vendors'));
     }
 
+
     public function store(NotificationRequest $request)
     {
         $users = [];
@@ -72,7 +73,6 @@ class NotificationController extends Controller
             ]);
             $users = $request->users;
         } elseif ($request->user_type === 'all') {
-            // Fetch valid user and vendor IDs
             $userIds = User::whereIn('id', $request->users)->pluck('id')->toArray();
             $vendorIds = Vendor::whereIn('id', $request->users)->pluck('id')->toArray();
 
@@ -80,39 +80,26 @@ class NotificationController extends Controller
                 return back()->withErrors(['users' => 'No valid customer or vendor IDs provided.']);
             }
 
-            // Merge into a single flat array of IDs
             $users = array_merge(
                 array_map(fn($id) => ['id' => $id, 'type' => 'users'], $userIds),
                 array_map(fn($id) => ['id' => $id, 'type' => 'vendors'], $vendorIds),
             );
         }
 
-        // Pass to repo
-        $this->notificationRepository->createNotification([
+        // Dispatch job
+        SendNotificationJob::dispatch([
             'user_type' => $request->user_type,
             'title' => $request->title,
             'description' => $request->description,
         ], $users);
 
-        return redirect()->route('notification.index')->with('success', 'Notification sent successfully.');
+        return redirect()->route('notification.index')->with('success', 'Notification sent Successfully');
     }
-
-
 
 
     public function destroy(Request $request, $id)
     {
         $notification = Notification::find($id);
-        if (Auth::guard('subadmin')->check()) {
-            $subadmin = Auth::guard('subadmin')->user();
-            $subadminName = $subadmin->name;
-            SubAdminLog::create([
-                'subadmin_id' => Auth::guard('subadmin')->id(),
-                'section' => 'Notifications',
-                'action' => 'Delete',
-                'message' => "SubAdmin: {$subadminName} Deleted Notification",
-            ]);
-        }
         $notification->delete();
         return redirect()->route('notification.index')->with(['success' => 'Notification Deleted Successfully']);
     }
