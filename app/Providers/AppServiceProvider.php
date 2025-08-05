@@ -21,18 +21,10 @@ use App\Observers\SubAdminObserver;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
-use App\Services\SubAdminActivityService;
-
-use App\Repositories\UserRepository;
-use App\Repositories\VendorRepository;
 use App\Repositories\NotificationRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
-
-use App\Repositories\Api\AuthRepository;
-use App\Repositories\Interfaces\AuthRepositoryInterface;
-
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,7 +38,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
-        $this->app->bind(AuthRepositoryInterface::class,AuthRepository::class);
     }
 
     /**
@@ -84,17 +75,5 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('sideMenuPermissions', $sideMenuPermissions);
         });
-
-    SubAdmin::observe(ModelObserver::class);
-    User::observe(ModelObserver::class);
-    Role::observe(ModelObserver::class);
-    Faq::observe(ModelObserver::class);
-    AboutUs::observe(ModelObserver::class);
-    blog::observe(ModelObserver::class);
-    PrivacyPolicy::observe(ModelObserver::class);
-    Notification::observe(ModelObserver::class);
-    Seo::observe(ModelObserver::class);
-    ContactUs::observe(ModelObserver::class);
-    TermCondition::observe(ModelObserver::class);
     }
 }
