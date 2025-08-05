@@ -18,14 +18,28 @@ class NotificationRepository implements NotificationRepositoryInterface
             'description' => $data['description'],
         ]);
 
-        foreach ($userIds as $user) {
-            $modelClass = $user['type'] === 'users' ? User::class : Vendor::class;
+        if ($data['user_type'] === 'all') {
+            // array of ['id' => 1, 'type' => 'users']
+            foreach ($userIds as $user) {
+                $modelClass = $user['type'] === 'users' ? User::class : Vendor::class;
 
-            NotificationTarget::create([
-                'notification_id' => $notification->id,
-                'targetable_id' => $user['id'],
-                'targetable_type' => $modelClass,
-            ]);
+                NotificationTarget::create([
+                    'notification_id' => $notification->id,
+                    'targetable_id' => $user['id'],
+                    'targetable_type' => $modelClass,
+                ]);
+            }
+        } else {
+            // array of just IDs
+            $modelClass = $data['user_type'] === 'users' ? User::class : Vendor::class;
+
+            foreach ($userIds as $userId) {
+                NotificationTarget::create([
+                    'notification_id' => $notification->id,
+                    'targetable_id' => $userId,
+                    'targetable_type' => $modelClass,
+                ]);
+            }
         }
     }
 }
