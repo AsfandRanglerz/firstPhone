@@ -55,17 +55,17 @@
                                 <span>Customers</span>
                             </a>
                         </li>
-            @endif
-            @if (Auth::guard('admin')->check() ||
-                    ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
-                <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
-                    <a href="{{ url('admin/vendor') }}" class="nav-link">
-                        <i data-feather="users"></i>
-                        <span>Vendors</span>
-                    </a>
-                </li>
-            @endif
-        </ul>
+                @endif
+                @if (Auth::guard('admin')->check() ||
+                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
+                    <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
+                        <a href="{{ url('admin/vendor') }}" class="nav-link">
+                            <i data-feather="users"></i>
+                            <span>Vendors</span>
+                        </a>
+                    </li>
+                @endif
+            </ul>
 
         
              @if (Auth::guard('admin')->check() ||
@@ -84,7 +84,7 @@
                     </a>
                 </li>
             @endif
-            
+
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
