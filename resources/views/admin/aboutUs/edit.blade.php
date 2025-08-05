@@ -1,11 +1,11 @@
 @extends('admin.layout.app')
-@section('title', 'Edit Terms & Conditions')
+@section('title', 'Edit About Us')
 @section('content')
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
             <div class="section-body">
-                <form id="termConditionForm" action="{{ url('admin/term-condition-update') }}" method="POST">
+                <form id="termConditionForm" action="{{ url('admin/about-us-update') }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
