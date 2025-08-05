@@ -302,163 +302,164 @@
 @endsection
 
 @section('js')
-<script>
-    $(document).ready(function () {
-        // Initialize DataTable
-        $('#table_id_events').DataTable();
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#table_id_events').DataTable();
 
-        // Initial Select2
-        $('.select2').select2({
-            placeholder: "Select sellers",
-            allowClear: true
-        });
-
-        // Re-initialize Select2 inside modal
-        $('#createUserModal').on('shown.bs.modal', function () {
+            // Initial Select2
             $('.select2').select2({
-                dropdownParent: $('#createUserModal'),
                 placeholder: "Select sellers",
                 allowClear: true
             });
-        });
 
-        // Handle Select All
-        $('#select_all_users').on('change', function () {
-            $('#users > option').prop('selected', this.checked).trigger('change');
-        });
-
-        // Check/uncheck Select All checkbox based on selection
-        $('#users').on('change', function () {
-            $('#select_all_users').prop('checked', $('#users option:selected').length === $('#users option').length);
-        });
-
-        // Form Validation
-        $('form#createUserForm').submit(function (e) {
-            e.preventDefault();
-            $('.text-danger').remove();
-            let isValid = true;
-
-            const userType = $('#user_type').val();
-            const title = $('#title').val().trim();
-            const description = $('#description').val().trim();
-            const selectedUsers = $('#users').val();
-
-            if (!userType) {
-                $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
-                isValid = false;
-            }
-
-            if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
-                $('#users').after('<div class="text-danger mt-1">Please select at least one user</div>');
-                isValid = false;
-            }
-
-            if (!title) {
-                $('#title').after('<div class="text-danger mt-1">Title is required</div>');
-                isValid = false;
-            }
-
-            if (!description) {
-                $('#description').after('<div class="text-danger mt-1">Description is required</div>');
-                isValid = false;
-            }
-
-            if (isValid) {
-                $("#createSpinner").show();
-                $("#createBtnText").hide();
-                $("#createBtn").prop("disabled", true);
-                this.submit();
-            }
-        });
-
-        // Delete single
-        $(document).on('click', '.show_confirm', function (event) {
-            event.preventDefault();
-            let formId = $(this).data("form");
-            let form = document.getElementById(formId);
-            swal({
-                title: "Are you sure you want to delete this record?",
-                text: "If you delete this, it will be gone forever.",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((willDelete) => {
-                if (willDelete) {
-                    form.submit();
-                }
-            });
-        });
-
-        // Delete all
-        $('.delete_all').click(function (event) {
-            event.preventDefault();
-            const form = $(this).closest("form");
-
-            swal({
-                title: 'Are you sure you want to delete all records?',
-                text: "This will permanently remove all records and cannot be undone.",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((willDelete) => {
-                if (willDelete) {
-                    form.submit();
-                }
-            });
-        });
-
-        // User type change handling
-        $('#user_field').hide();
-        $('#user_type').on('change', function () {
-            const userType = $(this).val();
-            $('#users').empty();
-            $('#select_all_users').prop('checked', false);
-
-            if (userType === 'customers') {
-                $('#users').html($('#customers_list').html());
-                $('#user_field').slideDown(initSelect2("Select customers"));
-            } else if (userType === 'vendors') {
-                $('#users').html($('#vendors_list').html());
-                $('#user_field').slideDown(initSelect2("Select vendors"));
-            } else if (userType === 'all') {
-                const allOptions = $('#customers_list').html() + $('#vendors_list').html();
-                $('#users').html(allOptions);
-                $('#user_field').slideDown(initSelect2("Select users"));
-            } else {
-                $('#user_field').slideUp();
-            }
-
-            $('#users').val(null).trigger('change');
-        });
-
-        // Helper to re-init select2 with placeholder
-        function initSelect2(placeholderText) {
-            return function () {
-                $('#users').select2('destroy').select2({
+            // Re-initialize Select2 inside modal
+            $('#createUserModal').on('shown.bs.modal', function() {
+                $('.select2').select2({
                     dropdownParent: $('#createUserModal'),
-                    placeholder: placeholderText,
-                    allowClear: true,
-                    width: '100%'
+                    placeholder: "Select sellers",
+                    allowClear: true
                 });
-            };
+            });
+
+            // Handle Select All
+            $('#select_all_users').on('change', function() {
+                $('#users > option').prop('selected', this.checked).trigger('change');
+            });
+
+            // Check/uncheck Select All checkbox based on selection
+            $('#users').on('change', function() {
+                $('#select_all_users').prop('checked', $('#users option:selected').length === $(
+                    '#users option').length);
+            });
+
+            // Form Validation
+            $('form#createUserForm').submit(function(e) {
+                e.preventDefault();
+                $('.text-danger').remove();
+                let isValid = true;
+
+                const userType = $('#user_type').val();
+                const title = $('#title').val().trim();
+                const description = $('#description').val().trim();
+                const selectedUsers = $('#users').val();
+
+                if (!userType) {
+                    $('#user_type').after('<div class="text-danger mt-1">User type is required</div>');
+                    isValid = false;
+                }
+
+                if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
+                    $('#users').after(
+                    '<div class="text-danger mt-1">Please select at least one user</div>');
+                    isValid = false;
+                }
+
+                if (!title) {
+                    $('#title').after('<div class="text-danger mt-1">Title is required</div>');
+                    isValid = false;
+                }
+
+                if (!description) {
+                    $('#description').after('<div class="text-danger mt-1">Description is required</div>');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    $("#createSpinner").show();
+                    $("#createBtnText").hide();
+                    $("#createBtn").prop("disabled", true);
+                    this.submit();
+                }
+            });
+
+            // Delete single
+            $(document).on('click', '.show_confirm', function(event) {
+                event.preventDefault();
+                let formId = $(this).data("form");
+                let form = document.getElementById(formId);
+                swal({
+                    title: "Are you sure you want to delete this record?",
+                    text: "If you delete this, it will be gone forever.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // Delete all
+            $('.delete_all').click(function(event) {
+                event.preventDefault();
+                const form = $(this).closest("form");
+
+                swal({
+                    title: 'Are you sure you want to delete all records?',
+                    text: "This will permanently remove all records and cannot be undone.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // User type change handling
+            $('#user_field').hide();
+            $('#user_type').on('change', function() {
+                const userType = $(this).val();
+                $('#users').empty();
+                $('#select_all_users').prop('checked', false);
+
+                if (userType === 'customers') {
+                    $('#users').html($('#customers_list').html());
+                    $('#user_field').slideDown(initSelect2("Select customers"));
+                } else if (userType === 'vendors') {
+                    $('#users').html($('#vendors_list').html());
+                    $('#user_field').slideDown(initSelect2("Select vendors"));
+                } else if (userType === 'all') {
+                    const allOptions = $('#customers_list').html() + $('#vendors_list').html();
+                    $('#users').html(allOptions);
+                    $('#user_field').slideDown(initSelect2("Select users"));
+                } else {
+                    $('#user_field').slideUp();
+                }
+
+                $('#users').val(null).trigger('change');
+            });
+
+            // Helper to re-init select2 with placeholder
+            function initSelect2(placeholderText) {
+                return function() {
+                    $('#users').select2('destroy').select2({
+                        dropdownParent: $('#createUserModal'),
+                        placeholder: placeholderText,
+                        allowClear: true,
+                        width: '100%'
+                    });
+                };
+            }
+        });
+
+        // Toggle full user list
+        function toggleUsers(id) {
+            const preview = document.getElementById(`user-preview-${id}`);
+            const full = document.getElementById(`user-full-${id}`);
+            preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
+            full.style.display = full.style.display === 'none' ? 'inline' : 'none';
         }
-    });
 
-    // Toggle full user list
-    function toggleUsers(id) {
-        const preview = document.getElementById(`user-preview-${id}`);
-        const full = document.getElementById(`user-full-${id}`);
-        preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
-        full.style.display = full.style.display === 'none' ? 'inline' : 'none';
-    }
-
-    // Toggle full message
-    function toggleMessage(id) {
-        const preview = document.getElementById(`msg-preview-${id}`);
-        const full = document.getElementById(`msg-full-${id}`);
-        preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
-        full.style.display = full.style.display === 'none' ? 'inline' : 'none';
-    }
-</script>
+        // Toggle full message
+        function toggleMessage(id) {
+            const preview = document.getElementById(`msg-preview-${id}`);
+            const full = document.getElementById(`msg-full-${id}`);
+            preview.style.display = preview.style.display === 'none' ? 'inline' : 'none';
+            full.style.display = full.style.display === 'none' ? 'inline' : 'none';
+        }
+    </script>
 @endsection
-
