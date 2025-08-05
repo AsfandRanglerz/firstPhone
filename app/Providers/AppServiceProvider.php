@@ -2,20 +2,26 @@
 
 namespace App\Providers;
 
-use App\Models\User;
+use App\Models\Faq;
  use Illuminate\Support\Facades\View;
+use App\Models\Seo;
+use App\Models\blog;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\AboutUs;
 use App\Models\SubAdmin;
+use App\Models\ContactUs;
+use App\Models\Notification;
+use App\Models\PrivacyPolicy;
+use App\Models\TermCondition;
+use App\Observers\ModelObserver;
+use App\Models\TermsAndConditions;
 use App\Models\UserRolePermission;
+use App\Observers\SubAdminObserver;
+
 use Illuminate\Support\Facades\Auth;
-use App\Repositories\UserRepository;
-use App\Repositories\VendorRepository;
-use App\Repositories\NotificationRepository;
-use App\Repositories\Api\AuthRepository;
 use Illuminate\Support\ServiceProvider;
-use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Repositories\Interfaces\VendorRepositoryInterface;
-use App\Repositories\Interfaces\NotificationRepositoryInterface;
-use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
+use App\Services\SubAdminActivityService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -67,5 +73,17 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('sideMenuPermissions', $sideMenuPermissions);
         });
+
+         SubAdmin::observe(ModelObserver::class);
+     User::observe(ModelObserver::class);
+    Role::observe(ModelObserver::class);
+    Faq::observe(ModelObserver::class);
+    AboutUs::observe(ModelObserver::class);
+    blog::observe(ModelObserver::class);
+    PrivacyPolicy::observe(ModelObserver::class);
+    Notification::observe(ModelObserver::class);
+    Seo::observe(ModelObserver::class);
+    ContactUs::observe(ModelObserver::class);
+    TermCondition::observe(ModelObserver::class);
     }
 }
