@@ -20,6 +20,7 @@ class CreateVendorsTable extends Migration
             $table->string('email')->unique();
             $table->string('password')->nullable();
             $table->string('image')->nullable();
+            $table->tinyInteger('toggle')->default(0);
             $table->timestamps();
         });
     }

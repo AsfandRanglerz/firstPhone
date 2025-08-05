@@ -40,9 +40,29 @@
             @include('admin.common.footer')
         </div>
     </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function updatemobilelistingCounter() {
+              $.ajax({
+                  url: "{{ route('mobile.counter') }}",
+                  type: 'GET',
+                  success: function(response) {
+                       // Ensure response.count exists and handle counts over 99
+                      let count = response.count || 0; // Default to 0 if no count is returned
+                      $('#updatemobilelistingCounter').text(count > 99 ? '99+' : count);
+                      // $('#orderCounter').text(response.count);
+                  },
+                  error: function(xhr, status, error) {
+                      console.log(error);
+                  }
+              });
+          }
+          updatemobilelistingCounter();
+          setInterval(updatemobilelistingCounter, 10000);
+  </script>
 
     <!-- ========== Core JS Libraries ========== -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 

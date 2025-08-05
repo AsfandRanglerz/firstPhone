@@ -55,13 +55,11 @@
                                                         <div class="badge badge-warning badge-shadow">Pending</div>
                                                     @endif
                                                 </td>
-                                                <td>
-                                                    @if ($mobile->image)
-                                                        <img src="{{ asset( $mobile->image) }}"
-                                                            alt="Mobile Image" style="width: 100px; height: auto;">
-                                                    @else
-                                                        No Image
-                                                    @endif
+                                               <td>
+                                                    <a class="btn btn-primary ml-3" href="
+                                                    {{ route('mobile.show', $mobile->id) }}
+                                                     ">View</a>
+                                                </td>
                                                 <td>
                                                     <div class="d-flex">
                                                      <div class="gap-1" style="display: flex; align-items: center; justify-content: center; column-gap: 4px">

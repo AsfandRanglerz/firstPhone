@@ -14,9 +14,21 @@ class MobileListingController extends Controller
         return view('admin.mobilelisting.index', compact('mobiles'));
     }
 
+    public function show($id)
+    {
+        $mobiles = MobileListing::findOrFail($id);
+        return view('admin.mobilelisting.show', compact('mobiles'));
+    }
+
+    public function mobileListingCounter()
+    {
+        $count = MobileListing::where('status', 2)->count(); 
+        return response()->json(['count' => $count]);
+    }
+
     public function delete($id)
     {
-        $mobile = MobileListing::findOrFail($id);
+        $mobile = MobileListing::findOrFail($id); 
         $mobile->delete();
         return redirect()->route('mobile.index')->with('success', 'Mobile listing deleted successfully');
     }

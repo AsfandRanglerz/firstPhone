@@ -22,7 +22,7 @@ class CreateMobileListingsTable extends Migration
             $table->string('price')->nullable();
             $table->string('condition')->nullable();
             $table->string('image')->nullable();
-            $table->string('about')->nullable();
+            $table->longtext('about')->nullable();
             $table->string('status')->default(2)->nullable();
             $table->string('action')->default(1)->nullable();
             $table->timestamps();
