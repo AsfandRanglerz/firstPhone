@@ -28,11 +28,11 @@
                                     <tbody>
                                         <tr>
                                             <td>1</td>
-                                            <td title="{{ strip_tags(html_entity_decode($data->description)) }}">
+                                            <td title="{{ $data && $data->description ? strip_tags(html_entity_decode($data->description)) : 'No description available' }}">
                                                 @if ($data && $data->description)
                                                     {!! Str::limit(strip_tags($data->description), 200, '...') !!}
                                                 @else
-                                                    <p>No description available.</p>
+                                                    <p>No description available</p>
                                                 @endif
                                             </td>
                                             <td>
