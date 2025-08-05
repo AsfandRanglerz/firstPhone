@@ -55,17 +55,17 @@
                                 <span>Customers</span>
                             </a>
                         </li>
-            @endif
-            @if (Auth::guard('admin')->check() ||
-                    ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
-                <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
-                    <a href="{{ url('admin/vendor') }}" class="nav-link">
-                        <i data-feather="users"></i>
-                        <span>Vendors</span>
-                    </a>
-                </li>
-            @endif
-        </ul>
+                @endif
+                @if (Auth::guard('admin')->check() ||
+                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
+                    <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
+                        <a href="{{ url('admin/vendor') }}" class="nav-link">
+                            <i data-feather="users"></i>
+                            <span>Vendors</span>
+                        </a>
+                    </li>
+                @endif
+            </ul>
 
 
          @if (Auth::guard('admin')->check() ||
@@ -84,20 +84,20 @@
                     </a>
                 </li>
             @endif
-
-
-
-            {{--  FAQS --}}
-
-            @if (Auth::guard('admin')->check() ||
-                    ($sideMenuPermissions->has('Faqs') && $sideMenuPermissions['Faqs']->contains('view')))
-                <li class="dropdown {{ request()->is('admin/faq*') ? 'active' : '' }}">
-                    <a href="{{ url('admin/faq') }}" class="nav-link">
-                        <i data-feather="settings"></i>
-                        <span>FAQ's</span>
-                    </a>
-                </li>
-            @endif
+            
+        {{-- Notification --}}
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
+            {{-- Notification --}}
+            {{-- Notifications --}}
+            <li class="dropdown {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                <a href="
+                {{ route('order.index') }}
+                " class="nav-link">
+                    <i data-feather="shopping-cart"></i><span>Orders</span>
+                </a>
+            </li>
+        @endif
 
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
