@@ -133,12 +133,12 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     });
 
     // ############ Seo Routes #################
-    Route::controller(SeoController::class)->group(function () {
-        Route::get('/seo', 'index')->name('seo.index');
-        Route::get('/seo/{id}/edit', 'edit')->name('seo.edit');
-        Route::post('/seo/{id}', 'update')->name('seo.update');
-        Route::get('/admin/seo/page/{id}', 'getPage')->name('seo.page');
-    });
+    // Route::controller(SeoController::class)->group(function () {
+    //     Route::get('/seo', 'index')->name('seo.index');
+    //     Route::get('/seo/{id}/edit', 'edit')->name('seo.edit');
+    //     Route::post('/seo/{id}', 'update')->name('seo.update');
+    //     Route::get('/admin/seo/page/{id}', 'getPage')->name('seo.page');
+    // });
 
     // ############ Web Routes #################
     Route::controller(WebController::class)->group(function () {
