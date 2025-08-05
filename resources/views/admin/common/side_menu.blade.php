@@ -13,7 +13,7 @@
                         data-feather="home"></i><span>Dashboard</span></a>
             </li>
 
-
+           
 
             {{--  Roles --}}
             @if (Auth::guard('admin')->check() ||
@@ -121,6 +121,7 @@
                             data-feather="trending-up"></i><span>SEO</span></a>
                 </li>
             @endif --}}
+
 
         {{--  FAQS --}}
         @if (Auth::guard('admin')->check() ||
