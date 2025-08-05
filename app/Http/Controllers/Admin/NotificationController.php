@@ -93,7 +93,7 @@ class NotificationController extends Controller
             'description' => $request->description,
         ], $users);
 
-        return redirect()->route('notification.index')->with('success', 'Notification sent Successfully');
+        return redirect()->route('notification.index')->with('success', 'Notification Sent Successfully');
     }
 
 
