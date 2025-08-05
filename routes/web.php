@@ -19,11 +19,11 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\NotificationController;
-<<<<<<<<< Temporary merge branch 1
+
 use App\Http\Controllers\Admin\MobileListingController;
-=========
+
 use App\Http\Controllers\Admin\OrderController;
->>>>>>>>> Temporary merge branch 2
+
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -89,8 +89,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('faq-store', [FaqController::class, 'Faqsstore']) ->middleware('check.permission:Faqs,create');
       Route::delete('faq-destroy/{id}', [FaqController::class, 'faqdelete'])->name('faq.destroy');
     Route::post('/faqs/reorder', [FaqController::class, 'reorder'])->name('faq.reorder');
-=========
->>>>>>>>> Temporary merge branch 2
+
+
 
     // ############ Users #################
     Route::get('/user', [UserController::class, 'Index'])->name('user.index')->middleware('check.permission:Users,view');
@@ -103,7 +103,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('/users/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
 
     // ############ Vendors #################
-<<<<<<<<< Temporary merge branch 1
+
 Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
 Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
 Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create')->middleware('check.permission:Vendors,create');
@@ -120,8 +120,8 @@ Route::post('/mobilelisting-update/{id}', [MobileListingController::class, 'upda
 Route::delete('/mobilelisting-destroy/{id}', [MobileListingController::class, 'delete'])->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
 
 Route::post('/mobilelistingActivate/{id}', [MobileListingController::class, 'active'])->name('mobile.activate');
-    Route::post('/mobilelistingDeactivate/{id}', [MobileListingController::class, 'deactive'])->name('mobile.deactivate');
-=========
+Route::post('/mobilelistingDeactivate/{id}', [MobileListingController::class, 'deactive'])->name('mobile.deactivate');
+
     Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('check.permission:Vendors,view');
     Route::get('/vendor-create', [VendorController::class, 'createView'])->name('vendor.createview')->middleware('check.permission:Vendors,create');
     Route::post('/vendor-store', [VendorController::class, 'create'])->name('vendor.create')->middleware('check.permission:Vendors,create');
@@ -130,7 +130,7 @@ Route::post('/mobilelistingActivate/{id}', [MobileListingController::class, 'act
     Route::delete('/vendor-destroy/{id}', [VendorController::class, 'delete'])->name('vendor.delete')->middleware('check.permission:Vendors,delete');
     Route::post('/vendor/toggle-status', [VendorController::class, 'toggleStatus'])->name('vendor.toggle-status');
 
->>>>>>>>> Temporary merge branch 2
+
 
     // ############ Sub Admin #################
     Route::controller(SubAdminController::class)->group(function () {

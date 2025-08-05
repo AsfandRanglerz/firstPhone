@@ -29,12 +29,7 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
 
-use App\Repositories\UserRepository;
-use App\Repositories\VendorRepository;
-use App\Repositories\NotificationRepository;
-use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Repositories\Interfaces\VendorRepositoryInterface;
-use App\Repositories\Interfaces\NotificationRepositoryInterface;
+
  
 
 class AppServiceProvider extends ServiceProvider
