@@ -24,28 +24,22 @@ use App\Http\Controllers\SideMenuPermissionController;
 // });
 
 Route::post('/roles', [RoleController::class, 'store']);
-
 Route::post('/permissions', [PermissionController::class, 'store']);
 Route::post('/sidemenue', [SideMenueController::class, 'store']);
-
 Route::post('/permission-insert', [SideMenuPermissionController::class, 'assignPermissions']);
-
-// seo routes
 Route::post('/seo-bulk', [SeoController::class, 'storeBulk'])
      ->name('seo.bulk-update');
 
-
-
-
-
+// Auth APIs
+Route::post('/register',[AuthController::class,'register']);
+Route::post('/login',[AuthController::class,'login']);
+Route::post('/sendOtp',[AuthController::class,'sendOtp']);
+Route::post('/verifyOtp',[AuthController::class,'verifyOtp']);
+Route::post('/resetPassword',[AuthController::class,'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('get-profile', [AuthController::class, 'getProfile']); // Get Profile
-    Route::put('update-profile', [AuthController::class, 'updateProfile']); // Update Profile
-
-    // Password reset for Admin & SubAdmin via API
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
-    Route::get('/verify-reset-token/{token}', [AuthController::class, 'verifyResetToken']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::get('/getProfile',[AuthController::class,'getProfile']);
+    Route::get('/updateProfile',[AuthController::class,'updateProfile']);
 });
 

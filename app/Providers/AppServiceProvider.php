@@ -23,6 +23,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SubAdminActivityService;
 
+use App\Repositories\UserRepository;
+use App\Repositories\VendorRepository;
+use App\Repositories\NotificationRepository;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\Interfaces\VendorRepositoryInterface;
+use App\Repositories\Interfaces\NotificationRepositoryInterface;
+ 
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -74,8 +82,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('sideMenuPermissions', $sideMenuPermissions);
         });
 
-         SubAdmin::observe(ModelObserver::class);
-     User::observe(ModelObserver::class);
+    SubAdmin::observe(ModelObserver::class);
+    User::observe(ModelObserver::class);
     Role::observe(ModelObserver::class);
     Faq::observe(ModelObserver::class);
     AboutUs::observe(ModelObserver::class);
