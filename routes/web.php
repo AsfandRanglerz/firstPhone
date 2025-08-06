@@ -95,7 +95,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(MobileListingController::class)->group(function () {
         Route::get('/mobilelisting/count', 'mobileListingCounter')->name('mobile.counter');
         Route::get('/mobilelisting', 'index')->name('mobile.index')->middleware('check.permission:MobileListing,view');
-        Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show')->middleware('check.permission:MobileListing,edit');
+        Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show');
         Route::post('/mobilelisting-update/{id}', 'update')->name('mobile.update')->middleware('check.permission:MobileListing,edit');
         Route::delete('/mobilelisting-destroy/{id}', 'delete')->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
         Route::post('/mobilelistingActivate/{id}', 'active')->name('mobile.activate');
@@ -106,6 +106,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(MobileRequestController::class)->group(function () {
         Route::get('/mobilerequest/count', 'mobileRequestCounter')->name('mobilerequest.counter');
         Route::get('/mobilerequest', 'index')->name('mobilerequest.index')->middleware('check.permission:MobileRequest,view');
+        Route::get('/mobilerequest-show/{id}', 'show')->name('mobilerequest.show');
         Route::delete('/mobilerequest-destroy/{id}', 'delete')->name('mobilerequest.delete')->middleware('check.permission:MobileRequest,delete');
     });
 

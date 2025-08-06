@@ -22,12 +22,15 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>Customer Name</th>
+                                            <th>Location</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage</th>
                                             <th>RAM</th>
                                             <th>Color</th>
                                             <th>Condition</th>
+                                            <th>Vendors</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -36,12 +39,19 @@
                                         @foreach ($mobilerequests as $mobilerequest)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $mobilerequest->name }}</td>
+                                                <td>{{ $mobilerequest->location }}</td>
                                                 <td>{{ $mobilerequest->brand }}</td>
                                                 <td>{{ $mobilerequest->model }}</td>
                                                 <td>{{ $mobilerequest->storage }}</td>
                                                 <td>{{ $mobilerequest->ram }}</td>
                                                 <td>{{ $mobilerequest->color }}</td>
                                                 <td>{{ $mobilerequest->condition }}</td>
+                                                 <td>
+                                                    <a class="btn btn-primary ml-1" href="
+                                                    {{ route('mobilerequest.show', $mobilerequest->id) }}
+                                                     ">View</a>
+                                                </td>
                                                <td>
                                                     
                                                     @if ($mobilerequest->status == 0)

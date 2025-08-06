@@ -14,6 +14,12 @@ class MobileRequestController extends Controller
         return view('admin.mobilerequest.index', compact('mobilerequests'));
     } 
 
+    public function show($id)
+    {
+        $mobilerequests = MobileRequest::findOrFail($id);
+        return view('admin.mobilerequest.show', compact('mobilerequests'));
+    }
+
     public function mobileRequestCounter()
     {
         $count = MobileRequest::where('status', 2)->count();
