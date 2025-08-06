@@ -58,13 +58,13 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     // Route::get('roles-permission', [RolePermissionController::class, 'index'])->name('role-permission')->middleware('check.permission:role,view');
 
     // ############ Roles #################
-    Route::controller(RoleController::class)->group(function () {
+   Route::controller(RoleController::class)->group(function () {
         Route::get('/roles', 'index')->name('roles.index')->middleware('check.permission:Roles,view');
         Route::get('/roles-create', 'create')->name('create.role')->middleware('check.permission:Roles,create');
         Route::post('/store-role', 'store')->name('store.role')->middleware('check.permission:Roles,create');
         Route::get('/roles-permissions/{id}', 'permissions')->name('role.permissions')->middleware('check.permission:Roles,edit');
         Route::post('/admin/roles/{id}/permissions/store', 'storePermissions')->name('roles.permissions.store')->middleware('check.permission:role,create');
-        Route::delete('/delete-role/{id}', 'delete')->name('delete.role')->middleware('check.permission:role,delete');
+        Route::delete('/delete-role/{id}', 'delete')->name('delete.role');
     });
 
     // ############ Users #################
@@ -188,15 +188,15 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(SecurityController::class)->group(function () {
         Route::get('privacy-policy', 'PrivacyPolicy')->middleware('check.permission:Privacy & Policy,view');
         Route::get('privacy-policy-edit', 'PrivacyPolicyEdit')->middleware('check.permission:Privacy & Policy,edit');
-        Route::post('privacy-policy-update', 'PrivacyPolicyUpdate')->middleware('check.permission:Privacy & Policy,edit');
+        Route::post('privacy-policy-update', 'PrivacyPolicyUpdate');
         Route::get('privacy-policy-view', 'PrivacyPolicyView')->middleware('check.permission:Privacy & Policy,view');
     });
 
     // ############ Terms & Conditions Routes #################
-    Route::controller(SecurityController::class)->group(function () {
+     Route::controller(SecurityController::class)->group(function () {
         Route::get('term-condition', 'TermCondition')->middleware('check.permission:Terms & Conditions,view');
         Route::get('term-condition-edit', 'TermConditionEdit')->middleware('check.permission:Terms & Conditions,edit');
-        Route::post('term-condition-update', 'TermConditionUpdate')->middleware('check.permission:Terms & Conditions,edit');
+        Route::post('term-condition-update', 'TermConditionUpdate');
         Route::get('term-condition-view', 'TermConditionView')->middleware('check.permission:Terms & Conditions,view');
     });
 });
