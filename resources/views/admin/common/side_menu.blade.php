@@ -84,6 +84,24 @@
                     </a>
                 </li>
             @endif
+
+            {{-- Mobile Requests --}}
+             @if (Auth::guard('admin')->check() ||
+                    ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('view')))
+                <li class="dropdown {{ request()->is('admin/mobilerequest*') ? 'active' : '' }}">
+                    <a href="{{ url('admin/mobilerequest') }}" class="nav-link">
+                        <i data-feather="smartphone"></i>
+                        <span>Mobile Requests</span>
+                        <div id="updatemobilerequestCounter"
+                            class="badge {{ request()->is('admin/mobilerequest*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
+                            style="display: inline-flex; justify-content: center; align-items: center; 
+                            min-width: 22px; height: 22px; border-radius: 50%; 
+                            text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                            0
+                        </div>
+                    </a>
+                </li>
+            @endif
             
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||

@@ -59,6 +59,24 @@
           }
           updatemobilelistingCounter();
           setInterval(updatemobilelistingCounter, 10000);
+
+           function updatemobilerequestCounter() {
+              $.ajax({
+                  url: "{{ route('mobilerequest.counter') }}",
+                  type: 'GET',
+                  success: function(response) {
+                       // Ensure response.count exists and handle counts over 99
+                      let count = response.count || 0; // Default to 0 if no count is returned
+                      $('#updatemobilerequestCounter').text(count > 99 ? '99+' : count);
+                      // $('#orderCounter').text(response.count);
+                  },
+                  error: function(xhr, status, error) {
+                      console.log(error);
+                  }
+              });
+          }
+          updatemobilerequestCounter();
+          setInterval(updatemobilerequestCounter, 10000);
   </script>
 
     <!-- ========== Core JS Libraries ========== -->

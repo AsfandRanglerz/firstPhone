@@ -14,17 +14,18 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
-use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\NotificationController;
 
 
 
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\MobileListingController;
 
+use App\Http\Controllers\Admin\MobileRequestController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -99,6 +100,13 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::delete('/mobilelisting-destroy/{id}', 'delete')->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
         Route::post('/mobilelistingActivate/{id}', 'active')->name('mobile.activate');
         Route::post('/mobilelistingDeactivate/{id}', 'deactive')->name('mobile.deactivate');
+    });
+
+    // ############ Mobile Requests #################
+    Route::controller(MobileRequestController::class)->group(function () {
+        Route::get('/mobilerequest/count', 'mobileRequestCounter')->name('mobilerequest.counter');
+        Route::get('/mobilerequest', 'index')->name('mobilerequest.index')->middleware('check.permission:MobileRequest,view');
+        Route::delete('/mobilerequest-destroy/{id}', 'delete')->name('mobilerequest.delete')->middleware('check.permission:MobileRequest,delete');
     });
 
     // ############ Sub Admin #################
