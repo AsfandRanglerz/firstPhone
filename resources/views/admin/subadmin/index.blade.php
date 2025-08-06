@@ -25,6 +25,7 @@
                                             <th>Role</th>
                                             <th>Image</th>
                                             <th>Status</th>
+                                            <th>Activity Log Details</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -55,6 +56,16 @@
                                                         </span>
                                                     </label>
                                                 </td>
+                                                <td>
+
+                                                    <a href="{{ route('admin.subadmin.SubAdminLog', $subAdmin->id) }}"
+                                                        class="btn" style="background-color: #009245;">
+                                                        <span class="fa fa-eye"></span>
+                                                    </a>
+
+                                                </td>
+
+
                                                 <td>
                                                     <div class="d-flex gap-1">
                                                         @if (Auth::guard('admin')->check() ||
@@ -112,9 +123,9 @@
                 let formId = $(this).data('form');
                 let form = document.getElementById(formId);
 
-               swal({
-                   title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
+                swal({
+                    title: "Are you sure you want to delete this record?",
+                    text: "If you delete this Sub-Admin Recored, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,

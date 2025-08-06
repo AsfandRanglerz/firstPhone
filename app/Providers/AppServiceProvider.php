@@ -8,29 +8,32 @@ use App\Models\Seo;
 use App\Models\blog;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Brand;
+use App\Models\Vendor;
 use App\Models\AboutUs;
 use App\Models\SubAdmin;
 use App\Models\ContactUs;
 use App\Models\Notification;
+use App\Models\MobileListing;
 use App\Models\PrivacyPolicy;
 use App\Models\TermCondition;
 use App\Observers\ModelObserver;
+
 use App\Models\TermsAndConditions;
 use App\Models\UserRolePermission;
 use App\Observers\SubAdminObserver;
-
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\VendorRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Api\AuthRepository;
 use App\Services\SubAdminActivityService;
+
 use App\Repositories\NotificationRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
-use App\Repositories\Interfaces\NotificationRepositoryInterface;
-
-use App\Repositories\Api\AuthRepository;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
+use App\Repositories\Interfaces\NotificationRepositoryInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -82,5 +85,18 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('sideMenuPermissions', $sideMenuPermissions);
         });
+        SubAdmin::observe(ModelObserver::class);
+        User::observe(ModelObserver::class);
+        Role::observe(ModelObserver::class);
+        Faq::observe(ModelObserver::class);
+        AboutUs::observe(ModelObserver::class);
+        Brand::observe(ModelObserver::class);
+        PrivacyPolicy::observe(ModelObserver::class);
+        Notification::observe(ModelObserver::class);
+        Vendor::observe(ModelObserver::class);
+        ContactUs::observe(ModelObserver::class);
+        TermCondition::observe(ModelObserver::class);
+        MobileListing::observe(ModelObserver::class);
+
     }
 }

@@ -13,7 +13,7 @@
                         data-feather="home"></i><span>Dashboard</span></a>
             </li>
 
-           
+
 
             {{--  Roles --}}
             @if (Auth::guard('admin')->check() ||
@@ -55,36 +55,46 @@
                                 <span>Customers</span>
                             </a>
                         </li>
-                @endif
-                @if (Auth::guard('admin')->check() ||
-                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
-                    <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
-                        <a href="{{ url('admin/vendor') }}" class="nav-link">
-                            <i data-feather="users"></i>
-                            <span>Vendors</span>
-                        </a>
-                    </li>
-                @endif
-            </ul>
-
-
-         @if (Auth::guard('admin')->check() ||
-                    ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
-                <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
-                    <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
-                        <i data-feather="smartphone"></i>
-                        <span>Mobile Listings</span>
-                        <div id="updatemobilelistingCounter"
-                            class="badge {{ request()->is('admin/mobilelisting*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
-                            style="display: inline-flex; justify-content: center; align-items: center; 
-                            min-width: 22px; height: 22px; border-radius: 50%; 
-                            text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
-                            0
-                        </div>
+            @endif
+            @if (Auth::guard('admin')->check() ||
+                    ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('view')))
+                <li class="dropdown {{ request()->is('admin/vendor*') ? 'active' : '' }}">
+                    <a href="{{ url('admin/vendor') }}" class="nav-link">
+                        <i data-feather="users"></i>
+                        <span>Vendors</span>
                     </a>
                 </li>
             @endif
-            
+        </ul>
+
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Brands') && $sideMenuPermissions['Brands']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/brands*') ? 'active' : '' }}">
+                <a href="
+                {{ route('brands.index') }}
+                " class="nav-link">
+                    <i data-feather="layers"></i><span>Brands</span>
+                </a>
+            </li>
+        @endif
+
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
+                <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
+                    <i data-feather="smartphone"></i>
+                    <span>Mobile Listings</span>
+                    <div id="updatemobilelistingCounter"
+                        class="badge {{ request()->is('admin/mobilelisting*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
+                        style="display: inline-flex; justify-content: center; align-items: center; 
+                            min-width: 22px; height: 22px; border-radius: 50%; 
+                            text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                        0
+                    </div>
+                </a>
+            </li>
+        @endif
+
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))

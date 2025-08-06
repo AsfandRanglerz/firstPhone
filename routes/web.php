@@ -14,17 +14,18 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\BrandsController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
-use App\Http\Controllers\Admin\MobileListingController;
+
+
+
 use App\Http\Controllers\Admin\NotificationController;
 
-
-
-use App\Http\Controllers\Admin\OrderController;
-
+use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -53,9 +54,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('update-profile', [AdminController::class, 'update_profile']);
     Route::get('logout', [AdminController::class, 'logout'])->name('user.logout');
 
-    // ############ Role Permissions #################
-    // Route::get('roles-permission', [RolePermissionController::class, 'index'])->name('role-permission')->middleware('check.permission:role,view');
-
+   
     // ############ Roles #################
     Route::controller(RoleController::class)->group(function () {
         Route::get('/roles', 'index')->name('roles.index')->middleware('check.permission:Roles,view');
@@ -63,7 +62,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/store-role', 'store')->name('store.role')->middleware('check.permission:Roles,create');
         Route::get('/roles-permissions/{id}', 'permissions')->name('role.permissions')->middleware('check.permission:Roles,edit');
         Route::post('/admin/roles/{id}/permissions/store', 'storePermissions')->name('roles.permissions.store')->middleware('check.permission:role,create');
-        Route::delete('/delete-role/{id}', 'delete')->name('delete.role')->middleware('check.permission:role,delete');
+        Route::delete('/delete-role/{id}', 'delete')->name('delete.role');
     });
 
     // ############ Users #################
@@ -90,6 +89,20 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/vendor/toggle-status', 'toggleStatus')->name('vendor.toggle-status');
     });
 
+    // ############ Brands #################
+    Route::controller(BrandsController::class)->group(function () {
+         Route::get('/brands', 'index')->name('brands.index')->middleware('check.permission:brands,view');
+
+         Route::get('/brands/create', 'create')->name('brands.create')->middleware('check.permission:create,view');
+         Route::post('/brands/store', 'store')->name('brands.store');
+         Route::get('/brands/edit', 'edit')->name('brands.edit')->middleware('check.permission:edit,view');
+         Route::post('/brands/update/{id}', 'Update')->name('brands.update');
+         Route::post('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
+         
+         Route::get('/brands/models', 'modelView')->name('brands.model.view')->middleware('check.permission:brands,view');
+    });
+    
+
     // ############ Mobile Listings #################
     Route::controller(MobileListingController::class)->group(function () {
         Route::get('/mobilelisting/count', 'mobileListingCounter')->name('mobile.counter');
@@ -112,6 +125,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/update-permissions/{id}', 'updatePermissions')->name('update.permissions');
         Route::post('/subadmin-StatusChange', 'StatusChange')->name('subadmin.StatusChange')->middleware('check.permission:Sub Admins,edit');
         Route::post('/admin/subadmin/toggle-status', 'toggleStatus')->name('admin.subadmin.toggleStatus');
+        Route::get('/subadmin/subadmin_log_activity/{id}', 'SubAdminLog')->name('admin.subadmin.SubAdminLog');
     });
 
     // ############ Orders #################

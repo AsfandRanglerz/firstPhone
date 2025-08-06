@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRoleToSubAdminsTable extends Migration
+class CreateBrandsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddRoleToSubAdminsTable extends Migration
      */
     public function up()
     {
-        Schema::table('sub_admins', function (Blueprint $table) {
-            $table->string('role')->nullable(); 
+        Schema::create('brands', function (Blueprint $table) {
+              $table->id(); // BIGINT, Primary Key, Auto Increment
+            $table->string('name')->unique(); // VARCHAR
+            $table->string('slug')->unique(); 
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddRoleToSubAdminsTable extends Migration
      */
     public function down()
     {
-        Schema::table('sub_admins', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        Schema::dropIfExists('brands');
     }
 }
