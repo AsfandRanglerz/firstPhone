@@ -14,17 +14,18 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\BrandsController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
-use App\Http\Controllers\Admin\MobileListingController;
+
+
+
 use App\Http\Controllers\Admin\NotificationController;
 
-
-
-use App\Http\Controllers\Admin\OrderController;
-
+use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
