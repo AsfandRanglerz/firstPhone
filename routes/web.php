@@ -14,18 +14,17 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\BrandsController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
-
-
-
+use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\NotificationController;
 
-use App\Http\Controllers\Admin\MobileListingController;
+
+
+use App\Http\Controllers\Admin\OrderController;
+
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -56,7 +55,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
 
    
     // ############ Roles #################
-    Route::controller(RoleController::class)->group(function () {
+   Route::controller(RoleController::class)->group(function () {
         Route::get('/roles', 'index')->name('roles.index')->middleware('check.permission:Roles,view');
         Route::get('/roles-create', 'create')->name('create.role')->middleware('check.permission:Roles,create');
         Route::post('/store-role', 'store')->name('store.role')->middleware('check.permission:Roles,create');
@@ -107,11 +106,19 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(MobileListingController::class)->group(function () {
         Route::get('/mobilelisting/count', 'mobileListingCounter')->name('mobile.counter');
         Route::get('/mobilelisting', 'index')->name('mobile.index')->middleware('check.permission:MobileListing,view');
-        Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show')->middleware('check.permission:MobileListing,edit');
+        Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show');
         Route::post('/mobilelisting-update/{id}', 'update')->name('mobile.update')->middleware('check.permission:MobileListing,edit');
         Route::delete('/mobilelisting-destroy/{id}', 'delete')->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
         Route::post('/mobilelistingActivate/{id}', 'active')->name('mobile.activate');
         Route::post('/mobilelistingDeactivate/{id}', 'deactive')->name('mobile.deactivate');
+    });
+
+    // ############ Mobile Requests #################
+    Route::controller(MobileRequestController::class)->group(function () {
+        Route::get('/mobilerequest/count', 'mobileRequestCounter')->name('mobilerequest.counter');
+        Route::get('/mobilerequest', 'index')->name('mobilerequest.index')->middleware('check.permission:MobileRequest,view');
+        Route::get('/mobilerequest-show/{id}', 'show')->name('mobilerequest.show');
+        Route::delete('/mobilerequest-destroy/{id}', 'delete')->name('mobilerequest.delete')->middleware('check.permission:MobileRequest,delete');
     });
 
     // ############ Sub Admin #################
@@ -194,15 +201,15 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(SecurityController::class)->group(function () {
         Route::get('privacy-policy', 'PrivacyPolicy')->middleware('check.permission:Privacy & Policy,view');
         Route::get('privacy-policy-edit', 'PrivacyPolicyEdit')->middleware('check.permission:Privacy & Policy,edit');
-        Route::post('privacy-policy-update', 'PrivacyPolicyUpdate')->middleware('check.permission:Privacy & Policy,edit');
+        Route::post('privacy-policy-update', 'PrivacyPolicyUpdate');
         Route::get('privacy-policy-view', 'PrivacyPolicyView')->middleware('check.permission:Privacy & Policy,view');
     });
 
     // ############ Terms & Conditions Routes #################
-    Route::controller(SecurityController::class)->group(function () {
+     Route::controller(SecurityController::class)->group(function () {
         Route::get('term-condition', 'TermCondition')->middleware('check.permission:Terms & Conditions,view');
         Route::get('term-condition-edit', 'TermConditionEdit')->middleware('check.permission:Terms & Conditions,edit');
-        Route::post('term-condition-update', 'TermConditionUpdate')->middleware('check.permission:Terms & Conditions,edit');
+        Route::post('term-condition-update', 'TermConditionUpdate');
         Route::get('term-condition-view', 'TermConditionView')->middleware('check.permission:Terms & Conditions,view');
     });
 });
