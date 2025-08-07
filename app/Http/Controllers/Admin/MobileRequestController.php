@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 
 class MobileRequestController extends Controller
 {
-    public function index()
+    public function index() //
     {
         $mobilerequests = MobileRequest::all();
         return view('admin.mobilerequest.index', compact('mobilerequests'));
