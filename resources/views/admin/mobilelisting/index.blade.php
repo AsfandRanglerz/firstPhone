@@ -38,23 +38,63 @@
                                         @foreach ($mobiles as $mobile)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $mobile->brand }}</td>
-                                                <td>{{ $mobile->model }}</td>
+                                                <td>{{ $mobile->brand_id }}</td>
+                                                <td>{{ $mobile->model_id }}</td>
                                                 <td>{{ $mobile->storage }}</td>
                                                 <td>{{ $mobile->ram }}</td>
                                                 <td>{{ $mobile->price }}</td>
                                                 <td>{{ $mobile->condition }}</td>
                                                 <td>{{ $mobile->about }}</td>
-                                               <td>
-                                                    
-                                                    @if ($mobile->status == 0)
-                                                        <div class="badge badge-success badge-shadow">Approved</div>
-                                                    @elseif($mobile->status == 1)
-                                                        <div class="badge badge-danger badge-shadow">Rejected</div>
-                                                    @elseif($mobile->status == 2)
-                                                        <div class="badge badge-warning badge-shadow">Pending</div>
-                                                    @endif
-                                                </td>
+                                              <td>
+                                                        @php
+                                                            $status = (int) $mobile->status;
+                                                            $statusText = match($status) {
+                                                                0 => 'Approved',
+                                                                1 => 'Rejected',
+                                                                2 => 'Pending',
+                                                                default => 'Unknown',
+                                                            };
+
+                                                            $buttonClass = match($status) {
+                                                                0 => 'btn btn-primary',
+                                                                1 => 'btn-danger',
+                                                                2 => 'btn-warning',
+                                                                default => 'btn-secondary',
+                                                            };
+                                                        @endphp
+
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm dropdown-toggle {{ $buttonClass }}" type="button" data-toggle="dropdown">
+                                                                {{ $statusText }}
+                                                            </button>
+
+                                                            <div class="dropdown-menu">
+                                                                @if ($status == 0)
+                                                                    {{-- Show only Reject --}}
+                                                                    <form method="POST" action="{{ route('mobilelisting.reject', $mobile->id) }}">
+                                                                        @csrf
+                                                                        <button type="submit" class="dropdown-item text-danger">Reject</button>
+                                                                    </form>
+                                                                @elseif ($status == 1)
+                                                                    {{-- Show only Approve --}}
+                                                                    <form method="POST" action="{{ route('mobilelisting.approve', $mobile->id) }}">
+                                                                        @csrf
+                                                                        <button type="submit" class="dropdown-item text-success">Approve</button>
+                                                                    </form>
+                                                                @elseif ($status == 2)
+                                                                    {{-- Show both Approve and Reject --}}
+                                                                    <form method="POST" action="{{ route('mobilelisting.approve', $mobile->id) }}">
+                                                                        @csrf
+                                                                        <button type="submit" class="dropdown-item text-success">Approve</button>
+                                                                    </form>
+                                                                    <form method="POST" action="{{ route('mobilelisting.reject', $mobile->id) }}">
+                                                                        @csrf
+                                                                        <button type="submit" class="dropdown-item text-danger">Reject</button>
+                                                                    </form>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                <td>
                                                     <a class="btn btn-primary ml-3" href="
                                                     {{ route('mobile.show', $mobile->id) }}
@@ -63,17 +103,7 @@
                                                 <td>
                                                     <div class="d-flex">
                                                      <div class="gap-1" style="display: flex; align-items: center; justify-content: center; column-gap: 4px">
-                                                    <a href="javascript:void(0);" 
-                                                    onclick="showActivationModal({{ $mobile->id }})"
-                                                    class="btn btn-success {{ $mobile->status == 0 ? 'disabled' : '' }}">
-                                                    Approve
-                                                    </a>
-
-                                                    <a href="javascript:void(0);" 
-                                                    onclick="showDeactivationModal({{ $mobile->id }})"
-                                                    class="btn btn-danger {{ $mobile->status == 1 ? 'disabled' : '' }}">
-                                                    Reject
-                                                    </a>
+                                                   
                                                     {{-- @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('edit')))
                                                         <a href="{{ route('mobile.edit', $mobile->id) }}"
@@ -113,55 +143,7 @@
     </div>
 
 
-    <!-- Deactivation Reason Modal -->
-    <div class="modal fade" id="deactivationModal" tabindex="-1" role="dialog" aria-labelledby="deactivationModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deactivationModalLabel">Reason for Rejection</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="deactivationForm" method="POST">
-                        @csrf
-                        <input type="hidden" name="user_id" id="deactivatingUserId">
-                        <div class="form-group">
-                            <label for="deactivationReason">Please specify the reason for rejection:</label>
-                            <textarea class="form-control" id="deactivationReason" name="reason" rows="3" required></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmDeactivation">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-     <div class="modal fade" id="activationModal" tabindex="-1" role="dialog" aria-labelledby="activationModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                 <form id="activationForm" method="POST">
-                    @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="activationModalLabel">Approve this mobile listing?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmactivation">Approve</button>
-                </div>
-                 </form>
-            </div>
-        </div>
-    </div>
+    
 @endsection
 
 @section('js')
@@ -191,23 +173,10 @@
                     }
                 });
             });
-             $('#confirmactivation').on('click', function () {
-             $('#activationForm').submit();
-    });
-             $('#confirmDeactivation').on('click', function () {
-             $('#deactivationForm').submit();
-    });
+            
 
         });
 
-         function showDeactivationModal(managerId) {
-            $('#deactivationForm').attr('action', '{{ url('admin/mobilelistingDeactivate') }}/' + managerId);
-            $('#deactivationModal').modal('show');
-        }
-
-        function showActivationModal(managerId) {
-            $('#activationForm').attr('action', '{{ url('admin/mobilelistingActivate') }}/' + managerId);
-            $('#activationModal').modal('show');
-        }
+        
     </script>
 @endsection

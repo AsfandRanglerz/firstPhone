@@ -109,6 +109,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::get('/mobilelisting/count', 'mobileListingCounter')->name('mobile.counter');
         Route::get('/mobilelisting', 'index')->name('mobile.index')->middleware('check.permission:MobileListing,view');
         Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show');
+         Route::post('/mobilelisting/approve/{id}', 'approve')->name('mobilelisting.approve');
+        Route::post('/mobilelisting/reject/{id}', 'reject')->name('mobilelisting.reject');
         Route::post('/mobilelisting-update/{id}', 'update')->name('mobile.update')->middleware('check.permission:MobileListing,edit');
         Route::delete('/mobilelisting-destroy/{id}', 'delete')->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
         Route::post('/mobilelistingActivate/{id}', 'active')->name('mobile.activate');
