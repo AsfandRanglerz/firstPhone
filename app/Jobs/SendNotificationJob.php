@@ -36,43 +36,31 @@ class SendNotificationJob implements ShouldQueue
         ]);
 
         foreach ($this->userIds as $user) {
-            // Determine model class and ID
-            if (is_array($user) && isset($user['id'], $user['type'])) {
-                $modelClass = $user['type'] === 'users' ? User::class : Vendor::class;
-                $model = $modelClass::find($user['id']);
-            } elseif (is_numeric($user)) {
-                $modelClass = $this->data['user_type'] === 'users' ? User::class : Vendor::class;
-                $model = $modelClass::find($user);
-            } else {
+            if (!isset($user['id'], $user['type'])) {
                 continue;
             }
 
-            if (!$model) {
-                continue; // skip if not found
-            }
+            $modelClass = $user['type'] === 'users' ? User::class : Vendor::class;
+            $model = $modelClass::find($user['id']);
 
-            // Save target
+            if (!$model) continue;
+
             NotificationTarget::create([
                 'notification_id' => $notification->id,
                 'targetable_id' => $model->id,
                 'targetable_type' => $modelClass,
             ]);
 
-            // Send FCM notification if token exists
             if (!empty($model->fcm_token)) {
-                try {
-                    NotificationHelper::sendFcmNotification(
-                        $model->fcm_token,
-                        $this->data['title'],
-                        $this->data['description'],
-                        [
-                            'user_type' => $this->data['user_type'],
-                            'notification_id' => $notification->id,
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    Log::error('FCM sending failed: ' . $e->getMessage());
-                }
+                NotificationHelper::sendFcmNotification(
+                    $model->fcm_token,
+                    $this->data['title'],
+                    $this->data['description'],
+                    [
+                        'user_type' => $this->data['user_type'],
+                        'notification_id' => $notification->id,
+                    ]
+                );
             }
         }
     }

@@ -27,4 +27,10 @@ class ActivityLog extends Model
     {
         return $this->belongsTo(SubAdmin::class, 'performed_by_sub_admin_id');
     }
+
+    public function performedBy()
+{
+    return $this->belongsTo(SubAdmin::class, 'performed_by_sub_admin_id');
+}
+
 }

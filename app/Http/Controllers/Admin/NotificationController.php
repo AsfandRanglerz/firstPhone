@@ -66,12 +66,12 @@ class NotificationController extends Controller
             $request->validate([
                 'users.*' => 'exists:users,id',
             ]);
-            $users = $request->users;
+            $users = array_map(fn($id) => ['id' => $id, 'type' => 'users'], $request->users);
         } elseif ($request->user_type === 'vendors') {
             $request->validate([
                 'users.*' => 'exists:vendors,id',
             ]);
-            $users = $request->users;
+            $users = array_map(fn($id) => ['id' => $id, 'type' => 'vendors'], $request->users);
         } elseif ($request->user_type === 'all') {
             $userIds = User::whereIn('id', $request->users)->pluck('id')->toArray();
             $vendorIds = Vendor::whereIn('id', $request->users)->pluck('id')->toArray();
@@ -85,6 +85,7 @@ class NotificationController extends Controller
                 array_map(fn($id) => ['id' => $id, 'type' => 'vendors'], $vendorIds),
             );
         }
+
 
         // Dispatch job
         SendNotificationJob::dispatch([

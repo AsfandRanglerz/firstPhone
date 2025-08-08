@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Role;
 use App\Models\SideMenu;
 use App\Models\SubAdmin;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use App\Models\SubAdminPermission;
 use App\Models\UserRolePermission;
@@ -247,4 +248,19 @@ $validatedData = $validator->validated();
 }
 
 
+
+public function SubAdminLog($id)
+{
+    $data = ActivityLog::where('performed_by_sub_admin_id', $id)
+                        ->get();
+
+                        
+
+    $Seconddata = SubAdmin::find($id);
+                        
+
+    return view('admin.subadmin.subadminlog', compact('data' , 'Seconddata'));
+}
+
+ 
 }
