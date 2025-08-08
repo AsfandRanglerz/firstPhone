@@ -142,10 +142,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     // ############ Orders #################
     Route::controller(OrderController::class)->group(function () {
         Route::get('/orders',  'index')->name('order.index')->middleware('check.permission:Orders,view');
-        Route::post('/notification-store',  'store')->name('notification.store')->middleware('check.permission:Orders,create');
-        Route::delete('/notification-destroy/{id}',  'destroy')->name('notification.destroy')->middleware('check.permission:Orders,delete');
-        Route::delete('/notifications/delete-all', 'deleteAll')->name('notifications.deleteAll');
-        Route::get('/get-users-by-type', 'getUsersByType');
+        Route::delete('/order-destroy/{id}',  'destroy')->name('order.destroy')->middleware('check.permission:Orders,delete');
+        Route::post('/order/update-status/{id}', 'updateStatus')->name('order.updateStatus');
     });
 
     // ############ Notifications #################
