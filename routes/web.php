@@ -20,7 +20,11 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\NotificationController;
+
+
+
 use App\Http\Controllers\Admin\OrderController;
+
 use App\Http\Controllers\Admin\RolePermissionController;
 
 /*
@@ -113,10 +117,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     // ############ Orders #################
     Route::controller(OrderController::class)->group(function () {
         Route::get('/orders',  'index')->name('order.index')->middleware('check.permission:Orders,view');
-        Route::post('/notification-store',  'store')->name('notification.store')->middleware('check.permission:Orders,create');
-        Route::delete('/notification-destroy/{id}',  'destroy')->name('notification.destroy')->middleware('check.permission:Orders,delete');
-        Route::delete('/notifications/delete-all', 'deleteAll')->name('notifications.deleteAll');
-        Route::get('/get-users-by-type', 'getUsersByType');
+        Route::delete('/order-destroy/{id}',  'destroy')->name('order.destroy')->middleware('check.permission:Orders,delete');
+        Route::post('/order/update-status/{id}', 'updateStatus')->name('order.updateStatus');
     });
 
     // ############ Notifications #################
@@ -129,12 +131,12 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     });
 
     // ############ Seo Routes #################
-    Route::controller(SeoController::class)->group(function () {
-        Route::get('/seo', 'index')->name('seo.index');
-        Route::get('/seo/{id}/edit', 'edit')->name('seo.edit');
-        Route::post('/seo/{id}', 'update')->name('seo.update');
-        Route::get('/admin/seo/page/{id}', 'getPage')->name('seo.page');
-    });
+    // Route::controller(SeoController::class)->group(function () {
+    //     Route::get('/seo', 'index')->name('seo.index');
+    //     Route::get('/seo/{id}/edit', 'edit')->name('seo.edit');
+    //     Route::post('/seo/{id}', 'update')->name('seo.update');
+    //     Route::get('/admin/seo/page/{id}', 'getPage')->name('seo.page');
+    // });
 
     // ############ Web Routes #################
     Route::controller(WebController::class)->group(function () {

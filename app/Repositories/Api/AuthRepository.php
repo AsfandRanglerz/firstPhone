@@ -121,6 +121,20 @@ class AuthRepository implements AuthRepositoryInterface{
         $user->name = $request['name'] ?? $user->name;
         $user->phone = $request['phone'] ?? $user->phone;
         $user->email = $request['email'] ?? $user->email;           
-
+    }
+    public function changePassword(array $request){
+        $user = auth()->user();
+        if (!$user) {
+            return ['error' => 'User not authenticated'];
+        }
+        if (!Hash::check($request['current_password'], $user->password)) {
+            return ['error' => 'Current password is incorrect'];
+        }
+        if (Hash::check($request['new_password'], $user->password)) {
+            return ['error' => 'New password cannot be the same as the old password'];
+        }
+        $user->password = Hash::make($request['new_password']);
+        $user->save();
+        return $user;
     }
 }

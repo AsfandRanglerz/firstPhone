@@ -9,4 +9,5 @@ interface AuthRepositoryInterface
     public function verifyOtp(array $request);
     public function resetPassword(array $request);
     public function updateProfile(array $request);
+    public function changePassword(array $request);
 }

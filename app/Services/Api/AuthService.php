@@ -27,4 +27,7 @@ class AuthService{
     public function updateProfile(){
         return $this->authRepo->updateProfile();
     }
+    public function changePassword(){
+        return $this->authRepo->changePassword();
+    }
 }
