@@ -14,17 +14,18 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ModelController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\BrandsController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\SecurityController;
+
+
+
 use App\Http\Controllers\Admin\SubAdminController;
 
-
-
 use App\Http\Controllers\Admin\NotificationController;
-
 use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\RolePermissionController;
 
@@ -96,11 +97,23 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
          Route::get('/brands/create', 'create')->name('brands.create')->middleware('check.permission:create,view');
          Route::post('/brands/store', 'store')->name('brands.store');
          Route::get('/brands/edit', 'edit')->name('brands.edit')->middleware('check.permission:edit,view');
-         Route::post('/brands/update/{id}', 'Update')->name('brands.update');
-         Route::post('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
-         
-         Route::get('/brands/models', 'modelView')->name('brands.model.view')->middleware('check.permission:brands,view');
+        //  Route::post('/brands/update/{id}', 'update')->name('brands.update');
+         Route::delete('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
+            
     });
+
+    Route::post('/brands/update/{id}', [BrandsController::class, 'update'])->name('brands.update');
+
+        // ############ Models of Mobile #################
+
+            Route::controller(ModelController::class)->group(function () {
+             Route::get('/brands/models/{id}', 'index')->name('brands.model.view')->middleware('check.permission:brands,view');
+              Route::post('/brands/models/store', 'store')->name('brands.model.store')->middleware('check.permission:brands,create');
+               Route::post('/brands/models/update/{id}', 'update')->name('brands.model.update')->middleware('check.permission:brands,update');
+                Route::delete('/brands/models/delete/{id}', 'destroy')->name('brands.model.delete')->middleware('check.permission:brands,delete');
+            });
+
+
     
 
     // ############ Mobile Listings #################

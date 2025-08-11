@@ -16,46 +16,61 @@ class BrandsController extends Controller
         return view('admin.brands.index', compact('brands'));
     }
 
-    public function create()  {
-        return view('admin.brands.create');
-    } 
-
 
 public function store(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|unique:brands,name',
+        'name' => 'required|array',
+        'name.*' => 'required|string|unique:brands,name',
+        'slug' => 'nullable|array',
     ]);
 
-    $brand = Brand::create([
-        'name' => $request->name,
-        'slug' => $request->slug ?? Str::slug($request->name),
-    ]);
+    $brands = [];
+    $errors = [];
+
+    foreach ($request->name as $index => $name) {
+        try {
+            $brands[] = Brand::create([
+                'name' => $name,
+                'slug' => $request->slug[$index] ?? \Str::slug($name),
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle unique constraint violation specifically
+            if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                $errors["name.$index"] = ["The brand name '$name' has already been taken."];
+                continue;
+            }
+            throw $e;
+        }
+    }
+
+    if (!empty($errors)) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Some brands could not be created',
+            'errors' => $errors
+        ], 422);
+    }
 
     return response()->json([
         'status' => 'success',
-        'message' => 'Brand created successfully',
-        'data' => $brand
+        'message' => 'Brands created successfully',
+        'data' => $brands
     ]);
-}
-
-
-public function edit($id) {
-    $brand = Brand::find($id);
-    return view('admin.brands.edit');
 }
 
 public function update(Request $request, $id)
 {
     $request->validate([
         'name' => 'required|string|unique:brands,name,' . $id,
+        'slug' => 'nullable|string',
     ]);
 
     $brand = Brand::findOrFail($id);
 
     $brand->update([
         'name' => $request->name,
-        'slug' => $request->slug ?? Str::slug($request->name),
+        'slug' => $request->slug ?? \Str::slug($request->name),
     ]);
 
     return response()->json([
@@ -64,7 +79,6 @@ public function update(Request $request, $id)
         'data' => $brand
     ]);
 }
-
 
 public function delete($id) {
     $find = Brand::find($id);
@@ -75,8 +89,5 @@ public function delete($id) {
     
 }
 
-public function modelView(){
-    return view('admin.brands.models');
-} 
 
 }
