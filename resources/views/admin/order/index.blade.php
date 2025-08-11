@@ -12,8 +12,7 @@
                                 <h4>Orders</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
-                                {{-- @if (Auth::guard('admin')->check() ||
-                                        ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
+                                {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
                                     <a class="btn btn-primary mb-3 text-white"
                                         href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif --}}
@@ -27,27 +26,128 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Toggle</th>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Shipping Address</th>
+                                            <th>Payment Status</th>
+                                            <th>Delivery Method</th>
+                                            <th>Order Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                       
+                                        @foreach ($orders as $index => $order)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>#{{ $order->order_number }}</td>
+                                                <td>
+                                                    {{ $order->customer->name ?? 'N/A' }}<br>
+                                                    <small>{{ $order->customer->email ?? 'N/A' }}</small>
+                                                </td>
+                                                <td>
+                                                    {{ $order->shipping_address ?? 'N/A' }}
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $paymentClass = match ($order->payment_status) {
+                                                            'paid' => 'bg-primary',
+                                                            'pending' => 'bg-warning',
+                                                            'failed' => 'bg-danger',
+                                                            'refunded' => 'bg-secondary',
+                                                            default => 'bg-light',
+                                                        };
+                                                    @endphp
+
+                                                    <span class="badge {{ $paymentClass }}">
+                                                        {{ ucfirst($order->payment_status) }}
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    @php
+                                                        $deliveryClass = match ($order->delivery_method) {
+                                                            'cod' => 'bg-warning',
+                                                            'online' => 'bg-primary',
+                                                            'pickup' => 'bg-info',
+                                                            default => 'bg-secondary',
+                                                        };
+                                                    @endphp
+
+                                                    <span class="badge {{ $deliveryClass }}">
+                                                        {{ ucfirst($order->delivery_method) }}
+                                                    </span>
+                                                </td>
+
+                                                @php
+                                                    $statusColors = [
+                                                        'pending' => 'btn-warning',
+                                                        'confirmed' => 'btn-info',
+                                                        'in_progress' => 'btn-primary',
+                                                        'shipped' => 'btn-secondary',
+                                                        'delivered' => 'btn-success',
+                                                        'cancelled' => 'btn-danger',
+                                                    ];
+                                                @endphp
+
+                                                <td>
+                                                    {{-- @if ($order->order_status === 'delivered' || $order->order_status === 'cancelled')
+                                                        <button
+                                                            class="btn btn-sm {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
+                                                            type="button">
+                                                            {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                                                        </button>
+                                                    @else --}}
+                                                        <div class="dropdown">
+                                                            <button
+                                                                class="btn btn-sm dropdown-toggle {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
+                                                                type="button" data-toggle="dropdown"
+                                                                id="statusBtn-{{ $order->id }}">
+                                                                {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                                                            </button>
+                                                            <div class="dropdown-menu">
+                                                                @foreach ($statuses as $status)
+                                                                    @if ($status !== $order->order_status)
+                                                                        <button type="button"
+                                                                            class="dropdown-item change-order-status"
+                                                                            data-order-id="{{ $order->id }}"
+                                                                            data-new-status="{{ $status }}">
+                                                                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                                                        </button>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    {{-- @endif --}}
+                                                </td>
+
+                                                <td>
+                                                    @if (Auth::guard('admin')->check() ||
+                                                            ($sideMenuPermissions->has('Orders') && $sideMenuPermissions['Orders']->contains('delete')))
+                                                        <form id="delete-form-{{ $order->id }}"
+                                                            action="{{ route('order.destroy', $order->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+
+                                                        <button class="show_confirm btn" style="background-color: #009245;"
+                                                            data-form="delete-form-{{ $order->id }}" type="button">
+                                                            <span><i class="fa fa-trash"></i></span>
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
-                            </div> <!-- /.card-body -->
-                        </div> <!-- /.card -->
-                    </div> <!-- /.col -->
-                </div> <!-- /.row -->
-            </div> <!-- /.section-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
-
-    
 @endsection
 
 @section('js')
@@ -66,7 +166,7 @@
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
@@ -78,70 +178,57 @@
                 });
             });
 
-            // Toggle status
-            let currentToggle = null;
-            let currentUserId = null;
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Order status change via jQuery AJAX
+            $('.change-order-status').on('click', function() {
+                let orderId = $(this).data('order-id');
+                let newStatus = $(this).data('new-status');
 
-            $('.toggle-status').change(function() {
-                let status = $(this).is(':checked') ? 1 : 0;
-                currentToggle = $(this);
-                currentUserId = $(this).data('id');
-
-                if (status === 0) {
-                    $('#deactivatingUserId').val(currentUserId);
-                    $('#deactivationModal').modal('show');
-                } else {
-                    updateUserStatus(currentUserId, 1);
-                }
-            });
-
-            $('#confirmDeactivation').click(function() {
-                let reason = $('#deactivationReason').val();
-                if (reason.trim() === '') {
-                    toastr.error('Please provide a deactivation reason');
-                    return;
-                }
-
-                updateUserStatus(currentUserId, 0, reason);
-            });
-
-            $('#deactivationModal').on('hidden.bs.modal', function() {
-                if ($('#deactivationReason').val().trim() === '') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
-            });
-
-            function updateUserStatus(userId, status, reason = null) {
-                let $descriptionSpan = currentToggle.siblings('.custom-switch-description');
                 $.ajax({
-                    url: "{{ route('vendor.toggle-status') }}",
-                    type: "POST",
+                    url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
+                    type: 'POST',
                     data: {
-                        _token: '{{ csrf_token() }}',
-                        id: userId,
-                        status: status,
-                        reason: reason
+                        order_status: newStatus,
+                        _token: '{{ csrf_token() }}'
                     },
-                    success: function(res) {
-                        if (res.success) {
-                            $descriptionSpan.text(res.new_status);
-                            toastr.success(res.message);
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000);
+                    success: function(data) {
+                        if (data.success) {
+                            // Update button text & color
+                            const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g,
+                                c => c.toUpperCase());
+                            const button = $(`#statusBtn-${orderId}`);
+
+                            const colorClasses = {
+                                'pending': 'btn-warning',
+                                'confirmed': 'btn-info',
+                                'in_progress': 'btn-primary',
+                                'shipped': 'btn-secondary',
+                                'delivered': 'btn-success',
+                                'cancelled': 'btn-danger',
+                            };
+
+                            button
+                                .text(statusText)
+                                .removeClass()
+                                .addClass(
+                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                            toastr.success(data.message);
                         } else {
-                            currentToggle.prop('checked', !status);
-                            toastr.error(res.message);
+                            toastr.error('Something went wrong');
                         }
                     },
                     error: function() {
-                        currentToggle.prop('checked', !status);
-                        toastr.error('Error updating status');
+                        toastr.error('Failed to update status');
                     }
                 });
-            }
+            });
         });
     </script>
+
+
+
 @endsection

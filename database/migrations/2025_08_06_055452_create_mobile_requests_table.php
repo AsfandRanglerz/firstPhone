@@ -13,7 +13,7 @@ class CreateMobileRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('mobile_requests', function (Blueprint $table) {
+        Schema::create('mobile_requests', function (Blueprint $table) { //
             $table->id();
             $table->string('name')->nullable();
             $table->string('location')->nullable();

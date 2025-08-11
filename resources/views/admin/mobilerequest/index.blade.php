@@ -18,12 +18,12 @@
                                         href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif --}}
 
-                                <table class="table" id="table_id_events">
+                                <table class="table" id="table_id_events"> 
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
                                             <th>Customer Name</th>
-                                            <th>Location</th>
+                                            <th>Location</th> {{--  --}}
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage</th>

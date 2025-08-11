@@ -60,7 +60,7 @@
           updatemobilelistingCounter();
           setInterval(updatemobilelistingCounter, 10000);
 
-           function updatemobilerequestCounter() {
+           function updatemobilerequestCounter() { //
               $.ajax({
                   url: "{{ route('mobilerequest.counter') }}",
                   type: 'GET',
