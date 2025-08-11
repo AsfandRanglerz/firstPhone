@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Api\RequestFormController;
+use App\Http\Controllers\Api\MobileListingController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -44,3 +46,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/changePassword',[AuthController::class,'changePassword']);
 });
 
+// Mobile Request API
+Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform'])->middleware('auth:sanctum');
+
+// Mobile Listing API
+Route::middleware('auth:sanctum')->group(function (){
+Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
+Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+});

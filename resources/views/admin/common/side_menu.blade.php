@@ -2,7 +2,7 @@
     <aside" id="sidebar-wrapper">
         <div class="sidebar-brand">
             <a href="{{ url('/admin/dashboard') }}">
-                <img alt="image" src="{{ asset('public/admin/assets/img/logo.png') }}" class="header-logo" />
+                <img alt="image" src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" class="header-logo" style="width: 200px; height: auto; margin-top:20px; margin-bottom: 3px;" />
                 {{-- <span class="logo-name">Crop Secure</span> --}}
             </a>
         </div>

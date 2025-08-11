@@ -2,10 +2,9 @@
 namespace App\Helpers;
 
 class ResponseHelper {
-    public static function success($data = '', $message = '', $status = '', $statusCode = 200) {
+    public static function success($data = '', $message = '', $status = null, $statusCode = 200) {
         $statusCode = (int) $statusCode;
         return response()->json([
-            'status' => $status,
             'message' => $message,
             'data' => $data,
         ], $statusCode);
