@@ -10,6 +10,10 @@ class NotificationTarget extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $casts = [
+        'seen' => 'boolean',
+    ];
+
 
     public function notification()
     {
