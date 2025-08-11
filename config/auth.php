@@ -46,14 +46,19 @@ return [
         ],
         'subadmin' => [
             'driver' => 'session',
-            'provider' => 'subadmins', // Reference to the 'subadmins' provider
+            'provider' => 'subadmins',
+        ],
+        'vendors' => [
+            'driver' => 'sanctum',
+            'provider' => 'vendors',
         ],
         'api' => [
             'driver' => 'sanctum',
-            'provider' => 'farmers',
+            'provider' => 'vendors',
             'hash' => false,
         ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -85,9 +90,9 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\SubAdmin::class,
         ],
-        'farmers' => [
+        'vendors' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Farmer::class,
+            'model' => App\Models\Vendor::class,
         ],
 
         // 'users' => [

@@ -30,10 +30,12 @@ use App\Repositories\Api\AuthRepository;
 use App\Services\SubAdminActivityService;
 
 use App\Repositories\NotificationRepository;
+use App\Repositories\Api\NotificationRepo;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
+use App\Repositories\Api\Interfaces\NotificationRepoInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -49,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+        $this->app->bind(NotificationRepoInterface::class, NotificationRepo::class);
+
     }
 
     /**
