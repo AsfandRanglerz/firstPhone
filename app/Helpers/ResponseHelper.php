@@ -4,10 +4,16 @@ namespace App\Helpers;
 class ResponseHelper {
     public static function success($data = '', $message = '', $status = null, $statusCode = 200) {
         $statusCode = (int) $statusCode;
-        return response()->json([
+        $response = [
             'message' => $message,
-            'data' => $data,
-        ], $statusCode);
+        ];
+
+        // Only add data if it's not null
+        if (!is_null($data)) {
+            $response['data'] = $data;
+        }
+
+        return response()->json($response, $statusCode);
     }
     
      public static function error($data = '', $message = '', $status = '', $statusCode = 400) {

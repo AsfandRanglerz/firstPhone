@@ -20,12 +20,12 @@ class RequestFormController extends Controller
             $mobileRequest = MobileRequest::create([
                 'name'            => $user->name,
                 'location'        => $request->location,
-                'brand'            => $request->brand,
-                'model'            => $request->model,
-                'storage'          => $request->storage,
-                'ram'              => $request->ram,
-                'color'            => $request->color,
-                'condition'        => $request->condition,
+                'brand_id'        => $request->brand_id,
+                'model_id'        => $request->model_id,
+                'storage'         => $request->storage,
+                'ram'             => $request->ram,
+                'color'           => $request->color,
+                'condition'       => $request->condition,
             ]);
 
     return ResponseHelper::success($mobileRequest, 'Mobile request submitted successfully', null, 200);

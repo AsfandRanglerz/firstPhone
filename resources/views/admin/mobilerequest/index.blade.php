@@ -41,8 +41,8 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $mobilerequest->name }}</td>
                                                 <td>{{ $mobilerequest->location }}</td>
-                                                <td>{{ $mobilerequest->brand }}</td>
-                                                <td>{{ $mobilerequest->model }}</td>
+                                                <td>{{ $mobilerequest->brand->name }}</td>
+                                                <td>{{ $mobilerequest->model->name}}</td>
                                                 <td>{{ $mobilerequest->storage }}</td>
                                                 <td>{{ $mobilerequest->ram }}</td>
                                                 <td>{{ $mobilerequest->color }}</td>
@@ -62,15 +62,6 @@
                                                 </td>
                                               
                                                 <td>
-                                                
-                                                    {{-- @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('edit')))
-                                                        <a href="{{ route('mobile.edit', $mobile->id) }}"
-                                                            class="btn btn-primary me-2"
-                                                            style="float: left; margin-left: 10px;">
-                                                            <i class="fa fa-edit"></i>
-                                                        </a>
-                                                    @endif --}}
 
                                                     @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('delete')))
@@ -87,7 +78,6 @@
                                                     </form>
                                                     @endif
                                                      </div>
-                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach

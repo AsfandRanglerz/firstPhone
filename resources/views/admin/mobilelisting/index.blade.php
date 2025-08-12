@@ -30,7 +30,7 @@
                                             <th>Condition</th>
                                             <th>About</th>
                                             <th>Status</th>
-                                            <th>Image/Video</th>
+                                            <th>Images/Videos</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -38,8 +38,8 @@
                                         @foreach ($mobiles as $mobile)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $mobile->brand_id }}</td>
-                                                <td>{{ $mobile->model_id }}</td>
+                                                <td>{{ $mobile->brand->name }}</td>
+                                                <td>{{ $mobile->model->name }}</td>
                                                 <td>{{ $mobile->storage }}</td>
                                                 <td>{{ $mobile->ram }}</td>
                                                 <td>{{ $mobile->price }}</td>
