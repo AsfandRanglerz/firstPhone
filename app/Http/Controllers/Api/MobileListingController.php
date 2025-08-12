@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class MobileListingController extends Controller
 {
@@ -37,16 +39,10 @@ class MobileListingController extends Controller
 
         $listing->save();
 
-        return response()->json([
-            'message' => 'Listing added successfully',
-            'listing' => $listing
-        ], 200);
+        return ResponseHelper::success($listing, 'Listing added successfully', null, 200);
 
-    }  catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while creating the listing',
-            'error' => $e->getMessage()
-        ], 500);
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while creating the listing', 'error', 500);
     }
 }
 
@@ -64,15 +60,12 @@ public function getmobileListing()
                 ];
             });
         $data = $listings->count() === 1 ? $listings->first() : $listings;
-        return response()->json([
-            'message' => 'Mobile listings retrieved successfully',
-            'data' => $listings
-        ], 200);
+        return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
+
+    } catch (ValidationException $e) {
+        return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
     } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while retrieving listings',
-            'error' => $e->getMessage()
-        ], 500);
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
     }
 }
 
