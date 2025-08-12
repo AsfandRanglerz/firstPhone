@@ -22,7 +22,7 @@
                                         <tr>
                                             <th>Sr.</th>
                                             <th>Name</th>
-                                            <th>Models Details</th>
+                                            <th>Models</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -32,7 +32,7 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td class="brand-name">{{ $brand->name }}</td>
                                                 <td>
-                                                    <a href="{{ route('brands.model.view') }}" class="btn"
+                                                    <a href="{{ route('brands.model.view', $brand->id) }}" class="btn"
                                                         style="background-color: #009245;">
                                                         <span class="fa fa-eye"></span>
                                                     </a>
@@ -105,7 +105,8 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Name</label>
-                            <input type="text" class="form-control" name="name" id="edit_name">
+                            <input type="text" class="form-control" name="name" id="edit_name"
+                                placeholder="Enter model name">
                             <div class="text-danger error-message" id="edit_name_error"></div>
                         </div>
                         <div class="form-group">
@@ -115,7 +116,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </div>
             </form>
@@ -173,7 +174,7 @@
                                 addBrandToTable(brand, table);
                             });
                         }
-                        toastr.success('Brands created successfully!');
+                        toastr.success('Brand created successfully');
                         $('#brandModal').modal('hide');
                     },
                     // In your AJAX error handling
@@ -293,8 +294,8 @@
             $(document).on('click', '.deleteBrand', function() {
                 let id = $(this).data('id');
                 swal({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this brand!",
+                    title: "Are you sure you want to delete this record?",
+                    text: "If you delete this Brand Recored, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -322,21 +323,27 @@
             // Helper function to add new brand to table
             function addBrandToTable(brand, table) {
                 let newRow = table.row.add([
-                    table.rows().count() + 1,
-                    brand.name,
+                    table.rows().count() + 1, // Sr.
+                    brand.name, // Name
+                    `<a href="${brand.model_view_url}" class="btn" style="background-color: #009245;">
+        <span class="fa fa-eye"></span>
+    </a>`, // Models Details
                     `<div class="d-flex gap-1">
-                        <button class="btn btn-primary editBrand"
-                            data-id="${brand.id}" 
-                            data-name="${brand.name}"
-                            data-slug="${brand.slug}">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="btn deleteBrand" style="background-color: #009245;"
-                            data-id="${brand.id}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>`
+        <button class="btn btn-primary editBrand"
+            data-id="${brand.id}" 
+            data-name="${brand.name}"
+            data-slug="${brand.slug}">
+            <i class="fa fa-edit"></i>
+        </button>
+        <button class="btn deleteBrand" style="background-color: #009245;"
+            data-id="${brand.id}">
+            <i class="fa fa-trash"></i>
+        </button>
+    </div>` // Actions
                 ]).draw(false).node();
+
+
+
 
                 $(newRow).attr('id', `brand-row-${brand.id}`);
                 $(newRow).find('td').eq(1).addClass('brand-name');
@@ -358,7 +365,7 @@
         <div class="brand-input-set mb-3" data-index="${idx}">
             <div class="form-group">
                 <label>Name <span class="text-danger">*</span></label>
-                <input type="text" name="name[]" class="form-control name-input">
+                <input type="text" name="name[]" class="form-control name-input" placeholder="Enter model name">
                 <div class="text-danger error-message" data-error-for="name.${idx}"></div>
             </div>
             <div class="form-group">
@@ -366,7 +373,6 @@
                 <input type="text" name="slug[]" class="form-control slug-input" readonly>
             </div>
             <button type="button" class="btn btn-danger btn-sm removeBtn" ${showRemove ? '' : 'style="display:none;"'}>Delete</button>
-            <hr>
         </div>`;
             }
 

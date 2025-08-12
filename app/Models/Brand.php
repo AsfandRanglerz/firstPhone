@@ -15,4 +15,9 @@ class Brand extends Model
         'name',
         'slug',
     ];
+
+    public function mobileModels()
+    {
+        return $this->hasMany(MobileModel::class, 'brand_id', 'id');
+    }
 }

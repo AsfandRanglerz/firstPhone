@@ -9,8 +9,11 @@ class MobileModel extends Model
 {
     use HasFactory;
 
-    protected $table = ['models'];
+    protected $table = 'models';
+    protected $guarded = [];
 
-protected $guarded = [];
-
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'id');
+    }
 }

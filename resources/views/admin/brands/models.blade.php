@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-@section('title', 'Brand Models')
+@section('title', "{$brand->name} - Models")
 
 @section('content')
     <div class="main-content">
@@ -9,10 +9,11 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Brand Models</h4>
+                                <h4>{{ $brand->name }} - Models</h4>
                             </div>
 
                             <div class="card-body table-striped table-bordered table-responsive">
+                                {{-- Create Button --}}
                                 <button class="btn mb-3" style="background-color: #009245;"
                                     id="openCreateModal">Create</button>
 
@@ -38,7 +39,6 @@
                                                             data-name="{{ is_array($model->name) ? implode(', ', $model->name) : $model->name }}">
                                                             <i class="fa fa-edit"></i>
                                                         </button>
-
                                                         <button class="btn deleteBrand" style="background-color: #009245;"
                                                             data-id="{{ $model->id }}">
                                                             <i class="fa fa-trash"></i>
@@ -64,22 +64,12 @@
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create Brand Models</h5>
+                        <h5 class="modal-title">Create Brands</h5>
                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
                     <div class="modal-body">
-                        <div id="inputWrapper">
-                            <div class="brand-input-set mb-3" data-index="0">
-                                <div class="form-group">
-                                    <label>Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="name[]" class="form-control name-input">
-                                    <div class="text-danger error-message" data-error-for="name.0"></div>
-                                </div>
-                                <button type="button" class="btn btn-danger btn-sm removeBtn"
-                                    style="display:none;">Delete</button>
-                                <hr>
-                            </div>
-                        </div>
+                        <input type="hidden" name="brand_id" value="{{ $brand->id }}" placeholder="Enter model name">
+                        <div id="inputWrapper"></div>
                         <button type="button" class="btn btn-secondary btn-sm" style="background-color: #009245;"
                             id="addMoreBtn">Add More</button>
                     </div>
@@ -105,12 +95,13 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Name</label>
-                            <input type="text" class="form-control" name="name" id="edit_name">
+                            <input type="text" class="form-control" name="name" id="edit_name"
+                                placeholder="Enter brand model name">
                             <div class="text-danger error-message" id="edit_name_error"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </div>
             </form>
@@ -123,33 +114,44 @@
         $(document).ready(function() {
             let table = $('#brandsTable').DataTable();
 
-            // Create Modal
+            function getBrandInputSet(index = null, showRemove = false) {
+                return `
+            <div class="brand-input-set mb-3" data-index="${index}">
+                <div class="form-group">
+                    <label>Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name[]" class="form-control name-input" placeholder="Enter model name">
+                    <div class="text-danger error-message" data-error-for="name.${index ?? 0}"></div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm removeBtn" ${showRemove ? '' : 'style="display:none;"'}>Delete</button>
+            </div>`;
+            }
+
+            // Open Create Modal
             $('#openCreateModal').click(function() {
                 $('#brandForm')[0].reset();
-                $('#inputWrapper').html(getBrandInputSet());
+                $('#inputWrapper').html(getBrandInputSet(0, false));
                 $('#brandModal').modal('show');
             });
 
-            // Add more inputs
+            // Add More Inputs
             $('#addMoreBtn').click(function() {
-                let index = $('.brand-input-set').length;
+                let index = $('#inputWrapper .brand-input-set').length;
                 $('#inputWrapper').append(getBrandInputSet(index, true));
             });
 
-            // Remove input set
+            // Remove Input Field
             $(document).on('click', '.removeBtn', function() {
                 $(this).closest('.brand-input-set').remove();
-                $('.brand-input-set').each(function(index) {
-                    $(this).attr('data-index', index);
-                    $(this).find('.error-message').attr('data-error-for', `name.${index}`);
-                });
             });
 
-            // Create form submission
+            // Auto-clear error on focus
+            $(document).on('focus', '.name-input', function() {
+                $(this).next('.error-message').text('');
+            });
+
+            // Create Form Submission
             $('#brandForm').submit(function(e) {
                 e.preventDefault();
-                $('.error-message').text('');
-
                 $.ajax({
                     url: "{{ route('brands.model.store') }}",
                     method: 'POST',
@@ -157,31 +159,51 @@
                     success: function(response) {
                         if (response.data && Array.isArray(response.data)) {
                             response.data.forEach(function(model) {
-                                addBrandToTable(model, table);
+                                addBrandToTable(model);
                             });
                         }
-                        toastr.success('Brand models created successfully!');
                         $('#brandModal').modal('hide');
+                        toastr.success('Model created successfully');
+                        $('#brandForm')[0].reset();
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
+
+                            // Clear all previous errors first
+                            $('.error-message').text('');
+
                             for (let field in errors) {
-                                if (field.startsWith('name.')) {
-                                    let index = field.split('.')[1];
-                                    $(`[data-error-for="name.${index}"]`).text(errors[field][
-                                        0
-                                    ]);
-                                }
+                                // Get the original error message
+                                let originalMsg = errors[field][0];
+
+                                // Customize the message to remove index numbers
+                                let customMsg = originalMsg
+                                    .replace(/\.\d+/g, '') // Remove all .0, .1, etc.
+                                    .replace('name field', 'Name field') // Capitalize if needed
+                                    .replace('The Name field is required',
+                                        'This name field is required'); // Your custom message
+
+                                // Find the corresponding error container and display the message
+                                $(`.error-message[data-error-for="${field}"]`).text(customMsg);
+
+                                // Set up click handler to clear error when field is focused
+                                $(`[name="${field.replace('.', '[').replace('.', ']')}"]`).off(
+                                        'focus.clearError')
+                                    .on('focus.clearError', function() {
+                                        $(`.error-message[data-error-for="${field}"]`).text(
+                                            '');
+                                    });
                             }
                         } else {
-                            toastr.error(xhr.responseJSON.message || 'Something went wrong.');
+                            toastr.error('Something went wrong.');
                         }
                     }
                 });
             });
 
-            // Edit modal open
+            // Edit Modal Open
+            // Edit button click
             $(document).on('click', '.editBrand', function() {
                 $('#edit_id').val($(this).data('id'));
                 $('#edit_name').val($(this).data('name'));
@@ -189,40 +211,42 @@
                 $('#editModal').modal('show');
             });
 
-            // Edit form submission
+            // Hide error when clicking back on input
+            $(document).on('focus', '#edit_name', function() {
+                $('#edit_name_error').text('');
+            });
+
+
+            // Edit Form Submit
             $('#editForm').submit(function(e) {
                 e.preventDefault();
                 let id = $('#edit_id').val();
-                $('#edit_name_error').text('');
-
                 $.ajax({
                     url: "{{ route('brands.model.update', ':id') }}".replace(':id', id),
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
                         updateBrandInTable(response.data);
-                        toastr.success('Brand model updated successfully!');
+                        toastr.success('Model updated successfully');
                         $('#editModal').modal('hide');
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            for (let field in errors) {
-                                $(`#edit_${field}_error`).text(errors[field][0]);
-                            }
+                            $('#edit_name_error').text(xhr.responseJSON.errors.name ? xhr
+                                .responseJSON.errors.name[0] : '');
                         } else {
-                            toastr.error(xhr.responseJSON.message || 'Something went wrong.');
+                            toastr.error('Something went wrong.');
                         }
                     }
                 });
             });
 
-            // Delete brand
+            // Delete Brand
             $(document).on('click', '.deleteBrand', function() {
                 let id = $(this).data('id');
                 swal({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this brand model!",
+                    title: "Are you sure you want to delete this record?",
+                    text: "If you delete this Brand Model Recored, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -238,7 +262,7 @@
                             },
                             success: function() {
                                 table.row($(`#brand-row-${id}`)).remove().draw();
-                                toastr.success('Brand model deleted successfully!');
+                                toastr.success('Model deleted successfully');
                             },
                             error: function() {
                                 toastr.error('Delete failed.');
@@ -248,47 +272,30 @@
                 });
             });
 
-            // Add new brand to table
-            function addBrandToTable(model, table) {
+            function addBrandToTable(model) {
                 let newRow = table.row.add([
                     table.rows().count() + 1,
-                    model.name,
+                    Array.isArray(model.name) ? model.name.join(', ') : model.name,
                     `<div class="d-flex gap-1">
-                        <button class="btn btn-primary editBrand"
-                            data-id="${model.id}" 
-                            data-name="${model.name}">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="btn deleteBrand" style="background-color: #009245;"
-                            data-id="${model.id}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>`
+                <button class="btn btn-primary editBrand"
+                    data-id="${model.id}"
+                    data-name="${Array.isArray(model.name) ? model.name.join(', ') : model.name}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button class="btn deleteBrand" style="background-color: #009245;"
+                    data-id="${model.id}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>`
                 ]).draw(false).node();
-
                 $(newRow).attr('id', `brand-row-${model.id}`);
                 $(newRow).find('td').eq(1).addClass('brand-name');
             }
 
-            // Update brand in table
             function updateBrandInTable(model) {
                 let row = $(`#brand-row-${model.id}`);
-                row.find('.brand-name').text(model.name);
+                row.find('.brand-name').text(Array.isArray(model.name) ? model.name.join(', ') : model.name);
                 row.find('.editBrand').data('name', model.name);
-            }
-
-            // Brand input set HTML
-            function getBrandInputSet(index = 0, showRemove = false) {
-                return `
-                    <div class="brand-input-set mb-3" data-index="${index}">
-                        <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name[]" class="form-control name-input">
-                            <div class="text-danger error-message" data-error-for="name.${index}"></div>
-                        </div>
-                        <button type="button" class="btn btn-danger btn-sm removeBtn" ${showRemove ? '' : 'style="display:none;"'}>Delete</button>
-                        <hr>
-                    </div>`;
             }
         });
     </script>
