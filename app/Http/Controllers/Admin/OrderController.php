@@ -17,8 +17,6 @@ class OrderController extends Controller
         return view('admin.order.index', compact('orders', 'statuses'));
     }
 
-
-
     public function destroy($id)
     {
         $order = Order::findOrFail($id);

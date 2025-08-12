@@ -9,6 +9,7 @@ use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\MobileListingController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -45,10 +46,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getProfile',[AuthController::class,'getProfile']);
     Route::get('/updateProfile',[AuthController::class,'updateProfile']);
     Route::post('/changePassword',[AuthController::class,'changePassword']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
+
+    //order and tracking
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::get('/orders/{id}/track', [OrderController::class, 'track']);
 });
 
 // Mobile Request API
