@@ -52,7 +52,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(NotificationRepoInterface::class, NotificationRepo::class);
-
     }
 
     /**

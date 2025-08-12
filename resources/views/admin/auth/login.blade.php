@@ -9,7 +9,7 @@
                 <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
                     <div class="card card-primary">
                         <div class="card-header d-flex justify-content-center">
-                            <img src="{{ asset('public/admin/assets/img/logo.png') }}" style="width: 50%; height: 50%;"
+                            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" style="width: 200px; height: auto; margin-top:3px; margin-bottom: 3px;"
                                 class="img-fluid" alt="Logo">
                         </div>
                         <div class="card-body">
