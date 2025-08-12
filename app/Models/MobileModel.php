@@ -10,9 +10,8 @@ class MobileModel extends Model
 {
     use HasFactory;
 
-    protected $table = ['models'];
-
-protected $guarded = [];
+    protected $table = 'models';
+    protected $guarded = [];
 
  public function brand()
     {
