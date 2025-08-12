@@ -107,7 +107,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
 
         // ############ Models of Mobile #################
 
-            Route::controller(ModelController::class)->group(function () {
+           Route::controller(ModelController::class)->group(function () {
              Route::get('/brands/models/{id}', 'index')->name('brands.model.view')->middleware('check.permission:brands,view');
               Route::post('/brands/models/store', 'store')->name('brands.model.store')->middleware('check.permission:brands,create');
                Route::post('/brands/models/update/{id}', 'update')->name('brands.model.update')->middleware('check.permission:brands,update');

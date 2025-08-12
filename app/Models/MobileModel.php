@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Brand;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MobileModel extends Model
 {
@@ -13,4 +14,8 @@ class MobileModel extends Model
 
 protected $guarded = [];
 
+ public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'id');
+    }
 }

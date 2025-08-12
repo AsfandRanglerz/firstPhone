@@ -2,41 +2,46 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Brand;
 use App\Models\MobileModel;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Str;
 
 class ModelController extends Controller
 {
-    public function index()
-    {
-        $models = MobileModel::all();
-        return view('admin.brands.models', compact('models'));
-    }
+   public function index($id)
+{
+    $brand = Brand::with('mobileModels')->findOrFail($id);
+    $models = $brand->mobileModels;
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|array',
-            'name.*' => 'required|string|distinct|unique:models,name',
-        ]);
+    return view('admin.brands.models', compact('models' , 'brand'));
+}
 
-        $createdModels = [];
+ public function store(Request $request)
+{
+    $request->validate([
+        'brand_id' => 'required|exists:brands,id', // ✅ brand exist hona chahiye
+        'name'     => 'required|array',
+        'name.*'   => 'required|string|distinct|unique:models,name',
+    ]);
 
-        foreach ($request->name as $name) {
-            $createdModels[] = MobileModel::create([
-                'name' => $name,
-                'slug' => Str::slug($name),
-            ]);
-        }
+    $createdModels = [];
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Model(s) created successfully',
-            'data' => $createdModels,
+    foreach ($request->name as $name) {
+        $createdModels[] = MobileModel::create([
+            'brand_id' => $request->brand_id, // ✅ brand id store correctly
+            'name'     => $name,
         ]);
     }
+
+    return response()->json([
+        'message' => 'Models created successfully',
+        'data'    => $createdModels
+    ]);
+}
+
+
 
     public function update(Request $request, $id)
     {
@@ -47,7 +52,6 @@ class ModelController extends Controller
         $model = MobileModel::findOrFail($id);
         $model->update([
             'name' => $request->name,
-            'slug' => $request->slug ?? Str::slug($request->name),
         ]);
 
         return response()->json([

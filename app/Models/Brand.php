@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MobileModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Brand extends Model
 {
@@ -15,4 +16,9 @@ class Brand extends Model
         'name',
         'slug',
     ];
+
+    public function mobileModels()
+    {
+        return $this->hasMany(MobileModel::class, 'brand_id', 'id');
+    }
 }
