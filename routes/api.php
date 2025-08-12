@@ -4,9 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SeoController;
-use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Api\MobileSearchController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -23,6 +24,8 @@ use App\Http\Controllers\SideMenuPermissionController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+ 
 
 Route::post('/roles', [RoleController::class, 'store']);
 Route::post('/permissions', [PermissionController::class, 'store']);
@@ -47,5 +50,15 @@ Route::middleware('auth:sanctum')->group(function () {
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
-});
 
+    //Search Model of Mobiles
+    Route::get('/search', [MobileSearchController::class, 'search']);
+Route::get('/recent-searches', [MobileSearchController::class, 'getRecentSearches']);
+
+Route::delete('/delete-specific', [MobileSearchController::class, 'delete']);
+
+Route::delete('/delete-all', [MobileSearchController::class, 'deleteAll']);
+
+   
+
+});

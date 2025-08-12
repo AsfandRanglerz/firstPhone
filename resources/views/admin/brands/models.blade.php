@@ -5,13 +5,13 @@
     <div class="main-content">
         <section class="section">
             <div class="section-body">
+                <a class="btn btn-primary mb-3" href="{{ url('admin/brands') }}">Back</a>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
                                 <h4>{{ $brand->name }} - Models</h4>
                             </div>
-
                             <div class="card-body table-striped table-bordered table-responsive">
                                 {{-- Create Button --}}
                                 <button class="btn mb-3" style="background-color: #009245;"
@@ -94,7 +94,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="name" id="edit_name"
                                 placeholder="Enter brand model name">
                             <div class="text-danger error-message" id="edit_name_error"></div>
@@ -163,7 +163,7 @@
                             });
                         }
                         $('#brandModal').modal('hide');
-                        toastr.success('Model created successfully');
+                        toastr.success('Model Created Successfully');
                         $('#brandForm')[0].reset();
                     },
                     error: function(xhr) {
@@ -227,7 +227,7 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         updateBrandInTable(response.data);
-                        toastr.success('Model updated successfully');
+                        toastr.success('Model Updated Successfully');
                         $('#editModal').modal('hide');
                     },
                     error: function(xhr) {
@@ -246,7 +246,7 @@
                 let id = $(this).data('id');
                 swal({
                     title: "Are you sure you want to delete this record?",
-                    text: "If you delete this Brand Model Recored, it will be gone forever.",
+                    text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -262,7 +262,7 @@
                             },
                             success: function() {
                                 table.row($(`#brand-row-${id}`)).remove().draw();
-                                toastr.success('Model deleted successfully');
+                                toastr.success('Model Deleted Successfully');
                             },
                             error: function() {
                                 toastr.error('Delete failed.');
