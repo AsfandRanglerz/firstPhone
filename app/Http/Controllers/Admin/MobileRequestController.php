@@ -30,6 +30,6 @@ class MobileRequestController extends Controller
     {
         $mobilerequest = MobileRequest::findOrFail($id);
         $mobilerequest->delete();
-        return redirect()->route('mobilerequest.index')->with('success', 'Mobile request deleted successfully');
+        return redirect()->route('mobilerequest.index')->with('success', 'Mobile Request Deleted Successfully');
     }
 }

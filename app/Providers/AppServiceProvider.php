@@ -36,7 +36,8 @@ use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
 use App\Repositories\Api\Interfaces\NotificationRepoInterface;
-
+use App\Repositories\Api\OrderRepository;
+use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -52,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(NotificationRepoInterface::class, NotificationRepo::class);
+        $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
 
     }
 

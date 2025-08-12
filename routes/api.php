@@ -6,8 +6,6 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\Api\MobileSearchController;
-use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -46,19 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getProfile',[AuthController::class,'getProfile']);
     Route::get('/updateProfile',[AuthController::class,'updateProfile']);
     Route::post('/changePassword',[AuthController::class,'changePassword']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
-
-    //Search Model of Mobiles
-    Route::get('/search', [MobileSearchController::class, 'search']);
-Route::get('/recent-searches', [MobileSearchController::class, 'getRecentSearches']);
-
-Route::delete('/delete-specific', [MobileSearchController::class, 'delete']);
-
-Route::delete('/delete-all', [MobileSearchController::class, 'deleteAll']);
-
-   
-
 });

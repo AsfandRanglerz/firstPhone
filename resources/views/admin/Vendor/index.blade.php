@@ -55,6 +55,7 @@
                                                     </label>
                                                 </td>
                                                 <td>
+                                                    <div class="d-flex gap-0">
                                                     @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('edit')))
                                                         <a href="{{ route('vendor.edit', $user->id) }}"
@@ -78,6 +79,7 @@
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
                                                     @endif
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach

@@ -19,18 +19,18 @@ class AuthController extends Controller
             if ($request->type == 'customer') {
                 $request->validate([
                     'email' => 'required|email|unique:users,email',
-                    'password' => 'required|string|min:8|confirmed',
+                    'password' => 'required|string|min:8',
                 ]);
             } elseif ($request->type == 'vendor') {
                 $request->validate([
                     'email' => 'required|email|unique:vendors,email',
-                    'password' => 'required|string|min:8|confirmed',
+                    'password' => 'required|string|min:8',
                 ]);
             } else {
                 return response()->json(['message' => 'Invalid user type'], 422);
             }
             $user = $this->authService->register($request->all());
-            return ResponseHelper::success($user, 'Registration successful', 'success', 201);
+            return ResponseHelper::success($user, 'Registred successfully', null , 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
         } catch (\Exception $e) {

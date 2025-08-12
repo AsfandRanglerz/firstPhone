@@ -64,7 +64,7 @@ class VendorController extends Controller
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
         ]);
-        return redirect()->route('vendor.index')->with('success', 'Vendor created successfully');
+        return redirect()->route('vendor.index')->with('success', 'Vendor Created Successfully');
     }
 
     public function edit($id)
@@ -92,12 +92,12 @@ class VendorController extends Controller
         }
 
         $this->vendorService->updateUser($id, $data);
-        return redirect('/admin/vendor')->with('success', 'Vendor updated successfully');
+        return redirect('/admin/vendor')->with('success', 'Vendor Updated Successfully');
     }
 
     public function delete($id)
     {
         $deleted = $this->vendorService->deleteUser($id);
-        return redirect()->back()->with($deleted ? 'success' : 'error', $deleted ? 'Vendor deleted successfully' : 'User not found');
+        return redirect()->back()->with($deleted ? 'success' : 'error', $deleted ? 'Vendor Deleted Successfully' : 'User not found');
     }
 }
