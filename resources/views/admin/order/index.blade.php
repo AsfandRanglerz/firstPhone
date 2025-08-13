@@ -10,18 +10,35 @@
                         <div class="card">
                             <div class="card-header">
                                 <h4>Orders</h4>
+                                {{-- Totals Row Inside Card Header but Below Title --}}
+                                <div class="row mt-3 w-100">
+                                    <div class="col-md-4">
+                                        <div class="card shadow border-0 text-white mb-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="mb-1">Total COD</h6>
+                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($codTotal) }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card shadow border-0 text-white mb-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="mb-1">Total Online</h6>
+                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($onlineTotal) }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card shadow border-0 text-white mb-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="mb-1">Total Pickup</h6>
+                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($pickupTotal) }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
-                                {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('create')))
-                                    <a class="btn btn-primary mb-3 text-white"
-                                        href="{{ url('/admin/vendor-create') }}">Create</a>
-                                @endif --}}
-
-                                {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('users') && $sideMenuPermissions['users']->contains('view')))
-                                    <a class="btn btn-primary mb-3 text-white" href="{{ url('admin/users/trashed') }}">View
-                                        Trashed</a>
-                                @endif --}}
-
                                 <table class="table" id="table_id_events">
                                     <thead>
                                         <tr>
@@ -29,6 +46,9 @@
                                             <th>Order ID</th>
                                             <th>Customer</th>
                                             <th>Shipping Address</th>
+                                            <th>Buy From</th>
+                                            <th>Product</th>
+                                            <th>Price</th>
                                             <th>Payment Status</th>
                                             <th>Delivery Method</th>
                                             <th>Order Status</th>
@@ -47,6 +67,28 @@
                                                 <td>
                                                     {{ $order->shipping_address ?? 'N/A' }}
                                                 </td>
+                                                <td>
+                                                    @foreach ($order->items as $item)
+                                                        {{ $item->vendor->name ?? 'No Vendor' }}<br>
+                                                        <small><a href="mailto:{{ $item->vendor->email }}">{{ $item->vendor->email }}</a></small><br>
+                                                        <small>{{ $item->vendor->phone ?? 'N/A' }}</small>
+                                                    @endforeach
+                                                </td>
+                                                <td>
+                                                    @foreach ($order->items as $item)
+                                                        {{ $item->product->brand->name ?? 'No Brand' }}
+                                                        {{ $item->product->model->name ?? 'No Model' }}<br> (Qty:
+                                                        {{ $item->quantity }}, Price:
+                                                        {{ number_format($item->price, 2) }})
+                                                        <br>
+                                                    @endforeach
+                                                </td>
+                                                <td>
+                                                    @foreach ($order->items as $item)
+                                                        {{ number_format($item->price * $item->quantity) }}
+                                                    @endforeach
+                                                </td>
+
                                                 <td>
                                                     @php
                                                         $paymentClass = match ($order->payment_status) {
@@ -97,26 +139,26 @@
                                                             {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
                                                         </button>
                                                     @else --}}
-                                                        <div class="dropdown">
-                                                            <button
-                                                                class="btn btn-sm dropdown-toggle {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
-                                                                type="button" data-toggle="dropdown"
-                                                                id="statusBtn-{{ $order->id }}">
-                                                                {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
-                                                            </button>
-                                                            <div class="dropdown-menu">
-                                                                @foreach ($statuses as $status)
-                                                                    @if ($status !== $order->order_status)
-                                                                        <button type="button"
-                                                                            class="dropdown-item change-order-status"
-                                                                            data-order-id="{{ $order->id }}"
-                                                                            data-new-status="{{ $status }}">
-                                                                            {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                                                        </button>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
+                                                    <div class="dropdown">
+                                                        <button
+                                                            class="btn btn-sm dropdown-toggle {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
+                                                            type="button" data-toggle="dropdown"
+                                                            id="statusBtn-{{ $order->id }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            @foreach ($statuses as $status)
+                                                                @if ($status !== $order->order_status)
+                                                                    <button type="button"
+                                                                        class="dropdown-item change-order-status"
+                                                                        data-order-id="{{ $order->id }}"
+                                                                        data-new-status="{{ $status }}">
+                                                                        {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                                                    </button>
+                                                                @endif
+                                                            @endforeach
                                                         </div>
+                                                    </div>
                                                     {{-- @endif --}}
                                                 </td>
 

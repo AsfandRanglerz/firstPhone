@@ -104,7 +104,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="name" id="edit_name"
                                 placeholder="Enter model name">
                             <div class="text-danger error-message" id="edit_name_error"></div>
@@ -129,10 +129,18 @@
         $(document).ready(function() {
             let table = $('#brandsTable').DataTable();
 
+            // CSRF token for AJAX
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                }
+            });
+
             // Initialize create modal
             $('#openCreateModal').click(function() {
                 $('#brandForm')[0].reset();
                 $('#inputWrapper').html(getBrandInputSet());
+                $('.error-message').text('');
                 $('#brandModal').modal('show');
             });
 
@@ -160,10 +168,10 @@
                 $(this).siblings('.error-message').text('');
             });
 
-
             // Create form submission
             $('#brandForm').submit(function(e) {
                 e.preventDefault();
+
                 $.ajax({
                     url: "{{ route('brands.store') }}",
                     method: 'POST',
@@ -174,43 +182,47 @@
                                 addBrandToTable(brand, table);
                             });
                         }
-                        toastr.success('Brand created successfully');
+                        toastr.success('Brand Created Successfully');
                         $('#brandModal').modal('hide');
                     },
-                    // In your AJAX error handling
                     error: function(xhr) {
+                        $('.error-message').text('');
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-
-                            // Clear all previous errors first
-                            $('.error-message').text('');
-
                             for (let field in errors) {
-                                // Get the original error message
-                                let originalMsg = errors[field][0];
-
-                                // Customize the message to remove index numbers
-                                let customMsg = originalMsg
-                                    .replace(/\.\d+/g, '') // Remove all .0, .1, etc.
-                                    .replace('name field', 'Name field') // Capitalize if needed
-                                    .replace('The Name field is required',
-                                        'This name field is required'); // Your custom message
-
-                                // Find the corresponding error container and display the message
-                                $(`.error-message[data-error-for="${field}"]`).text(customMsg);
-
-                                // Set up click handler to clear error when field is focused
-                                $(`[name="${field.replace('.', '[').replace('.', ']')}"]`).off(
-                                        'focus.clearError')
-                                    .on('focus.clearError', function() {
-                                        $(`.error-message[data-error-for="${field}"]`).text(
-                                            '');
-                                    });
+                                if (field.startsWith('name.')) {
+                                    // Show generic message without index
+                                    let input = $(`input[name="name[]"]`).eq(field.split('.')[
+                                        1]);
+                                    input.next('.error-message').text(errors[field][0].replace(
+                                        /name\.\d+/g, 'name'));
+                                }
+                                // Add similar logic for other fields if needed
                             }
+                        } else if (xhr.status === 419) {
+                            $('#inputWrapper .error-message').first().text(
+                                'Session expired. Please refresh the page.');
                         } else {
-                            toastr.error(xhr.responseJSON.message || 'Something went wrong.');
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
                         }
                     }
+                });
+            });
+
+            // Modal close hone par form aur inputWrapper reset
+            $('#brandModal').on('hidden.bs.modal', function() {
+                let form = $('#brandForm')[0];
+                form.reset();
+                $('.error-message').text('');
+                $('#inputWrapper').html('');
+                $('#brandForm').find('input, textarea, select').off('focus.clearError');
+            });
+
+            // Modal open hone par naya error clear event bind karein
+            $('#brandModal').on('shown.bs.modal', function() {
+                $('#brandForm').find('input, textarea, select').on('focus.clearError', function() {
+                    let name = $(this).attr('name');
+                    $(`.error-message[data-error-for="${name}"]`).text('');
                 });
             });
 
@@ -243,48 +255,22 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         updateBrandInTable(response.data);
-                        toastr.success('Brand updated successfully!');
+                        toastr.success('Brand Updated Successfully');
                         $('#editModal').modal('hide');
                     },
-                    // In your AJAX error handling for both create and update
                     error: function(xhr) {
+                        $('#edit_name_error').text('');
+                        $('#edit_slug_error').text('');
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-
-                            // For create modal (array fields)
-                            if ($('#brandModal').is(':visible')) {
-                                $('.error-message').text(''); // Clear all errors first
-                                for (let field in errors) {
-                                    if (field.includes('name.')) {
-                                        let index = field.split('.')[1];
-                                        let input = $(`input[name="name[${index}]"]`);
-                                        input.next('.error-message').text(errors[field][0]);
-
-                                        // Add click handler to clear error when focused
-                                        input.off('focus.clearError').on('focus.clearError',
-                                            function() {
-                                                $(this).next('.error-message').text('');
-                                            });
-                                    }
-                                }
+                            for (let field in errors) {
+                                $(`#edit_${field}_error`).text(errors[field][0]);
                             }
-
-                            // For edit modal (single field)
-                            if ($('#editModal').is(':visible')) {
-                                $('#edit_name_error').text(''); // Clear previous error
-                                for (let field in errors) {
-                                    $(`#edit_${field}_error`).text(errors[field][0]);
-
-                                    // Add click handler to clear error when focused
-                                    $(`#edit_${field}`).off('focus.clearError').on(
-                                        'focus.clearError',
-                                        function() {
-                                            $(`#edit_${field}_error`).text('');
-                                        });
-                                }
-                            }
+                        } else if (xhr.status === 419) {
+                            $('#edit_name_error').text(
+                                'Session expired. Please refresh the page.');
                         } else {
-                            toastr.error(xhr.responseJSON.message || 'Something went wrong.');
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
                         }
                     }
                 });
@@ -295,7 +281,7 @@
                 let id = $(this).data('id');
                 swal({
                     title: "Are you sure you want to delete this record?",
-                    text: "If you delete this Brand Recored, it will be gone forever.",
+                    text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -310,7 +296,7 @@
                             },
                             success: function() {
                                 table.row($(`#brand-row-${id}`)).remove().draw();
-                                toastr.success('Brand deleted successfully!');
+                                toastr.success('Brand Deleted Successfully');
                             },
                             error: function() {
                                 toastr.error('Delete failed.');
@@ -323,27 +309,24 @@
             // Helper function to add new brand to table
             function addBrandToTable(brand, table) {
                 let newRow = table.row.add([
-                    table.rows().count() + 1, // Sr.
-                    brand.name, // Name
+                    table.rows().count() + 1,
+                    brand.name,
                     `<a href="${brand.model_view_url}" class="btn" style="background-color: #009245;">
-        <span class="fa fa-eye"></span>
-    </a>`, // Models Details
+                <span class="fa fa-eye"></span>
+            </a>`,
                     `<div class="d-flex gap-1">
-        <button class="btn btn-primary editBrand"
-            data-id="${brand.id}" 
-            data-name="${brand.name}"
-            data-slug="${brand.slug}">
-            <i class="fa fa-edit"></i>
-        </button>
-        <button class="btn deleteBrand" style="background-color: #009245;"
-            data-id="${brand.id}">
-            <i class="fa fa-trash"></i>
-        </button>
-    </div>` // Actions
+                <button class="btn btn-primary editBrand"
+                    data-id="${brand.id}" 
+                    data-name="${brand.name}"
+                    data-slug="${brand.slug}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button class="btn deleteBrand" style="background-color: #009245;"
+                    data-id="${brand.id}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>`
                 ]).draw(false).node();
-
-
-
 
                 $(newRow).attr('id', `brand-row-${brand.id}`);
                 $(newRow).find('td').eq(1).addClass('brand-name');
@@ -362,20 +345,20 @@
             function getBrandInputSet(index = null, showRemove = false) {
                 let idx = index !== null ? index : $('.brand-input-set').length;
                 return `
-        <div class="brand-input-set mb-3" data-index="${idx}">
-            <div class="form-group">
-                <label>Name <span class="text-danger">*</span></label>
-                <input type="text" name="name[]" class="form-control name-input" placeholder="Enter model name">
-                <div class="text-danger error-message" data-error-for="name.${idx}"></div>
-            </div>
-            <div class="form-group">
-                <label>Slug</label>
-                <input type="text" name="slug[]" class="form-control slug-input" readonly>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm removeBtn" ${showRemove ? '' : 'style="display:none;"'}>Delete</button>
-        </div>`;
+            <div class="brand-input-set mb-3" data-index="${idx}">
+                <div class="form-group">
+                    <label>Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name[]" class="form-control name-input" placeholder="Enter model name">
+                    <div class="text-danger error-message" data-error-for="name.${idx}"></div>
+                </div>
+                <div class="form-group">
+                    <label>Slug</label>
+                    <input type="text" name="slug[]" class="form-control slug-input" readonly>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm removeBtn" ${showRemove ? '' : 'style="display:none;"'}>Delete</button>
+            </div>`;
             }
-
         });
+      
     </script>
 @endsection
