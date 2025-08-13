@@ -27,6 +27,8 @@ use App\Http\Controllers\SideMenuPermissionController;
 //     return $request->user();
 // });
 
+ 
+
 Route::post('/roles', [RoleController::class, 'store']);
 Route::post('/permissions', [PermissionController::class, 'store']);
 Route::post('/sidemenue', [SideMenueController::class, 'store']);
@@ -46,22 +48,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getProfile',[AuthController::class,'getProfile']);
     Route::get('/updateProfile',[AuthController::class,'updateProfile']);
     Route::post('/changePassword',[AuthController::class,'changePassword']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
-    // Mobile Request API
-    Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
-
-    // Mobile Listing API
-    Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
-    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
-    
-    // Delete Account api
-    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 });
 
+// Mobile Request API
+Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform'])->middleware('auth:sanctum');
 
-
-
-
+// Mobile Listing API
+Route::middleware('auth:sanctum')->group(function (){
+Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
+Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+});
