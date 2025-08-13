@@ -60,7 +60,7 @@ class AuthRepository implements AuthRepositoryInterface{
         if (!$user) {
             return ['error' => ucfirst($request['type']) . ' not found'];
         }
-        $otp = rand(100000, 999999);
+        $otp = rand(1000, 9999);
         $user->otp = $otp;
         $user->save();
         return [
