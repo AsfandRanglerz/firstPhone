@@ -10,12 +10,28 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('customer')->latest()->get();
+        $orders = Order::with(['customer', 'items.product.brand', 'items.product.model', 'items.vendor'])
+            ->latest()
+            ->get();
 
-        // Define possible statuses
         $statuses = ['pending', 'confirmed', 'in_progress', 'shipped', 'delivered', 'cancelled'];
-        return view('admin.order.index', compact('orders', 'statuses'));
+
+        // Calculate totals based on order items instead of total_amount field
+        $codTotal = $orders->where('delivery_method', 'cod')->flatMap->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        $onlineTotal = $orders->where('delivery_method', 'online')->flatMap->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        $pickupTotal = $orders->where('delivery_method', 'pickup')->flatMap->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        return view('admin.order.index', compact('orders', 'statuses', 'codTotal', 'onlineTotal', 'pickupTotal'));
     }
+
 
     public function destroy($id)
     {

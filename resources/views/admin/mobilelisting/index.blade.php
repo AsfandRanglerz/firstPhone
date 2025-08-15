@@ -38,8 +38,13 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
+<<<<<<<<< Temporary merge branch 1
                                                 <td>{{ $mobile->brand->name }}</td>
                                                 <td>{{ $mobile->model->name }}</td>
+=========
+                                                <td>{{ $mobile->brand }}</td>
+                                                <td>{{ $mobile->model }}</td>
+>>>>>>>>> Temporary merge branch 2
                                                 <td>{{ $mobile->storage }}</td>
                                                 <td>{{ $mobile->ram }}</td>
                                                 <td>{{ $mobile->price }}</td>

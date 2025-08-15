@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\MobileListingController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -35,35 +36,40 @@ Route::post('/permissions', [PermissionController::class, 'store']);
 Route::post('/sidemenue', [SideMenueController::class, 'store']);
 Route::post('/permission-insert', [SideMenuPermissionController::class, 'assignPermissions']);
 Route::post('/seo-bulk', [SeoController::class, 'storeBulk'])
-     ->name('seo.bulk-update');
+    ->name('seo.bulk-update');
 
 // Auth APIs
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/login',[AuthController::class,'login']);
-Route::post('/sendOtp',[AuthController::class,'sendOtp']);
-Route::post('/verifyOtp',[AuthController::class,'verifyOtp']);
-Route::post('/resetPassword',[AuthController::class,'resetPassword']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/sendOtp', [AuthController::class, 'sendOtp']);
+Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
+Route::post('/resetPassword', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout',[AuthController::class,'logout']);
-    Route::get('/getProfile',[AuthController::class,'getProfile']);
-    Route::get('/updateProfile',[AuthController::class,'updateProfile']);
-    Route::post('/changePassword',[AuthController::class,'changePassword']);
-    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/getProfile', [AuthController::class, 'getProfile']);
+    Route::get('/updateProfile', [AuthController::class, 'updateProfile']);
+    Route::post('/changePassword', [AuthController::class, 'changePassword']);
+    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
+<<<<<<<<< Temporary merge branch 1
+    // Mobile Request API
+    Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
-    //Home Screen API
-    Route::get('/homescreen', [HomeController::class, 'homeScreen']);
+    // Mobile Listing API
+    Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
+    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    
+    // Delete Account api
+    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 });
 
-// Mobile Request API
-Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform'])->middleware('auth:sanctum');
 
-// Mobile Listing API
-Route::middleware('auth:sanctum')->group(function (){
-Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
-Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+
+
+
+=========
 });

@@ -52,7 +52,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
-
+<<<<<<<<< Temporary merge branch 1
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+=========
+>>>>>>>>> Temporary merge branch 2
         $this->app->bind(NotificationRepoInterface::class, NotificationRepo::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
 
