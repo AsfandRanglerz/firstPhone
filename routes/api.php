@@ -51,11 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/updateProfile', [AuthController::class, 'updateProfile']);
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
-
+    // Home Screen API
+    Route::get('/homescreen', [HomeController::class, 'homeScreen']);
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
-<<<<<<<<< Temporary merge branch 1
     // Mobile Request API
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
@@ -71,5 +71,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-=========
-});
+
+
