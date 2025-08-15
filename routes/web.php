@@ -154,6 +154,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::get('/orders',  'index')->name('order.index')->middleware('check.permission:Orders,view');
         Route::delete('/order-destroy/{id}',  'destroy')->name('order.destroy')->middleware('check.permission:Orders,delete');
         Route::post('/order/update-status/{id}', 'updateStatus')->name('order.updateStatus');
+        Route::post('/order/{id}/update-payment-status', 'updatePaymentStatus')->name('order.updatePaymentStatus');
+        Route::get('/orders/pending-counter', 'pendingCounter')->name('order.pendingCounter');
     });
 
     // ############ Notifications #################

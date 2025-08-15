@@ -7,7 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title')</title>
     <!-- Developed By Ranglerz -->
-    <link rel="stylesheet" href="https://www.ranglerz.com/cost-to-make-a-web-ios-or-android-app-and-how-long-does-it-take.php">
+    <link rel="stylesheet"
+        href="https://www.ranglerz.com/cost-to-make-a-web-ios-or-android-app-and-how-long-does-it-take.php">
     <!-- ========== Favicon ========== -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('public/admin/assets/img/favicon2.png') }}" />
 
@@ -41,47 +42,64 @@
             @include('admin.common.footer')
         </div>
     </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function updatemobilelistingCounter() {
-              $.ajax({
-                  url: "{{ route('mobile.counter') }}",
-                  type: 'GET',
-                  success: function(response) {
-                       // Ensure response.count exists and handle counts over 99
-                      let count = response.count || 0; // Default to 0 if no count is returned
-                      $('#updatemobilelistingCounter').text(count > 99 ? '99+' : count);
-                      // $('#orderCounter').text(response.count);
-                  },
-                  error: function(xhr, status, error) {
-                      console.log(error);
-                  }
-              });
-          }
-          updatemobilelistingCounter();
-          setInterval(updatemobilelistingCounter, 10000);
+            $.ajax({
+                url: "{{ route('mobile.counter') }}",
+                type: 'GET',
+                success: function(response) {
+                    // Ensure response.count exists and handle counts over 99
+                    let count = response.count || 0; // Default to 0 if no count is returned
+                    $('#updatemobilelistingCounter').text(count > 99 ? '99+' : count);
+                    // $('#orderCounter').text(response.count);
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        updatemobilelistingCounter();
+        setInterval(updatemobilelistingCounter, 10000);
 
-           function updatemobilerequestCounter() { //
-              $.ajax({
-                  url: "{{ route('mobilerequest.counter') }}",
-                  type: 'GET',
-                  success: function(response) {
-                       // Ensure response.count exists and handle counts over 99
-                      let count = response.count || 0; // Default to 0 if no count is returned
-                      $('#updatemobilerequestCounter').text(count > 99 ? '99+' : count);
-                      // $('#orderCounter').text(response.count);
-                  },
-                  error: function(xhr, status, error) {
-                      console.log(error);
-                  }
-              });
-          }
-          updatemobilerequestCounter();
-          setInterval(updatemobilerequestCounter, 10000);
-  </script>
+        function updatemobilerequestCounter() { //
+            $.ajax({
+                url: "{{ route('mobilerequest.counter') }}",
+                type: 'GET',
+                success: function(response) {
+                    // Ensure response.count exists and handle counts over 99
+                    let count = response.count || 0; // Default to 0 if no count is returned
+                    $('#updatemobilerequestCounter').text(count > 99 ? '99+' : count);
+                    // $('#orderCounter').text(response.count);
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        updatemobilerequestCounter();
+        setInterval(updatemobilerequestCounter, 10000);
+
+        function updateOrdersCounter() {
+            $.ajax({
+                url: "{{ route('order.pendingCounter') }}",
+                type: 'GET',
+                success: function(response) {
+                    let count = response.count || 0;
+                    $('#updateOrdersCounter').text(count > 99 ? '99+' : count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching orders count:', error);
+                }
+            });
+        }
+
+        updateOrdersCounter();
+        setInterval(updateOrdersCounter, 10000);
+    </script>
 
     <!-- ========== Core JS Libraries ========== -->
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 

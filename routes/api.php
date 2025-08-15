@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
+    Route::post('/shipping', [OrderController::class, 'shippingAddress']);
 
     // Mobile Request API
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform'])->middleware('auth:sanctum');
