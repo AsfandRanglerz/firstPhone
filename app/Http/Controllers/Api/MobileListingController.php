@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class MobileListingController extends Controller
 {
-    public function mobileListing(Request $request)
+   public function mobileListing(Request $request)
 {
     try {
         
@@ -23,10 +23,13 @@ class MobileListingController extends Controller
         $listing->model_id = $request->model_id;
         $listing->storage = $request->storage;
         $listing->ram = $request->ram;
+        $listing->color = $request->color;
+        $listing->repairing_service = $request->repairing_service;
         $listing->price = $request->price;
         $listing->condition = $request->condition;
         $listing->about = $request->about;
         $listing->vendor_id = auth()->id(); 
+
 
         
          $mediaPaths = [];

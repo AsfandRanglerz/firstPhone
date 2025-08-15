@@ -76,9 +76,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 });
 
+//filter searchers api
 
-
-
-
-
-
+Route::get('/models', [FilterMobileController::class, 'getModels']);
+Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
+Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
