@@ -57,4 +57,27 @@ class OrderController extends Controller
             'message' => 'Order status updated successfully'
         ]);
     }
+
+    // OrderController.php
+    public function updatePaymentStatus(Request $request, $id)
+    {
+        $request->validate([
+            'payment_status' => 'required|in:paid,pending,failed,refunded',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->payment_status = $request->payment_status;
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment status updated successfully',
+        ]);
+    }
+
+    public function pendingCounter()
+    {
+        $count = Order::where('order_status', 'pending')->count();
+        return response()->json(['count' => $count]);
+    }
 }

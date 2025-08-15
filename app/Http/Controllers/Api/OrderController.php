@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\ShippingAddressRequest;
+use App\Models\ShippingAddress;
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class OrderController extends Controller
@@ -17,7 +19,7 @@ class OrderController extends Controller
         $this->orderRepository = $orderRepository;
     }
 
-       public function index(Request $request)
+    public function index(Request $request)
     {
         try {
             $status = $request->get('status');
@@ -37,7 +39,7 @@ class OrderController extends Controller
 
 
 
-     public function show($id)
+    public function show($id)
     {
         try {
             $customerId = auth()->id();
@@ -86,5 +88,13 @@ class OrderController extends Controller
         }
     }
 
-
+    public function shippingAddress(ShippingAddressRequest $request)
+    {
+        try {
+            $shippingAddress = ShippingAddress::create($request->validated());
+            return ResponseHelper::success($shippingAddress, 'Shipping address saved successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
 }

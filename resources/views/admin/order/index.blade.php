@@ -92,18 +92,34 @@
 
                                                 <td>
                                                     @php
-                                                        $paymentClass = match ($order->payment_status) {
-                                                            'paid' => 'bg-primary',
-                                                            'pending' => 'bg-warning',
-                                                            'failed' => 'bg-danger',
-                                                            'refunded' => 'bg-secondary',
-                                                            default => 'bg-light',
-                                                        };
+                                                        $paymentColors = [
+                                                            'paid' => 'btn-primary',
+                                                            'pending' => 'btn-warning',
+                                                            'failed' => 'btn-danger',
+                                                            'refunded' => 'btn-secondary',
+                                                        ];
                                                     @endphp
 
-                                                    <span class="badge {{ $paymentClass }}">
-                                                        {{ ucfirst($order->payment_status) }}
-                                                    </span>
+                                                    <div class="dropdown">
+                                                        <button
+                                                            class="btn btn-sm dropdown-toggle {{ $paymentColors[$order->payment_status] ?? 'btn-light' }}"
+                                                            type="button" id="paymentBtn-{{ $order->id }}"
+                                                            data-toggle="dropdown">
+                                                            {{ ucfirst($order->payment_status) }}
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            @foreach (['paid', 'pending', 'failed', 'refunded'] as $status)
+                                                                @if ($status !== $order->payment_status)
+                                                                    <button type="button"
+                                                                        class="dropdown-item change-payment-status"
+                                                                        data-order-id="{{ $order->id }}"
+                                                                        data-new-status="{{ $status }}">
+                                                                        {{ ucfirst($status) }}
+                                                                    </button>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
                                                 </td>
 
                                                 <td>
@@ -186,84 +202,115 @@
 @endsection
 
 @section('js')
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            if ($.fn.DataTable.isDataTable('#table_id_events')) {
-                $('#table_id_events').DataTable().destroy();
-            }
-            $('#table_id_events').DataTable();
+<script>
+    $(document).ready(function() {
 
-            // SweetAlert2 delete confirmation
-            $('.show_confirm').click(function(event) {
-                event.preventDefault();
-                var formId = $(this).data("form");
-                var form = document.getElementById(formId);
+        // ===== DataTable Initialization =====
+        if ($.fn.DataTable.isDataTable('#table_id_events')) {
+            $('#table_id_events').DataTable().destroy();
+        }
+        $('#table_id_events').DataTable();
 
-                swal({
-                    title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
-            });
+        // ===== SweetAlert2 Delete Confirmation =====
+        $('.show_confirm').click(function(event) {
+            event.preventDefault();
+            var formId = $(this).data("form");
+            var form = document.getElementById(formId);
 
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            // Order status change via jQuery AJAX
-            $('.change-order-status').on('click', function() {
-                let orderId = $(this).data('order-id');
-                let newStatus = $(this).data('new-status');
-
-                $.ajax({
-                    url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
-                    type: 'POST',
-                    data: {
-                        order_status: newStatus,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(data) {
-                        if (data.success) {
-                            // Update button text & color
-                            const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g,
-                                c => c.toUpperCase());
-                            const button = $(`#statusBtn-${orderId}`);
-
-                            const colorClasses = {
-                                'pending': 'btn-warning',
-                                'confirmed': 'btn-info',
-                                'in_progress': 'btn-primary',
-                                'shipped': 'btn-secondary',
-                                'delivered': 'btn-success',
-                                'cancelled': 'btn-danger',
-                            };
-
-                            button
-                                .text(statusText)
-                                .removeClass()
-                                .addClass(
-                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
-
-                            toastr.success(data.message);
-                        } else {
-                            toastr.error('Something went wrong');
-                        }
-                    },
-                    error: function() {
-                        toastr.error('Failed to update status');
-                    }
-                });
+            swal({
+                title: "Are you sure you want to delete this record?",
+                text: "If you delete this, it will be gone forever.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    form.submit();
+                }
             });
         });
-    </script>
 
+        // ===== Order Status Change via AJAX =====
+        $('.change-order-status').on('click', function() {
+            let orderId = $(this).data('order-id');
+            let newStatus = $(this).data('new-status');
 
+            $.ajax({
+                url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
+                type: 'POST',
+                data: {
+                    order_status: newStatus,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    if (data.success) {
+                        const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        const button = $(`#statusBtn-${orderId}`);
 
+                        const colorClasses = {
+                            'pending': 'btn-warning',
+                            'confirmed': 'btn-info',
+                            'in_progress': 'btn-primary',
+                            'shipped': 'btn-secondary',
+                            'delivered': 'btn-success',
+                            'cancelled': 'btn-danger',
+                        };
+
+                        button.text(statusText)
+                              .removeClass()
+                              .addClass(`btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                        toastr.success(data.message);
+                    } else {
+                        toastr.error('Something went wrong');
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to update status');
+                }
+            });
+        });
+
+        // ===== Payment Status Change via AJAX =====
+        $('.change-payment-status').on('click', function() {
+            let orderId = $(this).data('order-id');
+            let newStatus = $(this).data('new-status');
+
+            $.ajax({
+                url: "{{ route('order.updatePaymentStatus', ':id') }}".replace(':id', orderId),
+                type: 'POST',
+                data: {
+                    payment_status: newStatus,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    if (data.success) {
+                        const statusText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                        const button = $(`#paymentBtn-${orderId}`);
+
+                        const colorClasses = {
+                            'paid': 'btn-primary',
+                            'pending': 'btn-warning',
+                            'failed': 'btn-danger',
+                            'refunded': 'btn-secondary',
+                        };
+
+                        button.text(statusText)
+                              .removeClass()
+                              .addClass(`btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                        toastr.success(data.message);
+                    } else {
+                        toastr.error('Something went wrong');
+                    }
+                },
+                error: function() {
+                    toastr.error('Failed to update payment status');
+                }
+            });
+        });
+
+    });
+</script>
 @endsection
+

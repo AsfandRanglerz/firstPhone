@@ -2,7 +2,8 @@
     <aside" id="sidebar-wrapper">
         <div class="sidebar-brand">
             <a href="{{ url('/admin/dashboard') }}">
-                <img alt="image" src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" class="header-logo" style="width: 200px; height: auto; margin-top:20px; margin-bottom: 3px;" />
+                <img alt="image" src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" class="header-logo"
+                    style="width: 200px; height: auto; margin-top:20px; margin-bottom: 3px;" />
                 {{-- <span class="logo-name">Crop Secure</span> --}}
             </a>
         </div>
@@ -89,13 +90,13 @@
                         style="display: inline-flex; justify-content: center; align-items: center; 
                             min-width: 22px; height: 22px; border-radius: 50%; 
                             text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
-                            0
-                        </div>
-                    </a>
-                </li>
-            @endif
+                        0
+                    </div>
+                </a>
+            </li>
+        @endif
 
-             @if (Auth::guard('admin')->check() ||
+        @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('view')))
             <li class="dropdown {{ request()->is('admin/mobilerequest*') ? 'active' : '' }}">
                 <a href="{{ url('admin/mobilerequest') }}" class="nav-link">
@@ -106,30 +107,34 @@
                         style="display: inline-flex; justify-content: center; align-items: center; 
                             min-width: 22px; height: 22px; border-radius: 50%; 
                             text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
-                            0
-                        </div>
-                    </a>
-                </li>
-            @endif
-            
-        {{-- Notification --}}
-        @if (Auth::guard('admin')->check() ||
-                ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
-            {{-- Notification --}}
-            {{-- Notifications --}}
-            <li class="dropdown {{ request()->is('admin/orders*') ? 'active' : '' }}">
-                <a href="
-                {{ route('order.index') }}
-                " class="nav-link">
-                    <i data-feather="shopping-cart"></i><span>Orders</span>
+                        0
+                    </div>
                 </a>
             </li>
         @endif
 
+        {{-- Orders --}}
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                <a href="{{ route('order.index') }}" class="nav-link">
+                    <i data-feather="shopping-cart"></i>
+                    <span>Orders</span>
+                    <div id="updateOrdersCounter"
+                        class="badge {{ request()->is('admin/orders*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
+                        style="display: inline-flex; justify-content: center; align-items: center; 
+                    min-width: 22px; height: 22px; border-radius: 50%; 
+                    text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                        0
+                    </div>
+                </a>
+            </li>
+        @endif
+
+
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
-            {{-- Notification --}}
             {{-- Notifications --}}
             <li class="dropdown {{ request()->is('admin/notification*') ? 'active' : '' }}">
                 <a href="
