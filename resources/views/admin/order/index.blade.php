@@ -45,7 +45,7 @@
                                             <th>Sr.</th>
                                             <th>Order ID</th>
                                             <th>Customer</th>
-                                            <th>Shipping Address</th>
+                                            {{-- <th>Shipping Address</th> --}}
                                             <th>Buy From</th>
                                             <th>Product</th>
                                             <th>Price</th>
@@ -64,13 +64,14 @@
                                                     {{ $order->customer->name ?? 'N/A' }}<br>
                                                     <small>{{ $order->customer->email ?? 'N/A' }}</small>
                                                 </td>
-                                                <td>
+                                                {{-- <td>
                                                     {{ $order->shipping_address ?? 'N/A' }}
-                                                </td>
+                                                </td> --}}
                                                 <td>
                                                     @foreach ($order->items as $item)
                                                         {{ $item->vendor->name ?? 'No Vendor' }}<br>
-                                                        <small><a href="mailto:{{ $item->vendor->email }}">{{ $item->vendor->email }}</a></small><br>
+                                                        <small><a
+                                                                href="mailto:{{ $item->vendor->email }}">{{ $item->vendor->email }}</a></small><br>
                                                         <small>{{ $item->vendor->phone ?? 'N/A' }}</small>
                                                     @endforeach
                                                 </td>
@@ -132,13 +133,6 @@
                                                 @endphp
 
                                                 <td>
-                                                    {{-- @if ($order->order_status === 'delivered' || $order->order_status === 'cancelled')
-                                                        <button
-                                                            class="btn btn-sm {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
-                                                            type="button">
-                                                            {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
-                                                        </button>
-                                                    @else --}}
                                                     <div class="dropdown">
                                                         <button
                                                             class="btn btn-sm dropdown-toggle {{ $statusColors[$order->order_status] ?? 'btn-light' }}"
@@ -159,7 +153,6 @@
                                                             @endforeach
                                                         </div>
                                                     </div>
-                                                    {{-- @endif --}}
                                                 </td>
 
                                                 <td>
