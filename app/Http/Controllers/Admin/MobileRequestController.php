@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use App\Models\MobileRequest;
 use App\Http\Controllers\Controller;
@@ -16,8 +17,12 @@ class MobileRequestController extends Controller
 
     public function show($id)
     {
-        $mobilerequests = MobileRequest::findOrFail($id);
-        return view('admin.mobilerequest.show', compact('mobilerequests'));
+        $mobilerequests = MobileRequest::with(['brand', 'model'])->findOrFail($id);
+        $vendors = Vendor::where('brand_id', $mobilerequests->brand_id)
+        ->where('model_id', $mobilerequests->model_id)
+        ->where('location', $mobilerequests->location)
+        ->get();
+        return view('admin.mobilerequest.show', compact('mobilerequests', 'vendors'));
     }
 
     public function mobileRequestCounter()
