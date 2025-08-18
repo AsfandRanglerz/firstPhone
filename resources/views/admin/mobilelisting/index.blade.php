@@ -38,8 +38,8 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $mobile->brand->name ?? ''}}</td>
-                                                <td>{{ $mobile->model->name ?? '' }}</td>
+                                                <td>{{ $mobile->brand->name }}</td>
+                                                <td>{{ $mobile->model->name }}</td>
                                                 <td>{{ $mobile->storage }}</td>
                                                 <td>{{ $mobile->ram }}</td>
                                                 <td>{{ $mobile->price }}</td>
