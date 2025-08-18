@@ -71,6 +71,40 @@ class MobileListingController extends Controller
     }
 }
 
+public function previewListing($id)
+{
+    try {
+        // Fetch listing with relations
+        $listing = MobileListing::with(['brand', 'model'])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // Decode images (JSON stored in DB)
+        $images = json_decode($listing->image, true) ?? [];
+
+        $Data = [
+            'id'        => $listing->id,
+            'brand'     => $listing->brand ? $listing->brand->name : null,
+            'model'     => $listing->model ? $listing->model->name : null,
+            'storage'   => $listing->storage,
+            'ram'       => $listing->ram,
+            'price'     => $listing->price,
+            'condition' => $listing->condition,
+            'about'     => $listing->about,
+            'vendor_id' => $listing->vendor_id,
+            'image'     => array_map(function ($path) {
+                return asset($path);
+            }, $images),
+        ];
+
+        return ResponseHelper::success($Data, 'Preview generated successfully', null, 200);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while generating preview', 'error', 500);
+    }
+}
+
+
 public function getmobileListing()
 {
     try{
@@ -85,6 +119,7 @@ public function getmobileListing()
                     'image' => $listing->image ? array_map(function ($path) {
                         return asset($path);
                     }, json_decode($listing->image, true) ?? []) : [],
+                    'status' => $listing->status,
                 ];
             });
         $data = $listings->count() === 1 ? $listings->first() : $listings;
