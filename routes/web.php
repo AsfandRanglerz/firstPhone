@@ -56,9 +56,9 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::post('update-profile', [AdminController::class, 'update_profile']);
     Route::get('logout', [AdminController::class, 'logout'])->name('user.logout');
 
-   
+
     // ############ Roles #################
-   Route::controller(RoleController::class)->group(function () {
+    Route::controller(RoleController::class)->group(function () {
         Route::get('/roles', 'index')->name('roles.index')->middleware('check.permission:Roles,view');
         Route::get('/roles-create', 'create')->name('create.role')->middleware('check.permission:Roles,create');
         Route::post('/store-role', 'store')->name('store.role')->middleware('check.permission:Roles,create');
@@ -93,36 +93,33 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
 
     // ############ Brands #################
     Route::controller(BrandsController::class)->group(function () {
-         Route::get('/brands', 'index')->name('brands.index')->middleware('check.permission:brands,view');
+        Route::get('/brands', 'index')->name('brands.index')->middleware('check.permission:brands,view');
 
-         Route::get('/brands/create', 'create')->name('brands.create')->middleware('check.permission:create,view');
-         Route::post('/brands/store', 'store')->name('brands.store');
-         Route::get('/brands/edit', 'edit')->name('brands.edit')->middleware('check.permission:edit,view');
+        Route::get('/brands/create', 'create')->name('brands.create')->middleware('check.permission:create,view');
+        Route::post('/brands/store', 'store')->name('brands.store');
+        Route::get('/brands/edit', 'edit')->name('brands.edit')->middleware('check.permission:edit,view');
         //  Route::post('/brands/update/{id}', 'update')->name('brands.update');
-         Route::delete('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
-            
+        Route::delete('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
     });
 
     Route::post('/brands/update/{id}', [BrandsController::class, 'update'])->name('brands.update');
 
-        // ############ Models of Mobile #################
+    // ############ Models of Mobile #################
+    Route::controller(ModelController::class)->group(function () {
+        Route::get('/brands/models/{id}', 'index')->name('brands.model.view')->middleware('check.permission:brands,view');
+        Route::post('/brands/models/store', 'store')->name('brands.model.store')->middleware('check.permission:brands,create');
+        Route::post('/brands/models/update/{id}', 'update')->name('brands.model.update')->middleware('check.permission:brands,update');
+        Route::delete('/brands/models/delete/{id}', 'destroy')->name('brands.model.delete')->middleware('check.permission:brands,delete');
+    });
 
-            Route::controller(ModelController::class)->group(function () {
-             Route::get('/brands/models/{id}', 'index')->name('brands.model.view')->middleware('check.permission:brands,view');
-              Route::post('/brands/models/store', 'store')->name('brands.model.store')->middleware('check.permission:brands,create');
-               Route::post('/brands/models/update/{id}', 'update')->name('brands.model.update')->middleware('check.permission:brands,update');
-                Route::delete('/brands/models/delete/{id}', 'destroy')->name('brands.model.delete')->middleware('check.permission:brands,delete');
-            });
 
-
-    
 
     // ############ Mobile Listings #################
     Route::controller(MobileListingController::class)->group(function () {
         Route::get('/mobilelisting/count', 'mobileListingCounter')->name('mobile.counter');
         Route::get('/mobilelisting', 'index')->name('mobile.index')->middleware('check.permission:MobileListing,view');
         Route::get('/mobilelisting-show/{id}', 'show')->name('mobile.show');
-         Route::post('/mobilelisting/approve/{id}', 'approve')->name('mobilelisting.approve');
+        Route::post('/mobilelisting/approve/{id}', 'approve')->name('mobilelisting.approve');
         Route::post('/mobilelisting/reject/{id}', 'reject')->name('mobilelisting.reject');
         Route::post('/mobilelisting-update/{id}', 'update')->name('mobile.update')->middleware('check.permission:MobileListing,edit');
         Route::delete('/mobilelisting-destroy/{id}', 'delete')->name('mobile.delete')->middleware('check.permission:MobileListing,delete');
@@ -157,6 +154,8 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::get('/orders',  'index')->name('order.index')->middleware('check.permission:Orders,view');
         Route::delete('/order-destroy/{id}',  'destroy')->name('order.destroy')->middleware('check.permission:Orders,delete');
         Route::post('/order/update-status/{id}', 'updateStatus')->name('order.updateStatus');
+        Route::post('/order/{id}/update-payment-status', 'updatePaymentStatus')->name('order.updatePaymentStatus');
+        Route::get('/orders/pending-counter', 'pendingCounter')->name('order.pendingCounter');
     });
 
     // ############ Notifications #################
@@ -221,7 +220,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     });
 
     // ############ Terms & Conditions Routes #################
-     Route::controller(SecurityController::class)->group(function () {
+    Route::controller(SecurityController::class)->group(function () {
         Route::get('term-condition', 'TermCondition')->middleware('check.permission:Terms & Conditions,view');
         Route::get('term-condition-edit', 'TermConditionEdit')->middleware('check.permission:Terms & Conditions,edit');
         Route::post('term-condition-update', 'TermConditionUpdate');

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class MobileListingController extends Controller
 {
-    public function mobileListing(Request $request)
+   public function mobileListing(Request $request)
 {
     try {
         
@@ -21,32 +23,51 @@ class MobileListingController extends Controller
         $listing->model_id = $request->model_id;
         $listing->storage = $request->storage;
         $listing->ram = $request->ram;
+        $listing->color = $request->color;
+        $listing->repairing_service = $request->repairing_service;
         $listing->price = $request->price;
         $listing->condition = $request->condition;
         $listing->about = $request->about;
         $listing->vendor_id = auth()->id(); 
 
+
         
+         $mediaPaths = [];
+
+        // Handle multiple images/videos
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '.' . $extension;
-            $file->move(public_path('admin/assets/images/users/'), $filename);
-            $listing->image = 'public/admin/assets/images/users/' . $filename; 
+            foreach ($request->file('image') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $file->move(public_path('admin/assets/images/users/'), $filename);
+
+                $mediaPaths[] = 'public/admin/assets/images/users/' . $filename;
+            }
         }
 
+        // Store as JSON in the image column
+        $listing->image = json_encode($mediaPaths);
         $listing->save();
 
-        return response()->json([
-            'message' => 'Listing added successfully',
-            'listing' => $listing
-        ], 200);
+         $Data = [
+            'id'      => $listing->id,
+            'brand_id' => $listing->brand_id,
+            'model_id' => $listing->model_id,
+            'storage' => $listing->storage,
+            'ram'     => $listing->ram,
+            'price'   => $listing->price,
+            'condition' => $listing->condition,
+            'about'   => $listing->about,
+            'vendor_id' => $listing->vendor_id,
+            'image'   => array_map(function ($path) {
+                return asset($path);
+            }, $mediaPaths),
+        ];
 
-    }  catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while creating the listing',
-            'error' => $e->getMessage()
-        ], 500);
+        return ResponseHelper::success($Data, 'Listing added successfully', null, 200);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while creating the listing', 'error', 500);
     }
 }
 
@@ -54,25 +75,25 @@ public function getmobileListing()
 {
     try{
         $vendor = Auth::id();
-        $listings = MobileListing::where('vendor_id', $vendor)
+        $listings = MobileListing::with('model')
+            ->where('vendor_id', $vendor)
             ->get()
             ->map(function ($listing) {
                 return [
-                    'model' => $listing->model_id,
+                    'model' => $listing->model ? $listing->model->name : null,
                     'price' => $listing->price,
-                    'image' => $listing->image,
+                    'image' => $listing->image ? array_map(function ($path) {
+                        return asset($path);
+                    }, json_decode($listing->image, true) ?? []) : [],
                 ];
             });
         $data = $listings->count() === 1 ? $listings->first() : $listings;
-        return response()->json([
-            'message' => 'Mobile listings retrieved successfully',
-            'data' => $listings
-        ], 200);
+        return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
+
+    } catch (ValidationException $e) {
+        return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
     } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while retrieving listings',
-            'error' => $e->getMessage()
-        ], 500);
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
     }
 }
 

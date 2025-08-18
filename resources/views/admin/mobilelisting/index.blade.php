@@ -29,7 +29,7 @@
                                             <th>Condition</th>
                                             <th>About</th>
                                             <th>Status</th>
-                                            <th>Image/Video</th>
+                                            <th>Images/Videos</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -38,8 +38,8 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $mobile->brand }}</td>
-                                                <td>{{ $mobile->model }}</td>
+                                                <td>{{ $mobile->brand->name }}</td>
+                                                <td>{{ $mobile->model->name }}</td>
                                                 <td>{{ $mobile->storage }}</td>
                                                 <td>{{ $mobile->ram }}</td>
                                                 <td>{{ $mobile->price }}</td>

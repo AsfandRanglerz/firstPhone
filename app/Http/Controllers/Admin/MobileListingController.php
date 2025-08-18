@@ -10,15 +10,16 @@ class MobileListingController extends Controller
 {
     public function index()
     {
-        $mobiles = MobileListing::all();
+        $mobiles = MobileListing::with('model','brand')->get();
         return view('admin.mobilelisting.index', compact('mobiles'));
     }
 
-    public function show($id)
-    {
-        $mobiles = MobileListing::findOrFail($id);
-        return view('admin.mobilelisting.show', compact('mobiles'));
-    }
+   public function show($id)
+{
+    $mobiles = collect([MobileListing::findOrFail($id)]);
+    return view('admin.mobilelisting.show', compact('mobiles'));
+}
+
 
     public function mobileListingCounter()
     {
