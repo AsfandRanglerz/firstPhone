@@ -334,6 +334,7 @@
             });
 
             // Form Validation
+            // Form Validation & AJAX Submit
             $('form#createUserForm').submit(function(e) {
                 e.preventDefault();
                 $('.text-danger').remove();
@@ -351,7 +352,7 @@
 
                 if ($('#user_field').is(':visible') && (!selectedUsers || selectedUsers.length === 0)) {
                     $('#users').after(
-                    '<div class="text-danger mt-1">Please select at least one user</div>');
+                        '<div class="text-danger mt-1">Please select at least one user</div>');
                     isValid = false;
                 }
 
@@ -369,9 +370,53 @@
                     $("#createSpinner").show();
                     $("#createBtnText").hide();
                     $("#createBtn").prop("disabled", true);
-                    this.submit();
+
+                    let formData = new FormData(this);
+
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: $(this).attr('method'),
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            $("#createSpinner").hide();
+                            $("#createBtnText").show();
+                            $("#createBtn").prop("disabled", false);
+
+                            // Modal close
+                            $('#createUserModal').modal('hide');
+                            $('#createUserForm')[0].reset();
+                            $('#users').val(null).trigger('change');
+
+                            toastr.success("Notification Sent Successfully.", "Success!");
+
+                            // $('#table_id_events').DataTable().ajax.reload(null, false);
+                            location.reload();
+
+                        },
+                        error: function(xhr) {
+                            $("#createSpinner").hide();
+                            $("#createBtnText").show();
+                            $("#createBtn").prop("disabled", false);
+
+                            if (xhr.status === 422) {
+                                // show Validation errors
+                                let errors = xhr.responseJSON.errors;
+                                $.each(errors, function(key, value) {
+                                    $(`[name="${key}"]`).after(
+                                        `<div class="text-danger mt-1">${value[0]}</div>`
+                                    );
+                                });
+                            } else {
+                                swal("Error!", "Something went wrong. Please try again.",
+                                    "error");
+                            }
+                        }
+                    });
                 }
             });
+
 
             // Delete single
             $(document).on('click', '.show_confirm', function(event) {
