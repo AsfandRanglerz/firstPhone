@@ -5,6 +5,12 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Api\DeleteAccountController;
+use App\Http\Controllers\Api\FilterMobileController;
+use App\Http\Controllers\Api\MobileListingController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\Api\RequestFormController;
@@ -47,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getProfile',[AuthController::class,'getProfile']);
     Route::get('/updateProfile',[AuthController::class,'updateProfile']);
     Route::post('/changePassword',[AuthController::class,'changePassword']);
-    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
+    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -80,3 +86,22 @@ Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 
 //Mobile listing preview api
 Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+
+     // Mobile Request API
+    Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
+
+    //order and tracking
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::get('/orders/{id}/track', [OrderController::class, 'track']);
+    Route::post('/shipping', [OrderController::class, 'shippingAddress']);
+
+    // Mobile Listing API
+    Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
+    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    
+});
+
+Route::get('/models', [FilterMobileController::class, 'getModels']);
+Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
+Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
