@@ -7,11 +7,6 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\Api\RequestFormController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\DeleteAccountController;
-use App\Http\Controllers\Api\MobileListingController;
-use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -46,13 +41,12 @@ Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('/resetPassword', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/getProfile', [AuthController::class, 'getProfile']);
-    Route::get('/updateProfile', [AuthController::class, 'updateProfile']);
-    Route::post('/changePassword', [AuthController::class, 'changePassword']);
-    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
-    // Home Screen API
-    Route::get('/homescreen', [HomeController::class, 'homeScreen']);
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::get('/getProfile',[AuthController::class,'getProfile']);
+    Route::get('/updateProfile',[AuthController::class,'updateProfile']);
+    Route::post('/changePassword',[AuthController::class,'changePassword']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccout']);
+
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
@@ -81,6 +75,3 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/models', [FilterMobileController::class, 'getModels']);
 Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
 Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
-
-// Mobile Listing Preview API
-Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
