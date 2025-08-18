@@ -9,7 +9,7 @@ class AddColorAndRepairingServiceToMobileListingsTable extends Migration
     public function up()
     {
         Schema::table('mobile_listings', function (Blueprint $table) {
-            $table->string('color')->nullable()->after('model'); // yahan 'model' tumhare table ka actual column name hoga
+            $table->string('color')->nullable()->after('model_id'); // yahan 'model' tumhare table ka actual column name hoga
             $table->boolean('repairing_service')->default(false)->after('color');
         });
     }

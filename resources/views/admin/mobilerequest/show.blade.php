@@ -21,37 +21,19 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Phone</th>
-                                            <th>Actions</th>
+                                            <th>Location</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($mobilerequests as $mobilerequest)
-                                            @if ($mobilerequest && is_object($mobilerequest))
+                                        @foreach ($vendors as $vendor)
+                                            @if ($vendor && is_object($vendor))
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $mobilerequest->name }}</td>
-                                                    <td>{{ $mobilerequest->email }}</td>
-                                                    <td>{{ $mobilerequest->phone }}</td>
-                                                    
-                                                    <td>
-                                                        <div class="d-flex">
-                                                            <div class="gap-1" style="display: flex; align-items: center; justify-content: center; column-gap: 4px">
-                                                                @if (Auth::guard('admin')->check() ||
-                                                                    ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('delete')))
-                                                                    <form id="delete-form-{{ $mobilerequest->id }}"
-                                                                        action="{{ route('mobilerequest.delete', $mobilerequest->id) }}" method="POST">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button class="show_confirm btn d-flex gap-1"
-                                                                            style="background-color: #009245;"
-                                                                            data-form="delete-form-{{ $mobilerequest->id }}" type="button">
-                                                                            <span><i class="fa fa-trash"></i></span>
-                                                                        </button>
-                                                                    </form>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td>{{ $vendor->name }}</td>
+                                                    <td>{{ $vendor->email }}</td>
+                                                    <td>{{ $vendor->phone }}</td>
+                                                    <td>{{ $vendor->location }}</td>
+                                                   
                                                 </tr>
                                             @endif
                                         @endforeach
