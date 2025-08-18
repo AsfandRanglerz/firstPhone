@@ -15,8 +15,8 @@ class CreateRecentsearchesTable extends Migration
     {
         Schema::create('recentsearches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // user ka relation
-            $table->string('model'); // search model
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('model');
             $table->timestamps();
         });
     }
