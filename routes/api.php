@@ -13,8 +13,6 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\Api\RequestFormController;
-use App\Http\Controllers\Api\FilterMobileController;
 use App\Http\Controllers\SideMenuPermissionController;
 
 /*
@@ -85,23 +83,14 @@ Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel'
 Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 
 //Mobile listing preview api
-Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
-
-     // Mobile Request API
-    Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
-
-    //order and tracking
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{id}', [OrderController::class, 'show']);
-    Route::get('/orders/{id}/track', [OrderController::class, 'track']);
-    Route::post('/shipping', [OrderController::class, 'shippingAddress']);
-
-    // Mobile Listing API
-    Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
-    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+ Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
     
-});
+
 
 Route::get('/models', [FilterMobileController::class, 'getModels']);
 Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
 Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
+
+
+
+
