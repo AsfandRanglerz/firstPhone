@@ -1,33 +1,46 @@
 <?php
+
 namespace App\Services\Api;
+
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
-class AuthService{
+
+class AuthService
+{
     protected $authRepo;
-    public function __construct(AuthRepositoryInterface $authRepo){
+    public function __construct(AuthRepositoryInterface $authRepo)
+    {
         $this->authRepo = $authRepo;
     }
-    public function register(array $request){
+    public function register(array $request)
+    {
         return $this->authRepo->register($request);
     }
-    public function login(array $request){
+    public function login(array $request)
+    {
         return $this->authRepo->login($request);
     }
-    public function sendOtp(array $request){
+    public function sendOtp(array $request)
+    {
         return $this->authRepo->sendOtp($request);
     }
-    public function verifyOtp(array $request){
+    public function verifyOtp(array $request)
+    {
         return $this->authRepo->verifyOtp($request);
     }
-    public function resetPassword(array $request){
+    public function resetPassword(array $request)
+    {
         return $this->authRepo->resetPassword($request);
     }
-    public function logout(){
+    public function logout()
+    {
         return $this->authRepo->logout();
     }
-    public function updateProfile(){
-        return $this->authRepo->updateProfile();
+    public function updateProfile(array $request)
+    {
+        return $this->authRepo->updateProfile($request);
     }
-    public function changePassword(){
+    public function changePassword()
+    {
         return $this->authRepo->changePassword();
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Api;
 
 use App\Models\User;
@@ -7,9 +8,11 @@ use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-class AuthRepository implements AuthRepositoryInterface{
-    public function register(array $request){
-        if($request['type'] == 'customer'){
+class AuthRepository implements AuthRepositoryInterface
+{
+    public function register(array $request)
+    {
+        if ($request['type'] == 'customer') {
             $customer = User::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
@@ -17,7 +20,7 @@ class AuthRepository implements AuthRepositoryInterface{
                 'password' => Hash::make($request['password']),
             ]);
             return $customer;
-        }else if($request['type'] == 'vendor'){
+        } else if ($request['type'] == 'vendor') {
             $vendor = Vendor::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
@@ -27,7 +30,7 @@ class AuthRepository implements AuthRepositoryInterface{
             return $vendor;
         }
     }
-   public function login(array $request)
+    public function login(array $request)
     {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
@@ -51,7 +54,8 @@ class AuthRepository implements AuthRepositoryInterface{
             'token' => $token
         ];
     }
-    public function sendOtp(array $request){
+    public function sendOtp(array $request)
+    {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
@@ -64,11 +68,12 @@ class AuthRepository implements AuthRepositoryInterface{
         $user->otp = $otp;
         $user->save();
         return [
-            'otp'=> $otp,
+            'otp' => $otp,
             'email' => $user->email
         ];
     }
-    public function verifyOtp(array $request){
+    public function verifyOtp(array $request)
+    {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
@@ -83,7 +88,8 @@ class AuthRepository implements AuthRepositoryInterface{
         $user->save();
         return ['email' => $user->email];
     }
-    public function resetPassword(array $request){
+    public function resetPassword(array $request)
+    {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
@@ -91,7 +97,7 @@ class AuthRepository implements AuthRepositoryInterface{
         } else {
             return ['error' => 'Invalid user type'];
         }
-        if(Hash::check($request['password'], $user->password)){
+        if (Hash::check($request['password'], $user->password)) {
             return ['error' => 'New password cannot be the same as the old password'];
         }
         $user->password = Hash::make($request['password']);
@@ -99,7 +105,8 @@ class AuthRepository implements AuthRepositoryInterface{
         return $user;
     }
 
-    public function logout(){
+    public function logout()
+    {
         $user = auth()->user();
         if ($user) {
             $user->tokens()->delete();
@@ -107,7 +114,8 @@ class AuthRepository implements AuthRepositoryInterface{
         }
         return ['error' => 'User not authenticated'];
     }
-    public function updateProfile(array $request){
+    public function updateProfile(array $request)
+    {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
@@ -120,9 +128,22 @@ class AuthRepository implements AuthRepositoryInterface{
         }
         $user->name = $request['name'] ?? $user->name;
         $user->phone = $request['phone'] ?? $user->phone;
-        $user->email = $request['email'] ?? $user->email;           
+        $user->email = $request['email'] ?? $user->email;
+        if (isset($request['image']) && $request['image'] instanceof \Illuminate\Http\UploadedFile) {
+            // purani image delete karni ho to
+            if ($user->image && file_exists(public_path('uploads/' . $user->image))) {
+                unlink(public_path('uploads/' . $user->image));
+            }
+
+            $imageName = time() . '_' . $request['image']->getClientOriginalName();
+            $request['image']->move(public_path('uploads'), $imageName);
+
+            $user->image = $imageName;
+        }
+        $user->save();
     }
-    public function changePassword(array $request){
+    public function changePassword(array $request)
+    {
         $user = auth()->user();
         if (!$user) {
             return ['error' => 'User not authenticated'];

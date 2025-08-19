@@ -140,6 +140,7 @@ class AuthController extends Controller
                     'email' => 'required|email|unique:users,email,' . auth()->id(),
                     'phone' => 'nullable|string|max:15',
                     'type' => 'required|in:customer,vendor',
+                    'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 ]);
             } elseif ($request->type == 'vendor') {
                 $request->validate([
@@ -147,6 +148,7 @@ class AuthController extends Controller
                     'email' => 'required|email|unique:vendors,email,' . auth()->id(),
                     'phone' => 'nullable|string|max:15',
                     'type' => 'required|in:customer,vendor',
+                    'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 ]);
             }
             $result = $this->authService->updateProfile($request->all());
