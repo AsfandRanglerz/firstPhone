@@ -56,12 +56,8 @@ class UserController extends Controller
 
     public function create(CustomerRequest $request)
     {
-        $this->userService->createUser([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => bcrypt($request->password),
-        ]);
+       
+        $this->userService->createUser($request);
         return redirect()->route('user.index')->with('success', 'Customer Created Successfully');
     }
 
@@ -71,13 +67,24 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update(CustomerRequest $request, $id)
+    public function update(Request $request, $id)
     {
+         $request->validate([
+        'name'  => 'required',
+       'email' => [
+                'required',
+                'email',
+                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
+                ],
+        'phone' => 'required|regex:/^[0-9]+$/|max:15',
+    ]);
         $data = $request->only(['name', 'email', 'phone']);
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
-
+         if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image');
+    }
         $this->userService->updateUser($id, $data);
         return redirect('/admin/user')->with('success', 'Customer Updated Successfully');
     }

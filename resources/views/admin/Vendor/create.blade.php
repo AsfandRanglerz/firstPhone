@@ -67,7 +67,18 @@
                                         </div>
                                     </div>
 
-
+                                    <!-- Image Upload -->
+                                    <div class="col-sm-6 pl-sm-0 pr-sm-3">
+                                        <div class="form-group">
+                                            <label for="image">Image (Optional)</label>
+                                            <input type="file" class="form-control @error('image') is-invalid @enderror"
+                                                id="image" name="image" accept="image/*">
+                                            <small class="text-muted">(Image should be of size 2MB)</small>
+                                            @error('image')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->

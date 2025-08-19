@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\Api\AuthService;
+use App\Mail\UserCredentials;
 use App\Helpers\ResponseHelper;
+use App\Services\Api\AuthService;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+
 class AuthController extends Controller
 {
     protected $authService;
@@ -30,6 +33,8 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Invalid user type'], 422);
             }
             $user = $this->authService->register($request->all());
+        //      if ($user) { Mail::to($user->email)->send(new UserCredentials($user->name ?? 'User', $user->email, $user->phone ?? ''));
+        // }
             return ResponseHelper::success($user, 'Registred successfully', null , 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);

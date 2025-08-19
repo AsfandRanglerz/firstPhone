@@ -30,6 +30,7 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Phone</th>
+                                            <th>Image</th>
                                             <th>Toggle</th>
                                             <th>Actions</th>
                                         </tr>
@@ -43,6 +44,14 @@
                                                     <a href="mailto:{{ $user->email }}">{{ $user->email }}</a>
                                                 </td>
                                                 <td>{{ $user->phone }}</td>
+                                                <td>
+                                                    @if ($user->image)
+                                                        <img src="{{ asset($user->image) }}" alt="User Image"
+                                                            style="width: 50px; height: 50px;">
+                                                    @else
+                                                        <span>No Image</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <label class="custom-switch">
                                                         <input type="checkbox" class="custom-switch-input toggle-status"

@@ -58,12 +58,7 @@ class VendorController extends Controller
 
     public function create(VendorRequest $request)
     {
-        $this->vendorService->createUser([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => bcrypt($request->password),
-        ]);
+        $this->vendorService->createUser($request);
         return redirect()->route('vendor.index')->with('success', 'Vendor Created Successfully');
     }
 
@@ -83,13 +78,17 @@ class VendorController extends Controller
                 'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
             ],
             'phone' => 'required|regex:/^[0-9]+$/|max:15',
-            'password' => 'nullable|min:6', // Password is optional for update
+            'password' => 'nullable|min:6', 
         ]);
 
         $data = $request->only(['name', 'email', 'phone']);
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
+
+         if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image');
+    }
 
         $this->vendorService->updateUser($id, $data);
         return redirect('/admin/vendor')->with('success', 'Vendor Updated Successfully');

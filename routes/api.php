@@ -77,7 +77,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 //filter searchers api
-
 Route::get('/models', [FilterMobileController::class, 'getModels']);
 Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
 Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
@@ -85,11 +84,6 @@ Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 //Mobile listing preview api
  Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
     
-
-
-Route::get('/models', [FilterMobileController::class, 'getModels']);
-Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
-Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 
 
 

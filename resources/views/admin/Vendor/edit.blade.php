@@ -71,7 +71,29 @@
                                             @enderror
                                         </div>
                                     </div>
-
+                                    <!-- Image Upload -->
+                                     <div class="col-sm-6 d-flex align-items-center pl-sm-0 pr-sm-3">
+                                        <!-- Input to Upload New Image -->
+                                        <div class="flex-grow-1">
+                                            <div class="form-group mb-2">
+                                                <label>Image (Optional)</label>
+                                                <input type="file" name="image" id="image" class="form-control">
+                                                <small text-muted>(Image should be of size 2MB)</small>
+                                                @error('image')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    
+                                        <!-- Display Existing Image -->
+                                        @if($user->image)
+                                            <div class="ms-3">
+                                                <img src="{{ asset($user->image) }}" 
+                                                     alt="image" 
+                                                     style="width: 80px; height: 80px; margin-left:20px;border: 1px solid #ddd;">
+                                            </div>
+                                        @endif
+                                    </div>
 
                                     <!-- Submit Button -->
                                     <div class="card-footer text-center row">
