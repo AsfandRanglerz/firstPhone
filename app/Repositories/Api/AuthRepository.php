@@ -130,7 +130,6 @@ class AuthRepository implements AuthRepositoryInterface
         $user->phone = $request['phone'] ?? $user->phone;
         $user->email = $request['email'] ?? $user->email;
         if (isset($request['image']) && $request['image'] instanceof \Illuminate\Http\UploadedFile) {
-            // purani image delete karni ho to
             if ($user->image && file_exists(public_path('uploads/' . $user->image))) {
                 unlink(public_path('uploads/' . $user->image));
             }
