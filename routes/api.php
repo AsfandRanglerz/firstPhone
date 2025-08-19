@@ -49,7 +49,7 @@ Route::post('/resetPassword', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout',[AuthController::class,'logout']);
     Route::get('/getProfile',[AuthController::class,'getProfile']);
-    Route::get('/updateProfile',[AuthController::class,'updateProfile']);
+    Route::post('/updateProfile',[AuthController::class,'updateProfile']);
     Route::post('/changePassword',[AuthController::class,'changePassword']);
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
@@ -64,9 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
-
-    // Mobile Request API
-    Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform'])->middleware('auth:sanctum');
 
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
@@ -84,6 +81,11 @@ Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 //Mobile listing preview api
  Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
     
+
+
+Route::get('/models', [FilterMobileController::class, 'getModels']);
+Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
+Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
 
 
 
