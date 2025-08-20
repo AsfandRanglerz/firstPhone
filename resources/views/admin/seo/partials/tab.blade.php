@@ -10,7 +10,7 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">OG Title</label>
+            <label class="form-label">OG Title here</label>
             <input type="text" name="og_title" value="{{ old('og_title', $page->og_title) }}" class="form-control">
         </div>
 

@@ -12,12 +12,13 @@
     .nav-pills .nav-link:hover:not(.active) {
         background-color: #ff560833;
         /* 33 = 20% opacity */
-        color: #009245;
+        color: #009245; 
     }
 </style>
 
 @section('content')
     <div class="main-content">
+        <html></html>
         <div class="row">
             <div class="col-md-3">
                 <div class="nav flex-column nav-pills" id="seo-tabs" role="tablist" aria-orientation="vertical">

@@ -1,19 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\FilterMobileController;
+use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\MobileFilterController;
 use App\Http\Controllers\Api\MobileListingController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
-use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\SideMenuPermissionController;
+use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,9 +76,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 //filter searchers api
-Route::get('/models', [FilterMobileController::class, 'getModels']);
-Route::get('/brands/{model}', [FilterMobileController::class, 'getBrandsByModel']);
-Route::post('/data', [FilterMobileController::class, 'getDataByBrandModel']);
+
+Route::get('/models', [MobileFilterController::class, 'getModels']);
+Route::get('/brands', [MobileFilterController::class, 'getModels']);
+Route::get('/data', [MobileFilterController::class, 'getData']);
+
 
 //Mobile listing preview api
  Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
