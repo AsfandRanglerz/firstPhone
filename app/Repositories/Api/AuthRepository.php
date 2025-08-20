@@ -4,9 +4,11 @@ namespace App\Repositories\Api;
 
 use App\Models\User;
 use App\Models\Vendor;
-use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
+use App\Mail\ForgotOTPMail;
+use App\Mail\UserCredentials;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 
 class AuthRepository implements AuthRepositoryInterface
 {
@@ -19,6 +21,12 @@ class AuthRepository implements AuthRepositoryInterface
                 'phone' => $request['phone'],
                 'password' => Hash::make($request['password']),
             ]);
+
+            // Mail::to($customer->email)->send(new UserCredentials(
+            //     $customer->name ?? 'User',
+            //     $customer->email,
+            //     $customer->phone ?? ''
+            // ));
             return $customer;
         } else if ($request['type'] == 'vendor') {
             $vendor = Vendor::create([
@@ -27,6 +35,11 @@ class AuthRepository implements AuthRepositoryInterface
                 'phone' => $request['phone'],
                 'password' => Hash::make($request['password']),
             ]);
+            // Mail::to($vendor->email)->send(new UserCredentials(
+            //     $vendor->name ?? 'Vendor',
+            //     $vendor->email,
+            //     $vendor->phone ?? ''
+            // ));
             return $vendor;
         }
     }
@@ -67,6 +80,7 @@ class AuthRepository implements AuthRepositoryInterface
         $otp = rand(1000, 9999);
         $user->otp = $otp;
         $user->save();
+        Mail::to($user->email)->send(new ForgotOTPMail($otp));
         return [
             'otp' => $otp,
             'email' => $user->email
