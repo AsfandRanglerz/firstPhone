@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Seo;
+use App\Models\TermCondition;
 use Illuminate\Http\Request;
 
 class WebController extends Controller
@@ -50,4 +51,12 @@ return view('web.contactpage', [
 ]);
 
     }
+
+ public function termsConditions()
+{
+    $data = TermCondition::first(); // instead of all()
+    return view('web.termscondition', compact('data'));
+}
+
+
 }

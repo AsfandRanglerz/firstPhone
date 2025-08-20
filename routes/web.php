@@ -49,6 +49,10 @@ Route::get('/admin-forgot-password', [AdminController::class, 'forgetPassword'])
 Route::post('/admin-reset-password-link', [AdminController::class, 'adminResetPasswordLink']);
 Route::get('/change_password/{id}', [AdminController::class, 'change_password']);
 Route::post('/admin-reset-password', [AdminController::class, 'ResetPassword']);
+// web Routes
+
+Route::get('/terms-conditions', [WebController::class, 'termsConditions']);
+
 
 Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(function () {
     Route::get('dashboard', [AdminController::class, 'getdashboard'])->name('admin.dashboard');
