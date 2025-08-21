@@ -50,7 +50,9 @@ class UserRepository implements UserRepositoryInterface
 
         if ($status == 0 && $reason) {
             $this->sendDeactivationEmail($user, $reason);
-        }
+        }elseif ($status == 1) {
+        $this->sendActivationEmail($user);
+    }
 
         return $user;
     }
@@ -72,4 +74,21 @@ class UserRepository implements UserRepositoryInterface
             \Log::error("Failed to send email: " . $e->getMessage());
         }
     }
+
+    protected function sendActivationEmail($user)
+{
+    $data = [
+        'name' => $user->name,
+        'email' => $user->email,
+    ];
+
+    try {
+        Mail::send('emails.user_activated', $data, function($message) use ($user) {
+            $message->to($user->email, $user->name)
+                ->subject('Account Activation Notification');
+        });
+    } catch (\Exception $e) {
+        \Log::error("Failed to send activation email: " . $e->getMessage());
+    }
+}
 }

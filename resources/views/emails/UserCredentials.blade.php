@@ -25,6 +25,6 @@
 
     <p>If you have any questions or need assistance, feel free to contact our support team anytime.</p>
 
-    <p>Thanks,<br><strong>First Phone</strong></p>
+    <p>Thanks,<br><strong>First Phone Team</strong></p>
 </body>
 </html>

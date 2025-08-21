@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Mail\UserCredentials;
 use App\Helpers\ResponseHelper;
 use App\Services\Api\AuthService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -33,8 +31,6 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Invalid user type'], 422);
             }
             $user = $this->authService->register($request->all());
-        //      if ($user) { Mail::to($user->email)->send(new UserCredentials($user->name ?? 'User', $user->email, $user->phone ?? ''));
-        // }
             return ResponseHelper::success($user, 'Registred successfully', null , 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
@@ -70,7 +66,7 @@ class AuthController extends Controller
                 'type' => 'required|in:customer,vendor',
             ]);
             $data = $this->authService->sendOtp($request->all());
-            return ResponseHelper::success($data, 'OTP send successful to you email', 'success', 201);
+            return ResponseHelper::success($data, 'OTP send successfully to your email', 'success', 200);
        }catch (\Exception $e) {
             return ResponseHelper::error($e->getMessage(), 'An error occurred while sending OTP', 'error', 500);
         }

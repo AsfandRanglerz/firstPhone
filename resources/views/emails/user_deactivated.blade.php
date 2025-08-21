@@ -2,23 +2,41 @@
 <html>
 
 <head>
-    <title>Account Deactivation Notification</title>
+    <title>Account Deactivated - First Phone</title>
 </head>
 
-<body>
-    <h2>Account Deactivation Notice</h2>
-    <p>Dear {{ $name }},</p>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+    
+        <!-- Logo and Header -->
+        <div style="text-align:center; margin-bottom: 20px;">
+            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}"
+                alt="{{ config('app.name') }} Logo"
+                style="height: 80px; margin-bottom: 15px;">
+            <h2>Account Deactivation Notice</h2>
+        </div>
 
-    <p>Your account has been deactivated by the administrator.</p>
+        <!-- Body Content -->
+        <p style="font-size: 14px; color: #333;">Dear {{ $name ?? 'User' }},</p>
 
-    @if (!empty($reason))
-        <p><strong>Reason:</strong> {{ $reason }}</p>
-    @endif
+        <p style="font-size: 14px; color: #333;">
+            We regret to inform you that your account has been <strong>deactivated</strong> by the administrator.
+        </p>
 
-    <p>If you believe this is a mistake or have any questions, please contact our support team.</p>
+        @if (!empty($reason))
+            <p style="font-size: 14px; color: #333;">
+                <strong>Reason:</strong> {{ $reason }}
+            </p>
+        @endif
 
-    <p>Best regards,<br>
-        {{ config('app.name') }}</p>
+        <p>
+            If you believe this is a mistake or would like further clarification, please contact our support team.
+        </p>
+
+        <!-- Footer -->
+        <p>
+            Thanks,<br>
+            <strong>First Phone Team</strong>
+        </p>
 </body>
 
 </html>
