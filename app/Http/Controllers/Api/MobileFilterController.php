@@ -16,7 +16,6 @@ class MobileFilterController extends Controller
         $brands = Brand::all();
 
         return response()->json([
-            'status' => 'success',
             'data'   => $brands
         ]);
     }
@@ -30,13 +29,11 @@ class MobileFilterController extends Controller
 
         if ($models->isEmpty()) {
             return response()->json([
-                'status'  => 'error',
-                'message' => 'No models found for this brand'
+                'message' => 'No Models Found For This Brand'
             ], 404);
         }
 
         return response()->json([
-            'status' => 'success',
             'data'   => $models
         ]);
     }
@@ -97,18 +94,15 @@ class MobileFilterController extends Controller
             // ✅ Check if no data found
             if ($listings->isEmpty()) {
                 return response()->json([
-                    'status'  => 'error',
-                    'message' => 'No data found for the given filters'
+                    'message' => 'No Data Found For The Given Filters'
                 ], 404);
             }
 
             return response()->json([
-                'status' => 'success',
                 'data'   => $listings
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => 'error',
                 'message' => $e->getMessage()
             ], 500);
         }

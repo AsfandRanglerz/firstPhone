@@ -52,6 +52,8 @@ Route::post('/admin-reset-password', [AdminController::class, 'ResetPassword']);
 // web Routes
 
 Route::get('/terms-conditions', [WebController::class, 'termsConditions']);
+Route::get('/privacy-policy', [WebController::class, 'privacypolicy']);
+Route::get('/contact-page', [WebController::class, 'contactpage']);
 
 
 Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(function () {
@@ -183,7 +185,6 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     Route::controller(WebController::class)->group(function () {
         Route::get('/home-page', 'homepage')->name('web.homepage');
         Route::get('/about-page', 'aboutpage')->name('web.aboutpage');
-        Route::get('/contact-page', 'contactpage')->name('web.contactpage');
     });
 
     // ############ Faq Routes #################

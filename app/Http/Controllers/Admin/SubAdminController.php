@@ -101,7 +101,6 @@ $validatedData = $validator->validated();
         'name' => $request->name,
         'email' => $request->email,
         'password' => bcrypt($password),
-        'plain_password' => $password,
         'status' => $request->status ?? 1,
         'image' => $image,
     ]);
@@ -179,7 +178,6 @@ $validatedData = $validator->validated();
         $subAdmin->update([
             'name' => $request->name,
             'email' => $request->email,
-        //  'plain_password' => $password,
             'image' => $image,
             'password' => $request->password ? bcrypt($request->password) : $subAdmin->password,
         ]);
