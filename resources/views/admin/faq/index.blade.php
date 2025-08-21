@@ -41,7 +41,7 @@
                                                     <i class="fas fa-th"></i>
                                                 </td>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $faq->questions }}</td>
+                                                <td>{{ $faq->question }}</td>
                                                 <td title="{{ strip_tags(html_entity_decode($faq->description)) }}">
                                                     {{ \Illuminate\Support\Str::limit(strip_tags($faq->description), 150, '...') }}
                                                 </td>

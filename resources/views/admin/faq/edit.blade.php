@@ -21,12 +21,12 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Question <span class="text-danger">*</span></label>
-                                        <input name="questions"
-                                            class="form-control @error('questions') is-invalid @enderror"
-                                            value="{{ old('questions', $data->questions) }}" required
+                                        <input name="question"
+                                            class="form-control @error('question') is-invalid @enderror"
+                                            value="{{ old('questions', $data->question) }}"
                                             placeholder="Enter question">
 
-                                        @error('questions')
+                                        @error('question')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

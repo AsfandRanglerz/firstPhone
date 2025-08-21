@@ -130,15 +130,13 @@ class AuthRepository implements AuthRepositoryInterface
         $user->phone = $request['phone'] ?? $user->phone;
         $user->email = $request['email'] ?? $user->email;
         if (isset($request['image']) && $request['image'] instanceof \Illuminate\Http\UploadedFile) {
-            if ($user->image && file_exists(public_path('uploads/' . $user->image))) {
-                unlink(public_path('uploads/' . $user->image));
-            }
-
-            $imageName = time() . '_' . $request['image']->getClientOriginalName();
-            $request['image']->move(public_path('uploads'), $imageName);
-
-            $user->image = $imageName;
+            $file = $request['image'];
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '.' . $extension;
+            $file->move(public_path('admin/assets/images/users'), $filename);
+            $user->image = 'public/admin/assets/images/users/' . $filename;
         }
+
         $user->save();
     }
     public function changePassword(array $request)

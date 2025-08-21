@@ -17,10 +17,10 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Question <span style="color: red;">*</span></label>
-                                        <input name="questions"
-                                            class="form-control @error('questions') is-invalid @enderror" required
+                                        <input name="question"
+                                            class="form-control @error('question') is-invalid @enderror"
                                             placeholder="Enter question">
-                                        @error('questions')
+                                        @error('question')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

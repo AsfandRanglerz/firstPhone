@@ -18,30 +18,30 @@ class FaqController extends Controller
     {
         $faqs = Faq::orderBy('position', 'asc')->get();
 
-          $sideMenuPermissions = collect();
+        $sideMenuPermissions = collect();
 
-    // ✅ Check if user is not admin (normal subadmin)
-    if (!Auth::guard('admin')->check()) {
-        $user =Auth::guard('subadmin')->user()->load('roles');
+        // ✅ Check if user is not admin (normal subadmin)
+        if (!Auth::guard('admin')->check()) {
+            $user = Auth::guard('subadmin')->user()->load('roles');
 
 
-        // ✅ 1. Get role_id of subadmin
-        $roleId = $user->role_id;
+            // ✅ 1. Get role_id of subadmin
+            $roleId = $user->role_id;
 
-        // ✅ 2. Get all permissions assigned to this role
-        $permissions = UserRolePermission::with(['permission', 'sideMenue'])
-            ->where('role_id', $roleId)
-            ->get();
+            // ✅ 2. Get all permissions assigned to this role
+            $permissions = UserRolePermission::with(['permission', 'sideMenue'])
+                ->where('role_id', $roleId)
+                ->get();
 
-        // ✅ 3. Group permissions by side menu
-        $sideMenuPermissions = $permissions->groupBy('sideMenue.name')->map(function ($items) {
-            return $items->pluck('permission.name'); // ['view', 'create']
-        });
-    }
+            // ✅ 3. Group permissions by side menu
+            $sideMenuPermissions = $permissions->groupBy('sideMenue.name')->map(function ($items) {
+                return $items->pluck('permission.name'); // ['view', 'create']
+            });
+        }
 
-        
 
-        return view('admin.faq.index', compact('faqs' , 'sideMenuPermissions'));
+
+        return view('admin.faq.index', compact('faqs', 'sideMenuPermissions'));
     }
 
 
@@ -55,7 +55,7 @@ class FaqController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'description' => 'required',
-            'questions' => 'required',
+            'question' => 'required',
         ]);
 
         // If validation fails
@@ -72,10 +72,10 @@ class FaqController extends Controller
 
         // Save data
         Faq::create([
-            'questions' => $request->questions,
+            'question' => $request->question,
             'description' => $request->description,
         ]);
-        return redirect('/admin/faq')->with('success', 'FAQ created successfully');
+        return redirect('/admin/faq')->with('success', 'FAQ Created Successfully');
     }
 
 
@@ -96,9 +96,9 @@ class FaqController extends Controller
     {
         $request->validate([
             'description' => 'required',
-            'questions' => 'required',
+            'question' => 'required',
         ]);
-        
+
 
         $data = Faq::find($id);
         // AboutUs::find($data->id)->update($request->all());
@@ -107,17 +107,18 @@ class FaqController extends Controller
         } else {
             $data->update($request->all());
         }
-        return redirect('/admin/faq')->with('success', 'FAQs updated successfully');
+        return redirect('/admin/faq')->with('success', 'FAQ Updated Successfully');
     }
-    
 
-    public function faqdelete($id) {
+
+    public function faqdelete($id)
+    {
         $faq = Faq::find($id);
-        if ($faq) { 
+        if ($faq) {
             Faq::destroy($id);
-            return redirect()->back()->with('success', 'FAQs deleted successfully');
+            return redirect()->back()->with('success', 'FAQ Deleted Successfully');
         } else {
-            return redirect()->back()->with('error', 'FAQs not found');
+            return redirect()->back()->with('error', 'FAQ not found');
         }
     }
 
@@ -130,5 +131,4 @@ class FaqController extends Controller
 
         return response()->json(['status' => 'success']);
     }
-
 }
