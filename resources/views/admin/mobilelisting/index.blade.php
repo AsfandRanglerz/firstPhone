@@ -25,7 +25,7 @@
                                             <th>Model</th>
                                             <th>Storage </th>
                                             <th>RAM </th>
-                                            <th>Price</th>
+                                            <th>Price (PKR)</th>
                                             <th>Condition</th>
                                             <th>About</th>
                                             <th>Status</th>

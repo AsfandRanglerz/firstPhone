@@ -22,6 +22,8 @@ class RequestFormController extends Controller
                 'location'        => $request->location,
                 'brand_id'        => $request->brand_id,
                 'model_id'        => $request->model_id,
+                'min_price'      => $request->min_price,
+                'max_price'      => $request->max_price,
                 'storage'         => $request->storage,
                 'ram'             => $request->ram,
                 'color'           => $request->color,
