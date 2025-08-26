@@ -29,4 +29,25 @@ class OrderRepository implements OrderRepositoryInterface
         return Order::where('customer_id', $customerId)
             ->findOrFail($orderId);
     }
+
+    public function getSalesReport(int $vendorId, ?string $deliveryMethod = null): Collection
+    {
+        $query = Order::where('payment_status', '=', 'paid')
+            ->whereHas('items', function ($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId);
+            });
+
+        if (!empty($deliveryMethod)) {
+            $query->where('delivery_method', $deliveryMethod);
+        }
+
+        return $query->with([
+            'customer',
+            'items' => function ($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId)->with('product', 'vendor');
+            }
+        ])
+            ->latest()
+            ->get();
+    }
 }

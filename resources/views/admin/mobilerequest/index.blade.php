@@ -26,6 +26,8 @@
                                             <th>Location</th> {{--  --}}
                                             <th>Brand</th>
                                             <th>Model</th>
+                                            <th>Min Price (PKR)</th>
+                                            <th>Max Price (PKR)</th>
                                             <th>Storage</th>
                                             <th>RAM</th>
                                             <th>Color</th>
@@ -43,6 +45,20 @@
                                                 <td>{{ $mobilerequest->location }}</td>
                                                 <td>{{ $mobilerequest->brand->name }}</td>
                                                 <td>{{ $mobilerequest->model->name}}</td>
+                                                <td>
+                                                @if($mobilerequest->min_price)
+                                                    {{ number_format($mobilerequest->min_price, 0) }}
+                                                @else
+                                                <span class="text-muted">No Price</span>
+                                                @endif
+                                                </td>
+                                                <td>
+                                                @if($mobilerequest->max_price)
+                                                    {{ number_format($mobilerequest->max_price, 0) }}
+                                                @else
+                                                <span class="text-muted">No Price</span>
+                                                @endif
+                                                </td>
                                                 <td>{{ $mobilerequest->storage }}</td>
                                                 <td>{{ $mobilerequest->ram }}</td>
                                                 <td>{{ $mobilerequest->color }}</td>

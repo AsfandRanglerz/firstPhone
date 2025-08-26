@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeleteAccountController;
@@ -16,6 +17,22 @@ use App\Http\Controllers\Api\ShippingAddressController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SideMenueController;
+=======
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\SideMenueController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Api\RequestFormController;
+use App\Http\Controllers\Api\MobileFilterController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\DeleteAccountController;
+use App\Http\Controllers\Api\MobileListingController;
+>>>>>>> d78e159bac7334f67b69d98da20649e8ac24322c
 use App\Http\Controllers\SideMenuPermissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -75,6 +92,9 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
+    Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
+    Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
+    Route::get('/sales-report', [OrderController::class, 'salesReport']);
 
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
@@ -90,8 +110,12 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
 });
 
 //filter searchers api
+<<<<<<< HEAD
 
 Route::get('/models', [MobileFilterController::class, 'getModels']);
+=======
+Route::get('/models/{brand_id}', [MobileFilterController::class, 'getModels']);
+>>>>>>> d78e159bac7334f67b69d98da20649e8ac24322c
 Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
