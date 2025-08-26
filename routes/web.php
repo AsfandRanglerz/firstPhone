@@ -163,6 +163,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/order/{id}/update-payment-status', 'updatePaymentStatus')->name('order.updatePaymentStatus');
         Route::get('/orders/pending-counter', 'pendingCounter')->name('order.pendingCounter');
     });
+Route::get('/orders/totals', [OrderController::class, 'getTotals'])->name('orders.totals');
 
     // ############ Notifications #################
     Route::controller(NotificationController::class)->group(function () {

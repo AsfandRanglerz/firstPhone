@@ -32,4 +32,6 @@ interface OrderRepositoryInterface
      * @return Order
      */
     public function getOrderByIdAndCustomer(int $orderId, int $customerId): Order;
+
+    public function getSalesReport(int $vendorId, ?string $deliveryMethod = null): Collection;
 }

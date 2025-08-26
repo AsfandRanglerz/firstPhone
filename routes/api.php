@@ -65,6 +65,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
+    Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
+    Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
+    Route::get('/sales-report', [OrderController::class, 'salesReport']);
 
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
