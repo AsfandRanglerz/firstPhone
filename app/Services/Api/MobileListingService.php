@@ -2,9 +2,10 @@
 
 namespace App\Services\Api;
 
-use App\Repositories\Api\MobileListingRepository;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\MobileListing;
+use Illuminate\Support\Facades\Auth;
+use App\Repositories\Api\MobileListingRepository;
 
 class MobileListingService
 {
@@ -104,4 +105,59 @@ class MobileListingService
             'image'     => array_map(fn($path) => asset($path), $images),
         ];
     }
+
+    public function createCustomerListing($request)
+{
+    $customerId = Auth::id();
+
+    // ✅ Handle media upload
+    $mediaPaths = [];
+    if ($request->hasFile('image')) {
+        foreach ($request->file('image') as $file) {
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $extension;
+            $file->move(public_path('admin/assets/images/users/'), $filename);
+            $mediaPaths[] = 'public/admin/assets/images/users/' . $filename;
+        }
+    }
+
+    $data = [
+        'brand_id'   => $request->brand_id,
+        'model_id'   => $request->model_id,
+        'storage'    => $request->storage,
+        'ram'        => $request->ram,
+        'price'      => $request->price,
+        'condition'  => $request->condition,
+        'about'      => $request->about,
+        'customer_id'=> $customerId,
+        'image'      => json_encode($mediaPaths),
+    ];
+
+    $listing = $this->mobileListingRepo->create($data);
+
+    $data['id'] = $listing->id;
+    $data['image'] = array_map(fn($path) => asset($path), $mediaPaths);
+
+    return $data;
+}
+
+public function previewCustomerListing($id)
+{
+    $listing = $this->mobileListingRepo->findWithRelations($id);
+
+    $images = json_decode($listing->image, true) ?? [];
+
+    return [
+        'id'        => $listing->id,
+        'brand'     => $listing->brand ? $listing->brand->name : null,
+        'model'     => $listing->model ? $listing->model->name : null,
+        'storage'   => $listing->storage,
+        'ram'       => $listing->ram,
+        'price'     => $listing->price,
+        'condition' => $listing->condition,
+        'about'     => $listing->about,
+        'customer_id' => $listing->customer_id,
+        'image'     => array_map(fn($path) => asset($path), $images),
+    ];
+}
 }

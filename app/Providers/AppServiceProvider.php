@@ -33,6 +33,7 @@ use App\Repositories\Api\OrderRepository;
 use App\Services\SubAdminActivityService;
 use App\Repositories\Api\NotificationRepo;
 use App\Repositories\NotificationRepository;
+use App\Repositories\Api\RequestedMobileRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
@@ -40,6 +41,7 @@ use App\Repositories\Api\Interfaces\HomeRepositoryInterface;
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Api\Interfaces\NotificationRepoInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
+use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
 use App\Repositories\Interfaces\OrderRepoInterface;
 use App\Repositories\OrderRepo;
 
@@ -60,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(NotificationRepoInterface::class, NotificationRepo::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(HomeRepositoryInterface::class, HomeRepository::class);
+        $this->app->bind(RequestedMobileRepositoryInterface::class, RequestedMobileRepository::class);
         $this->app->bind(OrderRepoInterface::class, OrderRepo::class);
 
     }

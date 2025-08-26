@@ -32,6 +32,7 @@
                                             <th>RAM</th>
                                             <th>Color</th>
                                             <th>Condition</th>
+                                            <th>Description</th>
                                             <th>Vendors</th>
                                             <th>Status</th>
                                             <th>Actions</th>
@@ -63,6 +64,13 @@
                                                 <td>{{ $mobilerequest->ram }}</td>
                                                 <td>{{ $mobilerequest->color }}</td>
                                                 <td>{{ $mobilerequest->condition }}</td>
+                                                <td>
+                                                @if($mobilerequest->description)
+                                                    {{ Str::limit($mobilerequest->description, 50) }}
+                                                @else
+                                                <span class="text-muted">No Description</span>
+                                                @endif
+                                                </td>
                                                  <td>
                                                     <a class="btn btn-primary ml-1" href="
                                                     {{ route('mobilerequest.show', $mobilerequest->id) }}

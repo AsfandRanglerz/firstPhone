@@ -34,10 +34,14 @@ use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\MobileListingController;
 >>>>>>> d78e159bac7334f67b69d98da20649e8ac24322c
 use App\Http\Controllers\SideMenuPermissionController;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Route;
 
 
 
+=======
+use App\Http\Controllers\Api\CustomerMobileListingController;
+>>>>>>> 90b16cb5737a33fd16cc9d697c9beddf21bc4d5c
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +103,7 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
     
     // Delete Account api
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
@@ -106,6 +111,11 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);
 
+<<<<<<< HEAD
+=======
+    //get requested mobile api
+    Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
+>>>>>>> 90b16cb5737a33fd16cc9d697c9beddf21bc4d5c
     
 });
 
@@ -120,8 +130,11 @@ Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
 //Mobile listing preview api
- Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
 
+ // Device details api
+Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
 
 
