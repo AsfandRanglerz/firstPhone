@@ -1,6 +1,7 @@
 <?php
 
-<<<<<<< HEAD
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeleteAccountController;
@@ -14,34 +15,12 @@ use App\Http\Controllers\Api\OnlinePaymentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\ShippingAddressController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SideMenueController;
-=======
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\Api\FaqController;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Admin\SeoController;
-use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\SideMenueController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\Api\RequestFormController;
-use App\Http\Controllers\Api\MobileFilterController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\DeleteAccountController;
-use App\Http\Controllers\Api\MobileListingController;
->>>>>>> d78e159bac7334f67b69d98da20649e8ac24322c
-use App\Http\Controllers\SideMenuPermissionController;
-<<<<<<< HEAD
-use Illuminate\Support\Facades\Route;
-
-
-
-=======
 use App\Http\Controllers\Api\CustomerMobileListingController;
->>>>>>> 90b16cb5737a33fd16cc9d697c9beddf21bc4d5c
+
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SideMenueController;
+use App\Http\Controllers\SideMenuPermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,21 +90,17 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);
 
-<<<<<<< HEAD
-=======
     //get requested mobile api
     Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
->>>>>>> 90b16cb5737a33fd16cc9d697c9beddf21bc4d5c
     
 });
 
 //filter searchers api
-<<<<<<< HEAD
 
 Route::get('/models', [MobileFilterController::class, 'getModels']);
-=======
+
 Route::get('/models/{brand_id}', [MobileFilterController::class, 'getModels']);
->>>>>>> d78e159bac7334f67b69d98da20649e8ac24322c
+
 Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
@@ -138,3 +113,4 @@ Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
 
 
+//updated
