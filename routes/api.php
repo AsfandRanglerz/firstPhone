@@ -37,7 +37,7 @@ use App\Http\Controllers\SideMenuPermissionController;
 //     return $request->user();
 // });
 
- 
+
 
 Route::post('/roles', [RoleController::class, 'store']);
 Route::post('/permissions', [PermissionController::class, 'store']);
@@ -54,10 +54,10 @@ Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('/resetPassword', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout',[AuthController::class,'logout']);
-    Route::get('/getProfile',[AuthController::class,'getProfile']);
-    Route::post('/updateProfile',[AuthController::class,'updateProfile']);
-    Route::post('/changePassword',[AuthController::class,'changePassword']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/getProfile', [AuthController::class, 'getProfile']);
+    Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+    Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //notifications
@@ -66,9 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mobile Request API
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
- 
+
     //place order api
-Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
+    Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
 
     //order and tracking
     Route::get('/orders', [OrderController::class, 'index']);
@@ -83,7 +83,7 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
     Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
-    
+
     // Delete Account api
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
@@ -92,7 +92,6 @@ Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
 
     //get requested mobile api
     Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
-    
 });
 
 //filter searchers api
@@ -108,9 +107,9 @@ Route::get('/data', [MobileFilterController::class, 'getData']);
 Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
 Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
 
- // Device details api
+// Device details api
 Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
 
 
-//updated
+//
