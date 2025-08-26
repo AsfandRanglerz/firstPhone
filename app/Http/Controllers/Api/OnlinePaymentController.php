@@ -88,7 +88,5 @@ public function placeOrder(Request $request)
         ], 500);
     }
 }
-
-
  
 }
