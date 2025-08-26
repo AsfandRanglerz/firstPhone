@@ -140,4 +140,13 @@ class MobileSearchController extends Controller
             ], 500);
         }
     }
+
+    public function test()
+    {
+        return response()->json([
+            'status'  => true,
+            'message' => 'Mobile search controller is working fine'
+        ]);
+
+    }
 }
