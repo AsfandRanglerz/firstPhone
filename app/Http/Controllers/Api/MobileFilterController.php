@@ -48,27 +48,51 @@ class MobileFilterController extends Controller
 
             if ($request->brand_id) {
                 $query->where('brand_id', $request->brand_id);
-            }
+            } else {
+                return response()->json([
+                'message' => 'brand_id is required'
+            ], 400);
+            } 
 
             if ($request->model_id) {
                 $query->where('model_id', $request->model_id);
-            }
+            } else {
+                return response()->json([
+                'message' => 'model_id is required'
+            ], 400);
+            } 
 
             if ($request->storage) {
                 $query->where('storage', $request->storage);
-            }
+            } else {
+                return response()->json([
+                'message' => 'storage is required'
+            ], 400);
+            } 
 
             if ($request->ram) {
                 $query->where('ram', $request->ram);
-            }
+            } else {
+                return response()->json([
+                'message' => 'ram is required'
+            ], 400);
+            } 
 
             if ($request->condition) {
                 $query->where('condition', $request->condition);
-            }
+            } else {
+                return response()->json([
+                'message' => 'condition is required'
+            ], 400);
+            } 
 
             if ($request->color) {
                 $query->where('color', $request->color);
-            }
+            } else {
+                return response()->json([
+                'message' => 'color is required'
+            ], 400);
+            } 
 
             $query->when($request->latitude, function ($q, $latitude) {
                 return $q->where('latitude', $latitude);
@@ -81,7 +105,11 @@ class MobileFilterController extends Controller
 
             if ($request->city) {
                 $query->where('location', $request->city);
-            }
+            } else {
+                return response()->json([
+                'message' => 'location is required'
+            ], 400);
+            } 
 
             // ✅ Price filter
             if ($request->min_price && $request->max_price) {
