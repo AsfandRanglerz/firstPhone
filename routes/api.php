@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\MobileListingController;
 use App\Http\Controllers\SideMenuPermissionController;
+use App\Http\Controllers\Api\CustomerMobileListingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,12 +70,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
     
     // Delete Account api
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);
+
+    //get requested mobile api
+    Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
     
 });
 
@@ -84,8 +89,11 @@ Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
 //Mobile listing preview api
- Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
 
+ // Device details api
+Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
 
 

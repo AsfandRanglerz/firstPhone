@@ -25,4 +25,14 @@ class HomeController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving home screen data', 'error', 500);
         }
     }
+
+    public function deviceDetails($id)
+    {
+        try {
+            $data = $this->homeRepository->getDeviceDetails($id);
+            return ResponseHelper::success($data, 'Device details retrieved successfully', null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving device details', 'error', 500);
+        }
+    }
 }

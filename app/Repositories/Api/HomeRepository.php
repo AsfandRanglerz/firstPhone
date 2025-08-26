@@ -5,7 +5,6 @@ namespace App\Repositories\Api;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
-use App\Helpers\ResponseHelper;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Api\Interfaces\HomeRepositoryInterface;
 
@@ -111,4 +110,45 @@ class HomeRepository implements HomeRepositoryInterface
             'top_selling'     => $topSelling
         ];
     }
+
+    public function getDeviceDetails($id)
+    {
+        $listing = MobileListing::with(['brand', 'model'])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $images = json_decode($listing->image, true) ?? [];
+
+        return [
+            'id'              => $listing->id,
+            'brand'           => $listing->brand ? $listing->brand->name : null,
+            'model'           => $listing->model ? $listing->model->name : null,
+            'storage'         => $listing->storage,
+            'price'           => $listing->price,
+            'condition'       => $listing->condition,
+            'color'           => $listing->color,
+            'ram'             => $listing->ram,
+            'processor'       => $listing->processor,
+            'display'         => $listing->display,
+            'charging'        => $listing->charging,
+            'refresh_rate'    => $listing->refresh_rate,
+            'main_camera'     => $listing->main_camera,
+            'ultra_camera'    => $listing->ultra_camera,
+            'telephoto_camera'=> $listing->telephoto_camera,
+            'front_camera'    => $listing->front_camera,
+            'build'           => $listing->build,
+            'wireless'        => $listing->wireless,
+            'stock'           => $listing->stock,
+            'ai_features'     => $listing->ai_features,
+            'battery_health'  => $listing->battery_health,
+            'os_version'      => $listing->os_version,
+            'warranty_start'  => $listing->warranty_start, 
+            'warranty_end'    => $listing->warranty_end,
+            'pta_approved'    => $listing->pta_approved == 0 ? 'Approved' : 'Not Approved',
+            'images'          => array_map(function ($path) {
+                return asset($path);
+            }, $images),
+        ];
+    }
 }
+    

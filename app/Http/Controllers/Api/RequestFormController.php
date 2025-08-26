@@ -8,9 +8,17 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
 
 class RequestFormController extends Controller
 {
+    protected $requestedMobileRepository;
+    
+    public function __construct(RequestedMobileRepositoryInterface $requestedMobileRepository)
+    {
+        $this->requestedMobileRepository = $requestedMobileRepository;
+    }
+
      public function mobilerequestform(Request $request)
     {
         try {
@@ -28,6 +36,7 @@ class RequestFormController extends Controller
                 'ram'             => $request->ram,
                 'color'           => $request->color,
                 'condition'       => $request->condition,
+                'description'     => $request->description,
             ]);
 
     return ResponseHelper::success($mobileRequest, 'Mobile request submitted successfully', null, 200);
@@ -38,5 +47,16 @@ class RequestFormController extends Controller
         return ResponseHelper::error($e->getMessage(), 'An error occurred while submitting the request', 'error', 500);
     }
     }
+
+    public function getRequestedMobile()
+{
+    try {
+    $mobileRequests = $this->requestedMobileRepository->getRequestedMobile();
+    return ResponseHelper::success($mobileRequests, 'Requests fetched successfully', null, 200);
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching requests', 'error', 500);
+    }
+}
+
 
 }
