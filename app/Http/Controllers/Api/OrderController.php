@@ -97,4 +97,62 @@ class OrderController extends Controller
             return ResponseHelper::error(null, $e->getMessage(), 500);
         }
     }
+
+    public function getShippingAddress()
+    {
+        try {
+            $customerId = auth()->id();
+            if (!$customerId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+            $address = ShippingAddress::where('customer_id', $customerId)->latest()->first();
+            if (!$address) {
+                return ResponseHelper::error(null, 'No shipping address found', 404);
+            }
+            return ResponseHelper::success($address, 'Shipping address fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function deleteShippingAddress($id)
+    {
+        try {
+            $customerId = auth()->id();
+            if (!$customerId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+            $address = ShippingAddress::where('id', $id)->where('customer_id', $customerId)->first();
+            if (!$address) {
+                return ResponseHelper::error(null, 'Shipping address not found', 404);
+            }
+            $address->delete();
+            return ResponseHelper::success(null, 'Shipping address deleted successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function salesReport(Request $request)
+    {
+        try {
+            $vendorId = auth()->id();
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+            $deliveryMethod = $request->get('delivery_method'); 
+            $orders = $this->orderRepository->getSalesReport($vendorId, $deliveryMethod);
+
+            $totalAmount = $orders->flatMap->items->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+            return ResponseHelper::success([
+                'orders' => $orders,
+                'total_sales' => $totalAmount
+            ], 'Sales report fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
 }

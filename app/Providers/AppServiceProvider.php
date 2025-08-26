@@ -42,6 +42,8 @@ use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Api\Interfaces\NotificationRepoInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
 use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
+use App\Repositories\Interfaces\OrderRepoInterface;
+use App\Repositories\OrderRepo;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(HomeRepositoryInterface::class, HomeRepository::class);
         $this->app->bind(RequestedMobileRepositoryInterface::class, RequestedMobileRepository::class);
-                
+        $this->app->bind(OrderRepoInterface::class, OrderRepo::class);
 
     }
 

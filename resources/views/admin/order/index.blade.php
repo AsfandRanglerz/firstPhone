@@ -12,27 +12,39 @@
                                 <h4>Orders</h4>
                                 {{-- Totals Row Inside Card Header but Below Title --}}
                                 <div class="row mt-3 w-100">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <div class="card shadow border-0 text-white mb-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="mb-1">Total Payment</h6>
+                                                <h6 class="mb-0 fw-bold" id="totalAmount">Rs {{ number_format($total) }}
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
                                         <div class="card shadow border-0 text-white mb-0">
                                             <div class="card-body py-2">
                                                 <h6 class="mb-1">Total COD</h6>
-                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($codTotal) }}</h6>
+                                                <h6 class="mb-0 fw-bold" id="codAmount">Rs {{ number_format($codTotal) }}
+                                                </h6>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="card shadow border-0 text-white mb-0">
                                             <div class="card-body py-2">
                                                 <h6 class="mb-1">Total Online</h6>
-                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($onlineTotal) }}</h6>
+                                                <h6 class="mb-0 fw-bold" id="onlineAmount">Rs
+                                                    {{ number_format($onlineTotal) }}</h6>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="card shadow border-0 text-white mb-0">
                                             <div class="card-body py-2">
                                                 <h6 class="mb-1">Total Pickup</h6>
-                                                <h6 class="mb-0 fw-bold">Rs {{ number_format($pickupTotal) }}</h6>
+                                                <h6 class="mb-0 fw-bold" id="pickupAmount">Rs
+                                                    {{ number_format($pickupTotal) }}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -109,14 +121,12 @@
                                                         </button>
                                                         <div class="dropdown-menu">
                                                             @foreach (['paid', 'pending', 'failed', 'refunded'] as $status)
-                                                                @if ($status !== $order->payment_status)
-                                                                    <button type="button"
-                                                                        class="dropdown-item change-payment-status"
-                                                                        data-order-id="{{ $order->id }}"
-                                                                        data-new-status="{{ $status }}">
-                                                                        {{ ucfirst($status) }}
-                                                                    </button>
-                                                                @endif
+                                                                <button type="button"
+                                                                    class="dropdown-item change-payment-status"
+                                                                    data-order-id="{{ $order->id }}"
+                                                                    data-new-status="{{ $status }}">
+                                                                    {{ ucfirst($status) }}
+                                                                </button>
                                                             @endforeach
                                                         </div>
                                                     </div>
@@ -202,115 +212,137 @@
 @endsection
 
 @section('js')
-<script>
-    $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
 
-        // ===== DataTable Initialization =====
-        if ($.fn.DataTable.isDataTable('#table_id_events')) {
-            $('#table_id_events').DataTable().destroy();
+            // ===== DataTable Initialization =====
+            if ($.fn.DataTable.isDataTable('#table_id_events')) {
+                $('#table_id_events').DataTable().destroy();
+            }
+            $('#table_id_events').DataTable();
+
+            // ===== SweetAlert2 Delete Confirmation =====
+            $('.show_confirm').click(function(event) {
+                event.preventDefault();
+                var formId = $(this).data("form");
+                var form = document.getElementById(formId);
+
+                swal({
+                    title: "Are you sure you want to delete this record?",
+                    text: "If you delete this, it will be gone forever.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // ===== Order Status Change via AJAX =====
+            $('.change-order-status').on('click', function() {
+                let orderId = $(this).data('order-id');
+                let newStatus = $(this).data('new-status');
+
+                $.ajax({
+                    url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
+                    type: 'POST',
+                    data: {
+                        order_status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g,
+                                c => c.toUpperCase());
+                            const button = $(`#statusBtn-${orderId}`);
+
+                            const colorClasses = {
+                                'pending': 'btn-warning',
+                                'confirmed': 'btn-info',
+                                'in_progress': 'btn-primary',
+                                'shipped': 'btn-secondary',
+                                'delivered': 'btn-success',
+                                'cancelled': 'btn-danger',
+                            };
+
+                            button.text(statusText)
+                                .removeClass()
+                                .addClass(
+                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                            toastr.success(data.message);
+                        } else {
+                            toastr.error('Something went wrong');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to update status');
+                    }
+                });
+            });
+
+            // ===== Payment Status Change via AJAX =====
+            $('.change-payment-status').on('click', function() {
+                let orderId = $(this).data('order-id');
+                let newStatus = $(this).data('new-status');
+
+                $.ajax({
+                    url: "{{ route('order.updatePaymentStatus', ':id') }}".replace(':id', orderId),
+                    type: 'POST',
+                    data: {
+                        payment_status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            const statusText = newStatus.charAt(0).toUpperCase() + newStatus
+                                .slice(1);
+                            const button = $(`#paymentBtn-${orderId}`);
+
+                            const colorClasses = {
+                                'paid': 'btn-primary',
+                                'pending': 'btn-warning',
+                                'failed': 'btn-danger',
+                                'refunded': 'btn-secondary',
+                            };
+
+                            button.text(statusText)
+                                .removeClass()
+                                .addClass(
+                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                            toastr.success(data.message);
+                        } else {
+                            toastr.error('Something went wrong');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to update payment status');
+                    }
+                });
+            });
+
+        });
+
+        function fetchTotals() {
+            fetch("{{ route('orders.totals') }}")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalAmount').innerText = "Rs " + data.total.toLocaleString();
+                    document.getElementById('codAmount').innerText = "Rs " + data.codTotal.toLocaleString();
+                    document.getElementById('onlineAmount').innerText = "Rs " + data.onlineTotal.toLocaleString();
+                    document.getElementById('pickupAmount').innerText = "Rs " + data.pickupTotal.toLocaleString();
+                })
+                .catch(error => console.error("Error fetching totals:", error));
         }
-        $('#table_id_events').DataTable();
 
-        // ===== SweetAlert2 Delete Confirmation =====
-        $('.show_confirm').click(function(event) {
-            event.preventDefault();
-            var formId = $(this).data("form");
-            var form = document.getElementById(formId);
+        // Har 10 second baad refresh karne ke liye
+        setInterval(fetchTotals, 10000);
 
-            swal({
-                title: "Are you sure you want to delete this record?",
-                text: "If you delete this, it will be gone forever.",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((willDelete) => {
-                if (willDelete) {
-                    form.submit();
-                }
-            });
-        });
+        // Page load pe bhi call karo
+        fetchTotals();
+    </script>
 
-        // ===== Order Status Change via AJAX =====
-        $('.change-order-status').on('click', function() {
-            let orderId = $(this).data('order-id');
-            let newStatus = $(this).data('new-status');
-
-            $.ajax({
-                url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
-                type: 'POST',
-                data: {
-                    order_status: newStatus,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(data) {
-                    if (data.success) {
-                        const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                        const button = $(`#statusBtn-${orderId}`);
-
-                        const colorClasses = {
-                            'pending': 'btn-warning',
-                            'confirmed': 'btn-info',
-                            'in_progress': 'btn-primary',
-                            'shipped': 'btn-secondary',
-                            'delivered': 'btn-success',
-                            'cancelled': 'btn-danger',
-                        };
-
-                        button.text(statusText)
-                              .removeClass()
-                              .addClass(`btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
-
-                        toastr.success(data.message);
-                    } else {
-                        toastr.error('Something went wrong');
-                    }
-                },
-                error: function() {
-                    toastr.error('Failed to update status');
-                }
-            });
-        });
-
-        // ===== Payment Status Change via AJAX =====
-        $('.change-payment-status').on('click', function() {
-            let orderId = $(this).data('order-id');
-            let newStatus = $(this).data('new-status');
-
-            $.ajax({
-                url: "{{ route('order.updatePaymentStatus', ':id') }}".replace(':id', orderId),
-                type: 'POST',
-                data: {
-                    payment_status: newStatus,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(data) {
-                    if (data.success) {
-                        const statusText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                        const button = $(`#paymentBtn-${orderId}`);
-
-                        const colorClasses = {
-                            'paid': 'btn-primary',
-                            'pending': 'btn-warning',
-                            'failed': 'btn-danger',
-                            'refunded': 'btn-secondary',
-                        };
-
-                        button.text(statusText)
-                              .removeClass()
-                              .addClass(`btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
-
-                        toastr.success(data.message);
-                    } else {
-                        toastr.error('Something went wrong');
-                    }
-                },
-                error: function() {
-                    toastr.error('Failed to update payment status');
-                }
-            });
-        });
-
-    });
-</script>
 @endsection
-
