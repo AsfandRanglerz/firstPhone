@@ -26,4 +26,28 @@ class MobileListing extends Model
     {
         return $this->hasMany(OrderItem::class, 'product_id');
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+
+    protected $appends = ['brand_name', 'model_name'];
+
+    public function getBrandNameAttribute()
+    {
+        return $this->brand ? $this->brand->name : null;
+    }
+
+    public function getModelNameAttribute()
+    {
+        return $this->model ? $this->model->name : null;
+    }
+    
 }

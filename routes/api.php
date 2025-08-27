@@ -83,7 +83,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
     Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
+    Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
 
+    //Nearby Customer Listings
+    Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
     // Delete Account api
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
@@ -110,6 +113,8 @@ Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingControlle
 // Device details api
 Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
+// Customer device details api
+Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getCustomerDeviceDetail']);
 
 
-//
+
