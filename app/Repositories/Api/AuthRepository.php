@@ -5,6 +5,7 @@ namespace App\Repositories\Api;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Mail\ForgotOTPMail;
+use App\Models\VendorImage;
 use App\Mail\UserCredentials;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -29,18 +30,54 @@ class AuthRepository implements AuthRepositoryInterface
             // ));
             return $customer;
         } else if ($request['type'] == 'vendor') {
+
+        $cnicFrontPath = null;
+        if (!empty($request['cnic_front'])) {
+            $cnicFront = $request['cnic_front'];
+            $filename = time() . '_cnic_front_' . uniqid() . '.' . $cnicFront->getClientOriginalExtension();
+            $cnicFront->move(public_path('admin/assets/images/users/'), $filename);
+            $cnicFrontPath = 'public/admin/assets/images/users/' . $filename;
+        }
+
+        // ✅ Handle CNIC Back
+        $cnicBackPath = null;
+        if (!empty($request['cnic_back'])) {
+            $cnicBack = $request['cnic_back'];
+            $filename = time() . '_cnic_back_' . uniqid() . '.' . $cnicBack->getClientOriginalExtension();
+            $cnicBack->move(public_path('admin/assets/images/users/'), $filename);
+            $cnicBackPath = 'public/admin/assets/images/users/' . $filename;
+        }
+
+        
             $vendor = Vendor::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
                 'phone' => $request['phone'],
+                'location'   => $request['location'] ?? null,
                 'password' => Hash::make($request['password']),
+                'cnic_front' => $cnicFrontPath,
+                'cnic_back'  => $cnicBackPath,
+                
             ]);
             // Mail::to($vendor->email)->send(new UserCredentials(
             //     $vendor->name ?? 'Vendor',
             //     $vendor->email,
             //     $vendor->phone ?? ''
             // ));
-            return $vendor;
+           if (!empty($request['image'])) {
+            foreach ($request['image'] as $file) {
+                $filename = time() . '_vendor_img_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('admin/assets/images/users/'), $filename);
+                $imagePath = 'public/admin/assets/images/users/' . $filename;
+
+                VendorImage::create([
+                    'vendor_id' => $vendor->id,
+                    'image'     => $imagePath,
+                ]);
+            }
+        }
+
+        return $vendor->load('images');
         }
     }
     public function login(array $request)
