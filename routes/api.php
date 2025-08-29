@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
+    Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);

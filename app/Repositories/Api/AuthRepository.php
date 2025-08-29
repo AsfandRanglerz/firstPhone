@@ -196,12 +196,12 @@ class AuthRepository implements AuthRepositoryInterface
         if (!$user) {
             return ['error' => 'User not authenticated'];
         }
-        if (!Hash::check($request['current_password'], $user->password)) {
-            return ['error' => 'Current password is incorrect'];
-        }
-        if (Hash::check($request['new_password'], $user->password)) {
-            return ['error' => 'New password cannot be the same as the old password'];
-        }
+       if ($request['new_password'] !== $request['confirm_password']) {
+        return ['error' => 'New password and confirm password do not match'];
+    }
+    if (Hash::check($request['new_password'], $user->password)) {
+        return ['error' => 'New password cannot be the same as the old password'];
+    }
         $user->password = Hash::make($request['new_password']);
         $user->save();
         return $user;
