@@ -39,27 +39,6 @@ class OrderController extends Controller
 
 
 
-    public function show($id)
-    {
-        try {
-            $customerId = auth()->id();
-            if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
-            }
-            $order = $this->orderRepository->getOrderWithRelations($id, $customerId);
-            if (!$order) {
-                return ResponseHelper::error(null, 'Order not found', 404);
-            }
-            $data = [
-                'order' => $order,
-                'total_amount' => $order->items->sum(fn($item) => $item->price * $item->quantity),
-            ];
-            return ResponseHelper::success($data, 'Order details fetched successfully', 200);
-        } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
-        }
-    }
-
 
     public function track($id)
     {
@@ -151,6 +130,23 @@ class OrderController extends Controller
                 'orders' => $orders,
                 'total_sales' => $totalAmount
             ], 'Sales report fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $customerId = auth()->id();
+            if (!$customerId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+            $order = $this->orderRepository->getOrderByIdAndCustomer($id, $customerId);
+            if (!$order) {
+                return ResponseHelper::error(null, 'Order not found', 404);
+            }
+            return ResponseHelper::success($order, 'Order details fetched successfully', 200);
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 500);
         }
