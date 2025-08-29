@@ -103,11 +103,13 @@ public function permissions($id)
         // return $permission->id;
 
         if ($permission) {
-            UserRolePermission::create([
-                'role_id' => $request->role_id,
-                'side_menue_id' => $sideMenuId,
-                'permission_id' => $permission->id,
-            ]);
+          UserRolePermission::create([
+    'role_id'       => $request->role_id,
+    'side_menu_id' => $sideMenuId,   // 👈 spelling mistake hogi
+    'permission_id' => $permission->id,
+]);
+
+
 
             // dd($permission->id);
         }
