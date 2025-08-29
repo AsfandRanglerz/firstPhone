@@ -167,18 +167,12 @@ class AuthController extends Controller
     public function changePassword(Request $request)
     {
         try {
-            $request->validate([
-                'current_password' => 'required|string',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
             $result = $this->authService->changePassword($request->all());
             if (isset($result['error'])) {
                 return ResponseHelper::error(null, $result['error'], 'error', 401);
             }
             return ResponseHelper::success($result, 'Password changed successfully', 'success', 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
-        } catch (\Exception $e) {
+        }  catch (\Exception $e) {
             return ResponseHelper::error($e->getMessage(), 'An error occurred during password change', 'error', 500);
         }
     }
