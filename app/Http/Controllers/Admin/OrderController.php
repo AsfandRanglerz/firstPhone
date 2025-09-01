@@ -47,7 +47,7 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'new_status' => $order->order_status,
-            'message' => 'Order status updated successfully'
+            'message' => 'Order Status Updated Successfully'
         ]);
     }
 
@@ -57,7 +57,7 @@ class OrderController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Payment status updated successfully',
+            'message' => 'Payment Status Updated Successfully',
         ]);
     }
 

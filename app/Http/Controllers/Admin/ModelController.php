@@ -36,7 +36,7 @@ class ModelController extends Controller
     }
 
     return response()->json([
-        'message' => 'Models created successfully',
+        'message' => 'Models Created Successfully',
         'data'    => $createdModels
     ]);
 }
@@ -56,7 +56,7 @@ class ModelController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Model updated successfully',
+            'message' => 'Model Updated Successfully',
             'data' => $model,
         ]);
     }
@@ -68,7 +68,7 @@ class ModelController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Model deleted successfully',
+            'message' => 'Model Deleted Successfully',
         ]);
     }
 }

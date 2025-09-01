@@ -54,7 +54,7 @@ public function store(Request $request)
 
     return response()->json([
         'status' => 'success',
-        'message' => 'Brands created successfully',
+        'message' => 'Brand Created Successfully',
         'data' => $brands
     ]);
 }
@@ -85,7 +85,7 @@ public function delete($id) {
 
     $find->delete();
 
-    return redirect()->route('brands.index')->with(['success' => 'Brand delete successfully']);
+    return redirect()->route('brands.index')->with(['success' => 'Brand Deleted Successfully']);
     
 }
 

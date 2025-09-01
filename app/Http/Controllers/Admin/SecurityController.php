@@ -79,7 +79,7 @@ class SecurityController extends Controller
         } else {
             PrivacyPolicy::create($request->all());
         }
-        return redirect('/admin/privacy-policy')->with('success', 'Privacy & Policy updated successfully');
+        return redirect('/admin/privacy-policy')->with('success', 'Privacy & Policy Updated Successfully');
     }
     public function TermCondition()
     {
@@ -136,7 +136,7 @@ class SecurityController extends Controller
         } else {
             TermCondition::create($request->all());
         }
-        return redirect('/admin/term-condition')->with('success', 'Terms & Conditions updated successfully');
+        return redirect('/admin/term-condition')->with('success', 'Terms & Conditions Updated Successfully');
     }
 
     public function AboutUs()
@@ -193,6 +193,6 @@ class SecurityController extends Controller
         } else {
             AboutUs::create($request->all());
         }
-        return redirect('/admin/about-us')->with('success', 'About-Us updated successfully');
+        return redirect('/admin/about-us')->with('success', 'About Us Updated Successfully');
     }
 }
