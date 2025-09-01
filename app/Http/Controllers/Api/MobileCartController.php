@@ -16,33 +16,7 @@ class MobileCartController extends Controller
     try {
         $mobileCart = MobileCart::create([
             'user_id' => Auth::id(), // Authenticated user id
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'storage' => $request->storage,
-            'price' => $request->price,
-            'condition' => $request->condition,
-            'color' => $request->color,
-            'ram' => $request->ram,
-            'processor' => $request->processor,
-            'display' => $request->display,
-            'charging' => $request->charging,
-            'refresh_rate' => $request->refresh_rate,
-            'main_camera' => $request->main_camera,
-            'ultra_camera' => $request->ultra_camera,
-            'telephoto_camera' => $request->telephoto_camera,
-            'front_camera' => $request->front_camera,
-            'build' => $request->build,
-            'wireless' => $request->wireless,
-            'stock' => $request->stock,
-            'ai_features' => $request->ai_features,
-            'battery_health' => $request->battery_health,
-            'os_version' => $request->os_version,
-            'warranty_start' => $request->warranty_start,
-            'warranty_end' => $request->warranty_end,
-            'pta_approved' => $request->pta_approved,
-            'quantity' => $request->quantity,
-            'location' => $request->location,
-            'images' => $request->images, // text/path save hoga
+            'mobile_listing_id' => $request->mobile_listing_id, // Mobile listing id from request
         ]);
 
         return response()->json([
@@ -58,31 +32,37 @@ class MobileCartController extends Controller
     }
 }
 
- public function getCart(Request $request)
-    {
-        $user = Auth::user();
+public function getCart(Request $request)
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-
-        // Get all carts for this user
-        $carts = MobileCart::where('user_id', $user->id)
-            ->get([ 'id', 'model', 'price', 'location', 'images']);
-
-        // Calculate subtotal
-        $subtotal = $carts->sum('price');
-
+    if (!$user) {
         return response()->json([
-            'status' => true,
-            'user_id' => $user->id,
-            'data' => $carts,
-            'subtotal_price' => $subtotal
-        ], 200);
+            'status' => false,
+            'message' => 'Unauthorized',
+        ], 401);
     }
+
+    // Get carts with related mobile listing
+    $carts = MobileCart::where('user_id', $user->id)
+        ->with(['mobileListing' => function($query) {
+            $query->select('id', 'model_id', 'price', 'location', 'image');
+        }])
+        ->get(['id', 'mobile_listing_id']);
+
+    // Calculate subtotal
+    $subtotal = $carts->sum(function ($cart) {
+        return $cart->mobileListing->price ?? 0;
+    });
+
+    return response()->json([
+        'message' => 'Cart details have been fetched successfully.',
+        'user_id' => $user->id,
+        'data' => $carts,
+        'subtotal_price' => $subtotal
+    ], 200);
+}
+
 
     public function deleteCart(Request $request)
 {

@@ -9,12 +9,7 @@ class UserRolePermission extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'role_id',
-        'permission_id',
-        'side_menue_id',
-    ];
+    protected $guarded = [];
 
     protected $table = 'users_role_permissions';
 

@@ -49,5 +49,11 @@ class MobileListing extends Model
     {
         return $this->model ? $this->model->name : null;
     }
+
+    public function carts()
+{
+    return $this->hasMany(MobileCart::class, 'mobile_listing_id');
+}
+
     
 }
