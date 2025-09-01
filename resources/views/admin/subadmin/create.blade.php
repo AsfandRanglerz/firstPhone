@@ -18,7 +18,7 @@
                                         <div class="form-group">
                                             <label for="name">Name <span style="color: red;">*</span></label>
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                id="name" name="name" value="{{ old('name') }}" required
+                                                id="name" name="name" value="{{ old('name') }}"
                                                 placeholder="Enter name">
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -31,7 +31,7 @@
                                         <div class="form-group">
                                             <label for="email">Email <span style="color: red;">*</span></label>
                                             <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                                id="email" name="email" value="{{ old('email') }}" required
+                                                id="email" name="email" value="{{ old('email') }}"
                                                 placeholder="Enter email">
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -44,7 +44,7 @@
                                         <div class="form-group">
                                             <label for="role">Select Role <span style="color: red;">*</span></label>
                                             <select class="form-control @error('role') is-invalid @enderror" id="role"
-                                                name="role" required>
+                                                name="role">
                                                 <option value="" disabled>-- Select Role --</option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role->id }}"
@@ -64,7 +64,7 @@
                                         <div class="form-group">
                                             <label for="image">Image (Optional)</label>
                                             <input type="file" class="form-control @error('image') is-invalid @enderror"
-                                                id="image" name="image" required>
+                                                id="image" name="image">
                                             <small class="text-danger">Note: Maximum image size allowed is 2MB</small>
                                             @error('image')
                                                 <div class="invalid-feedback">{{ $message }}</div>

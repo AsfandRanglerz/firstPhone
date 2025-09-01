@@ -61,6 +61,24 @@ class OrderController extends Controller
     }
 
 
+    public function getOrderStatistics(Request $request)
+    {
+        try {
+            $date = $request->query('date');
+
+            $orders = $this->orderRepository->getOrderStatistics($date);
+
+            return ResponseHelper::success([
+                'date'   => $date,
+                'orders' => $orders
+            ], 'Order statistics fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+
+
     public function track($id)
     {
         try {
@@ -140,7 +158,7 @@ class OrderController extends Controller
             if (!$vendorId) {
                 return ResponseHelper::error(null, 'Unauthorized', 401);
             }
-            $deliveryMethod = $request->get('delivery_method'); 
+            $deliveryMethod = $request->get('delivery_method');
             $orders = $this->orderRepository->getSalesReport($vendorId, $deliveryMethod);
 
             $totalAmount = $orders->flatMap->items->sum(function ($item) {

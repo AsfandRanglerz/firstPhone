@@ -16,7 +16,9 @@ class FaqController extends Controller
     //
     public function Faq()
     {
-        $faqs = Faq::orderBy('position', 'asc')->get();
+        $faqs = Faq::select('id', 'question', 'description', 'position')
+            ->orderBy('position', 'asc')
+            ->get();
 
         $sideMenuPermissions = collect();
 

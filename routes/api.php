@@ -72,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //order and tracking
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);

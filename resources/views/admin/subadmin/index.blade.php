@@ -25,7 +25,7 @@
                                             <th>Role</th>
                                             <th>Image</th>
                                             <th>Status</th>
-                                            <th>Activity Log Details</th>
+                                            {{-- <th>Activity Log Details</th> --}}
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -41,7 +41,7 @@
                                                         <img src="{{ asset($subAdmin->image) }}" width="50"
                                                             height="50" alt="Image">
                                                     @else
-                                                        <img src="{{ asset('public/admin/assets/images/avator.png') }}"
+                                                        <img src="{{ asset('public/admin/assets/images/default.png') }}"
                                                             width="50" height="50" alt="Default Image">
                                                     @endif
                                                 </td>
@@ -56,14 +56,14 @@
                                                         </span>
                                                     </label>
                                                 </td>
-                                                <td>
+                                                {{-- <td>
 
                                                     <a href="{{ route('admin.subadmin.SubAdminLog', $subAdmin->id) }}"
                                                         class="btn" style="background-color: #009245;">
                                                         <span class="fa fa-eye"></span>
                                                     </a>
 
-                                                </td>
+                                                </td> --}}
 
 
                                                 <td>

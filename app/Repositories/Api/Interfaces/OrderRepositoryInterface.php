@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories\Api\Interfaces;
+
 use Illuminate\Support\Collection;
 use App\Models\Order; // ✅ correct model namespace
 
@@ -34,4 +35,7 @@ interface OrderRepositoryInterface
     public function getOrderByIdAndCustomer(int $orderId, int $customerId): Order;
 
     public function getSalesReport(int $vendorId, ?string $deliveryMethod = null): Collection;
+
+    public function getOrderStatistics(?string $date = null): Collection;
+
 }
