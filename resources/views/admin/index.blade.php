@@ -2,6 +2,14 @@
 @section('title', 'Dashboard')
 @section('content')
 
+<style>
+    .banner-img img {
+    width: 100%;       /* Make image take full width of its parent */
+    height: 150px;     /* Fixed height (adjust as needed) */
+    object-fit: contain;  /* Keeps aspect ratio without cropping */
+}
+
+</style>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -21,7 +29,7 @@
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                                         <div class="banner-img">
-                                            <img src="{{ asset('public/admin/assets/img/banner/1.png') }}" alt="">
+                                            <img src="{{ asset('public/admin/assets/img/banner/total customers.png') }}" alt="">
                                         </div>
                                     </div>
                                 </div>
@@ -44,7 +52,7 @@
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                                         <div class="banner-img">
-                                            <img src="{{ asset('public/admin/assets/img/banner/2.png') }}" alt="">
+                                            <img src="{{ asset('public/admin/assets/img/banner/Total Vendors۔.png') }}" alt="">
                                         </div>
                                     </div>
                                 </div>
@@ -70,7 +78,7 @@
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                                         <div class="banner-img">
-                                            <img src="{{ asset('public/admin/assets/img/banner/3.png') }}" alt="">
+                                            <img src="{{ asset('public/admin/assets/img/banner/order status.png') }}" alt="">
                                         </div>
                                     </div>
                                 </div>
