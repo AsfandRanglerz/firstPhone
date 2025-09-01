@@ -9,7 +9,12 @@ class UserRolePermission extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'role_id',
+        'permission_id',
+        'side_menu_id',
+    ];
 
     protected $table = 'users_role_permissions';
 
@@ -30,7 +35,7 @@ class UserRolePermission extends Model
 
   public function sideMenue()
 {
-    return $this->belongsTo(SideMenue::class, 'side_menue_id');
+    return $this->belongsTo(SideMenue::class, 'side_menu_id');
 }
 
 }

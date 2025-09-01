@@ -117,7 +117,7 @@ $validatedData = $validator->validated();
     ];
     // Mail::to($request->email)->send(new SubAdminLoginPassword($message));
 
-    return redirect()->route('subadmin.index')->with(['success' => 'Sub-Admin created successfully']);
+    return redirect()->route('subadmin.index')->with(['success' => 'Sub Admin Created Successfully']);
 }
 
 
@@ -185,14 +185,14 @@ $validatedData = $validator->validated();
          // Single role update
         $subAdmin->roles()->sync([$request->role]);
 
-        return redirect()->route('subadmin.index')->with('success', 'Sub-Admin updated successfully');
+        return redirect()->route('subadmin.index')->with('success', 'Sub Admin Updated Successfully');
     }
 
     public function destroy($id)
     {
         // return $id;
         SubAdmin::destroy($id);
-        return redirect()->route('subadmin.index')->with(['success' => 'Sub-Admin Deleted Successfully']);
+        return redirect()->route('subadmin.index')->with(['success' => 'Sub Admin Deleted Successfully']);
     }
 
     public function updatePermissions(Request $request, $id)

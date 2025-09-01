@@ -4,6 +4,7 @@ namespace App\Repositories\Api;
 
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 use App\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection; // <-- correct import
 
 class OrderRepository implements OrderRepositoryInterface
@@ -48,6 +49,15 @@ class OrderRepository implements OrderRepositoryInterface
             }
         ])
             ->latest()
+            ->get();
+    }
+
+    public function getOrderStatistics(?string $date = null): Collection
+    {
+        return Order::select('id', 'order_status', 'created_at')
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('created_at', $date);
+            })
             ->get();
     }
 }

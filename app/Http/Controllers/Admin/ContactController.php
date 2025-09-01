@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRolePermission;
-
+use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
 {
@@ -108,7 +108,7 @@ public function update(Request $request, $id)
         $contact->save();
 
         // 🔙 Redirect or respond
-        return redirect('admin/admin/contact-us')->with('success', 'Contact-Us updated successfully');
+        return redirect('admin/admin/contact-us')->with('success', 'Contact Us Updated Successfully');
         
     }
 }

@@ -29,10 +29,8 @@
 
 
             {{--  SubAdmin --}}
-
             @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Sub Admins') && $sideMenuPermissions['Sub Admins']->contains('view')))
-                {{-- FAQS --}}
                 <li class="dropdown {{ request()->is('admin/subadmin*') ? 'active' : '' }}">
                     <a href="{{ url('admin/subadmin') }}" class="nav-link"><i data-feather="user"></i><span>Sub
                             Admins</span></a>
@@ -40,7 +38,6 @@
             @endif
 
             {{--  Users --}}
-
             @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('view')))
                 <li class="dropdown">
@@ -135,7 +132,6 @@
         {{-- Notification --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
-            {{-- Notifications --}}
             <li class="dropdown {{ request()->is('admin/notification*') ? 'active' : '' }}">
                 <a href="
                 {{ route('notification.index') }}
@@ -181,7 +177,6 @@
         {{--  About Us --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('About us') && $sideMenuPermissions['About us']->contains('view')))
-            {{-- About Us --}}
             <li class="dropdown {{ request()->is('admin/about-us*') ? 'active' : '' }}">
                 <a href="{{ url('admin/about-us') }}" class="nav-link"><i data-feather="help-circle"></i><span>About
                         Us</span></a>
@@ -192,7 +187,6 @@
         {{--  Privacy Policy --}}
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Privacy & Policy') && $sideMenuPermissions['Privacy & Policy']->contains('view')))
-            {{--  Privacy Policy --}}
             <li class="dropdown {{ request()->is('admin/privacy-policy*') ? 'active' : '' }}">
                 <a href="{{ url('admin/privacy-policy') }}" class="nav-link"><i data-feather="shield"></i><span>Privacy
                         & Policy</span></a>
