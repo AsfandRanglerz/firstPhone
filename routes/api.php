@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\SeoController;
+
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerMobileListingController;
 use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\FilterMobileController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\MobileCartController;
 use App\Http\Controllers\Api\MobileFilterController;
 use App\Http\Controllers\Api\MobileListingController;
 use App\Http\Controllers\Api\NotificationController;
@@ -15,12 +16,13 @@ use App\Http\Controllers\Api\OnlinePaymentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\ShippingAddressController;
-use App\Http\Controllers\Api\CustomerMobileListingController;
 
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\SideMenuPermissionController;
+use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
+    Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -84,15 +87,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
     Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
+    Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
 
+    //Nearby Customer Listings
+    Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
     // Delete Account api
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);
 
+    //cart api
+    Route::post('/mobile-cart-store', [MobileCartController::class, 'store']);
+    Route::get('/mobile-get-cart', [MobileCartController::class, 'getCart']);
+    Route::delete('/mobile-delete-cart', [MobileCartController::class, 'deleteCart']);
     //get requested mobile api
-    Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
+    Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
 });
 
 //filter searchers api
@@ -111,6 +121,8 @@ Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingControlle
 // Device details api
 Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
+// Customer device details api
+Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getCustomerDeviceDetail']);
 
 
-//
+

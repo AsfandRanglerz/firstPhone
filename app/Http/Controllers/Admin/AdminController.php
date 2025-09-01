@@ -8,9 +8,12 @@ use App\Models\Admin;
 use App\Models\AuthorizedDealer;
 use App\Models\EnsuredCrop;
 use App\Models\Farmer;
+use App\Models\Order;
 use App\Models\SideMenu;
 use App\Models\SubAdmin;
 use App\Models\SubAdminPermission;
+use App\Models\User;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,39 +21,39 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
-{ 
+{
 
     public function getdashboard()
     {
-        // $totalFarmers = Farmer::all()->count();
-        // $totalDealers = AuthorizedDealer::all()->count();
-        // // $totalInsuranceCrops = EnsuredCrop::all()->count();
-        // // dd($totalFarmers);
-        // $sideMenuName = [];
-        // $sideMenuPermissions = [];
+        $totalCustomers = User::count();
+        $totalVendors   = Vendor::count();
 
-        // if (Auth::guard('subadmin')->check()) {
-        //     $subAdminData = $this->getSubAdminPermissions();
-        //     $sideMenuPermissions = $subAdminData['sideMenuPermissions'];
-        //     $sideMenuName = $subAdminData['sideMenuName'];
-        // }
-        // dd($sideMenuName);
-        return view('admin.index');
+        $activeOrders   = Order::where('order_status', 'confirmed')->count();
+        $pendingOrders  = Order::where('order_status', 'pending')->count();
+        $cancelledOrders = Order::where('order_status', 'cancelled')->count();
+
+        return view('admin.index', compact(
+            'totalCustomers',
+            'totalVendors',
+            'activeOrders',
+            'pendingOrders',
+            'cancelledOrders'
+        ));
     }
 
-   public function getProfile()
-{
-    if (Auth::guard('admin')->check()) {
-        $data = Admin::find(Auth::guard('admin')->id());
-    } elseif (Auth::guard('subadmin')->check()) {
-        $data = SubAdmin::find(Auth::guard('subadmin')->id());
-    } else {
-        // Not authenticated — optionally redirect to login
-        return redirect()->route('login')->with('error', 'Unauthorized access.');
-    }
+    public function getProfile()
+    {
+        if (Auth::guard('admin')->check()) {
+            $data = Admin::find(Auth::guard('admin')->id());
+        } elseif (Auth::guard('subadmin')->check()) {
+            $data = SubAdmin::find(Auth::guard('subadmin')->id());
+        } else {
+            // Not authenticated — optionally redirect to login
+            return redirect()->route('login')->with('error', 'Unauthorized access.');
+        }
 
-    return view('admin.auth.profile', compact('data'));
-}
+        return view('admin.auth.profile', compact('data'));
+    }
 
     public function update_profile(Request $request)
 
@@ -81,21 +84,17 @@ class AdminController extends Controller
             $file->move('public/admin/assets/images/admin', $filename);
 
             $data['image'] = 'public/admin/assets/images/admin/' . $filename;
-
         }
 
         if (Auth::guard('admin')->check()) {
 
             Admin::find(Auth::guard('admin')->id())->update($data);
-
         } else {
 
             SubAdmin::find(Auth::guard('subadmin')->id())->update($data);
-
         }
 
         return back()->with('success', 'Profile updated successfully');
-
     }
 
     public function forgetPassword()
@@ -158,9 +157,8 @@ class AdminController extends Controller
         ]);
         // return $request;
         if ($request->password != $request->confirmPassword) {
-        // return $request;
-                       return back()->with('error', 'Password and confirm password do not match');
-
+            // return $request;
+            return back()->with('error', 'Password and confirm password do not match');
         }
         $password = bcrypt($request->password);
         $adminExists = Admin::where('email', $request->email)->first();
@@ -170,8 +168,7 @@ class AdminController extends Controller
         }
 
         if (!$adminExists && !$subAdminExists) {
-                       return back()->with('error', 'Email address not found');
-
+            return back()->with('error', 'Email address not found');
         }
 
         if ($adminExists) {
@@ -182,8 +179,7 @@ class AdminController extends Controller
 
         DB::table('password_resets')->where('email', $request->email)->delete();
 
-            return redirect('/admin')->with('success', 'Password updated successfully');
-
+        return redirect('/admin')->with('success', 'Password updated successfully');
     }
 
 

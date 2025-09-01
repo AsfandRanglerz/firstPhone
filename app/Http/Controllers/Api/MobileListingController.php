@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Api\MobileListingService;
 use Illuminate\Validation\ValidationException;
 
@@ -63,7 +64,38 @@ public function getmobileListing()
     } catch (\Exception $e) {
         return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
     }
+}
 
+public function getNearbyCustomerListings(Request $request)
+{
+    try {
+        $vendor = Auth::user();
+
+        $radius = $request->radius ?? 30; // default 30 km
+
+        $listings = $this->mobileListingService->getcustomernearbyListings(
+            $vendor->latitude,
+            $vendor->longitude,
+            $radius
+        );
+
+        return ResponseHelper::success($listings, 'Nearby customer listings fetched successfully', null, 200);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching nearby listings', 'error', 500);
+    }
+}
+
+public function getCustomerDeviceDetail($id)
+{
+    try {
+    $device = $this->mobileListingService->getCustomerDeviceDetail($id);
+   return ResponseHelper::success($device, 'Device details fetched successfully', null, 200);
+} catch (\Exception $e) {
+    return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching device details', 'error', 500);
+}
 
 }
+
+
 }

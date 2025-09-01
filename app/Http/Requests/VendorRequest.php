@@ -25,13 +25,18 @@ class VendorRequest extends FormRequest
     {
         return [
             'name' => 'required',
-             'email' => [
+            'email' => [
                 'required',
                 'email',
                 'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
-                ],
+            ],
             'phone' => 'required|regex:/^[0-9]+$/|max:15',
             'password' => 'required|min:6',
+            'location' => 'required|string|max:255',
+            'cnic_front' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'cnic_back'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'shop_images'   => 'required|array|max:5',
+            'shop_images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }

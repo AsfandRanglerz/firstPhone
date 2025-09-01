@@ -39,8 +39,8 @@ class AuthService
     {
         return $this->authRepo->updateProfile($request);
     }
-    public function changePassword()
+    public function changePassword(array $request)
     {
-        return $this->authRepo->changePassword();
+        return $this->authRepo->changePassword($request);
     }
 }

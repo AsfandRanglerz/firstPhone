@@ -21,6 +21,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>User Type</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage </th>
@@ -56,6 +57,16 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    @if($mobile->customer)
+                                                        <span>Customer</span>
+                                                    @elseif($mobile->vendor)
+                                                        <span>Vendor</span>
+                                                    @else
+                                                        <span class="text-muted">No User</span>
+                                                    @endif
+                                                </td>
+
                                                 <td>
                                                 @if($mobile->brand->name)
                                                     {{ $mobile->brand->name }}

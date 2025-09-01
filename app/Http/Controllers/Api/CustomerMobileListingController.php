@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use App\Models\MobileListing;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Api\MobileListingService;
 
 class CustomerMobileListingController extends Controller
@@ -34,5 +36,18 @@ class CustomerMobileListingController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred while generating preview', 'error', 500);
         }
     }
+
+    public function getcustomermobileListing()
+{
+    try{
+        $listings = $this->mobileListingService->getcustomermobileListing();
+        return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
+
+    }  catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
+    }
+}
+
+
 
 }

@@ -49,7 +49,7 @@ Route::get('/admin-forgot-password', [AdminController::class, 'forgetPassword'])
 Route::post('/admin-reset-password-link', [AdminController::class, 'adminResetPasswordLink']);
 Route::get('/change_password/{id}', [AdminController::class, 'change_password']);
 Route::post('/admin-reset-password', [AdminController::class, 'ResetPassword']);
-// web Routes
+// web Routes testing
 
 Route::get('/terms-conditions', [WebController::class, 'termsConditions']);
 Route::get('/privacy-policy', [WebController::class, 'privacypolicy']);

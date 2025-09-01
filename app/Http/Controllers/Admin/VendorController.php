@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Services\VendorService;
 use App\Models\UserRolePermission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;
+use App\Models\VendorImage;
 use Illuminate\Support\Facades\Auth;
 
 
 class VendorController extends Controller
 {
-     protected $vendorService;
+    protected $vendorService;
 
     public function __construct(VendorService $vendorService)
     {
@@ -68,31 +70,42 @@ class VendorController extends Controller
         return view('admin.vendor.edit', compact('user'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateVendorRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => [
-                'required',
-                'email',
-                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
-            ],
-            'phone' => 'required|regex:/^[0-9]+$/|max:15',
-            'password' => 'nullable|min:6', 
+        $data = $request->only([
+            'name',
+            'email',
+            'phone',
+            'location',
+            'repair_service'
         ]);
 
-        $data = $request->only(['name', 'email', 'phone']);
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
 
-         if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image');
-    }
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image');
+        }
+
+        if ($request->hasFile('cnic_front')) {
+            $data['cnic_front'] = $request->file('cnic_front');
+        }
+
+        if ($request->hasFile('cnic_back')) {
+            $data['cnic_back'] = $request->file('cnic_back');
+        }
+
+        if ($request->hasFile('shop_images')) {
+            $data['shop_images'] = $request->file('shop_images');
+        }
 
         $this->vendorService->updateUser($id, $data);
+
         return redirect('/admin/vendor')->with('success', 'Vendor Updated Successfully');
     }
+
+
 
     public function delete($id)
     {

@@ -26,4 +26,21 @@ class DeleteAccountController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred while deleting the account', 'error', 500);
         }
     }
+
+    public function vendordeleteAccount(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return ResponseHelper::error(null, 'User not authenticated', 'error', 401);
+            }
+
+            // Perform account deletion logic here
+            $user->delete();
+
+            return ResponseHelper::success(null, 'Account deleted successfully', null, 200);
+        } catch (Exception $e) {
+            return ResponseHelper::error($e->getMessage(), 'An error occurred while deleting the account', 'error', 500);
+        }
+    }
 }

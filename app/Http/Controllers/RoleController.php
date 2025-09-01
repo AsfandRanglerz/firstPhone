@@ -16,10 +16,10 @@ class RoleController extends Controller
 
     public function index()
     {
-         $roles = Role::all();
-         $sideMenuPermissions = collect();
+        $roles = Role::all();
+        $sideMenuPermissions = collect();
         if (!Auth::guard('admin')->check()) {
-            $user =Auth::guard('subadmin')->user()->load('roles');
+            $user = Auth::guard('subadmin')->user()->load('roles');
             $roleId = $user->role_id;
             $permissions = UserRolePermission::with(['permission', 'sideMenue'])
                 ->where('role_id', $roleId)
@@ -28,7 +28,7 @@ class RoleController extends Controller
                 return $items->pluck('permission.name'); // ['view', 'create']
             });
         }
-        return view('admin.rolepermission.index', compact('roles' , 'sideMenuPermissions'));
+        return view('admin.rolepermission.index', compact('roles', 'sideMenuPermissions'));
     }
 
     public function create()
@@ -36,111 +36,107 @@ class RoleController extends Controller
         return view('admin.rolepermission.create');
     }
 
-  public function store(Request $request)
+    public function store(Request $request)
     {
-            $request->validate([
-                'name' => 'required|string|max:255|unique:roles',
-            ]);
-            $role = Role::create([
-                'name' => $request->name,
-            ]);
-            return redirect('admin/roles')->with('message', 'Role Created Successfully');
-    
+        $request->validate([
+            'name' => 'required|string|max:255|unique:roles',
+        ]);
+        $role = Role::create([
+            'name' => $request->name,
+        ]);
+        return redirect('admin/roles')->with('message', 'Role Created Successfully');
     }
 
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $find = Role::find($id);
         if ($find) {
             $find->delete();
-               return redirect()->back()->with('success', 'Role Deleted Successfully');
+            return redirect()->back()->with('success', 'Role Deleted Successfully');
         } else {
             return redirect()->back()->with('error', 'Role not found');
         }
     }
 
 
-public function permissions($id)
-{
-    $roles = Role::find($id);
-    $permissions = Permission::all(); 
-    $sideMenus = SideMenue::all();
+    public function permissions($id)
+    {
+        $roles = Role::find($id);
+        $permissions = Permission::all();
+        $sideMenus = SideMenue::all();
 
-    // Jo permissions pehle se assign hain is role ko
-    $existingPermissions = UserRolePermission::where('role_id', $id)
-        ->with(['permission', 'sideMenue'])
-        ->get()
-        ->toArray();
+        // Jo permissions pehle se assign hain is role ko
+        $existingPermissions = UserRolePermission::where('role_id', $id)
+            ->with(['permission', 'sideMenue'])
+            ->get()
+            ->toArray();
 
         // Har sidemenu ke sath uske allowed permissions (jaise view/edit)
-    $sideMenuPermissions = SideMenuHasPermission::with('permission')
-        ->get()
-        ->groupBy('side_menu_id');
+        $sideMenuPermissions = SideMenuHasPermission::with('permission')
+            ->get()
+            ->groupBy('side_menu_id');
 
-    // dd($sideMenuPermissions);
+        // dd($sideMenuPermissions);
 
-    return view('admin.rolepermission.permissions', compact(
-        'roles',
-        'permissions',
-        'sideMenus',
-        'sideMenuPermissions',
-        'existingPermissions'
-    ));
-}
+        return view('admin.rolepermission.permissions', compact(
+            'roles',
+            'permissions',
+            'sideMenus',
+            'sideMenuPermissions',
+            'existingPermissions'
+        ));
+    }
 
 
     public function storePermissions(Request $request, $roleId)
-{
-    // return $request->all();
-    // Step 1: Clear all old permissions for this role
-    UserRolePermission::where('role_id', $roleId)->delete();
+    {
+        // return $request->all();
+        // Step 1: Clear all old permissions for this role
+        UserRolePermission::where('role_id', $roleId)->delete();
 
-    // Step 2: Loop through all selected permissions and save
-    if ($request->has('permissions')) {
-       foreach ($request->permissions as $sideMenuId => $permissionNames) {
-    foreach ($permissionNames as $permissionName) {
-        $permission = Permission::where('name', $permissionName)->first();
-        // return $permission->id;
+        // Step 2: Loop through all selected permissions and save
+        if ($request->has('permissions')) {
+            foreach ($request->permissions as $sideMenuId => $permissionNames) {
+                foreach ($permissionNames as $permissionName) {
+                    $permission = Permission::where('name', $permissionName)->first();
+                    // return $permission->id;
 
-        if ($permission) {
-            UserRolePermission::create([
-                'role_id' => $request->role_id,
-                'side_menu_id' => $sideMenuId,
-                'permission_id' => $permission->id,
-            ]);
+                    if ($permission) {
+                        UserRolePermission::create([
+                            'role_id'       => $request->role_id,
+                            'side_menu_id' => $sideMenuId,   // 👈 spelling mistake hogi
+                            'permission_id' => $permission->id,
+                        ]);
 
-            // dd($permission->id);
+
+
+                        // dd($permission->id);
+                    }
+                }
+            }
         }
-    }
-}
 
-    }
-
-    return redirect('/admin/roles')->with('success', 'Permissions Saved Successfully');
-}
-
-
-
-function hasPermission($menu, $permission)
-{
-    if (Auth::guard('admin')->check()) {
-        return true;
+        return redirect('/admin/roles')->with('success', 'Permissions Saved Successfully');
     }
 
-    $user = Auth::user();
-    $roleId = $user->role_id;
 
-    $permissions = \App\Models\UserRolePermission::with(['permission', 'sideMenue'])
-        ->where('role_id', $roleId)
-        ->get()
-        ->groupBy('sideMenue.name')
-        ->map(fn($items) => $items->pluck('permission.name'));
 
-    return $permissions->has($menu) && $permissions[$menu]->contains($permission);
+    function hasPermission($menu, $permission)
+    {
+        if (Auth::guard('admin')->check()) {
+            return true;
+        }
+
+        $user = Auth::user();
+        $roleId = $user->role_id;
+
+        $permissions = \App\Models\UserRolePermission::with(['permission', 'sideMenue'])
+            ->where('role_id', $roleId)
+            ->get()
+            ->groupBy('sideMenue.name')
+            ->map(fn($items) => $items->pluck('permission.name'));
+
+        return $permissions->has($menu) && $permissions[$menu]->contains($permission);
+    }
 }
-
-
-}
-
-
-
