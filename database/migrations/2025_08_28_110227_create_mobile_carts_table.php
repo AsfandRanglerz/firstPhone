@@ -19,11 +19,10 @@ class CreateMobileCartsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
            $table->unsignedBigInteger('mobile_listing_id');
-
-    $table->foreign('mobile_listing_id')
-          ->references('id')
-          ->on('mobile_listings')
-          ->onDelete('cascade');
+            $table->foreign('mobile_listing_id')
+            ->references('id')
+            ->on('mobile_listings')
+            ->onDelete('cascade');
             $table->timestamps();
         });
     }
