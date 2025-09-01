@@ -58,6 +58,7 @@ class MobileListingService
             'os_version' => $request->os_version,
             'warranty_start' => $request->warranty_start,
             'warranty_end' => $request->warranty_end,
+            'quantity' => $request->quantity,
             'vendor_id' => $vendorId,
             'image' => json_encode($mediaPaths),
         ];
@@ -102,6 +103,7 @@ class MobileListingService
             'os_version' => $listing->os_version,
             'warranty_start' => $listing->warranty_start,
             'warranty_end' => $listing->warranty_end,
+            'quantity' => $listing->quantity,
             'vendor_id' => $listing->vendor_id,
             'image'     => array_map(fn($path) => asset($path), $images),
         ];
