@@ -12,7 +12,9 @@ class ModelController extends Controller
 {
    public function index($id)
 {
-    $brand = Brand::with('mobileModels')->findOrFail($id);
+   $brand = Brand::with(['mobileModels' => function($query) {
+    $query->orderBy('id', 'desc'); 
+}])->findOrFail($id);
     $models = $brand->mobileModels;
 
     return view('admin.brands.models', compact('models' , 'brand'));

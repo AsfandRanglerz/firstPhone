@@ -64,7 +64,7 @@
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create Brands</h5>
+                        <h5 class="modal-title">Create Brand Model</h5>
                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
                     <div class="modal-body">
@@ -150,57 +150,74 @@
             });
 
             // Create Form Submission
-            $('#brandForm').submit(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: "{{ route('brands.model.store') }}",
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.data && Array.isArray(response.data)) {
-                            response.data.forEach(function(model) {
-                                addBrandToTable(model);
-                            });
-                        }
-                        $('#brandModal').modal('hide');
-                        toastr.success('Model Created Successfully');
-                        $('#brandForm')[0].reset();
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
+           $('#brandForm').submit(function(e) {
+    e.preventDefault();
 
-                            // Clear all previous errors first
-                            $('.error-message').text('');
+    let $btn = $('#brandForm button[type="submit"]'); // submit button
 
-                            for (let field in errors) {
-                                // Get the original error message
-                                let originalMsg = errors[field][0];
+    // Disable button + show loading
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                                // Customize the message to remove index numbers
-                                let customMsg = originalMsg
-                                    .replace(/\.\d+/g, '') // Remove all .0, .1, etc.
-                                    .replace('name field', 'Name field') // Capitalize if needed
-                                    .replace('The Name field is required',
-                                        'This name field is required'); // Your custom message
+    $.ajax({
+        url: "{{ route('brands.model.store') }}",
+        method: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+    if (response.data) {
+        let models = Array.isArray(response.data) ? response.data : [response.data];
+        let newRows = [];
 
-                                // Find the corresponding error container and display the message
-                                $(`.error-message[data-error-for="${field}"]`).text(customMsg);
+        models.forEach(model => {
+            let row = addBrandToTable(model);
+            newRows.push(row);
+        });
 
-                                // Set up click handler to clear error when field is focused
-                                $(`[name="${field.replace('.', '[').replace('.', ']')}"]`).off(
-                                        'focus.clearError')
-                                    .on('focus.clearError', function() {
-                                        $(`.error-message[data-error-for="${field}"]`).text(
-                                            '');
-                                    });
-                            }
-                        } else {
-                            toastr.error('Something went wrong.');
-                        }
-                    }
-                });
-            });
+        // sab rows ko ek sath reverse karke prepend karo
+        $(newRows.reverse()).prependTo($(table.table().body()));
+
+        // numbering fix karo
+        table.rows().every(function(index) {
+            $(this.node()).find('td').eq(0).html(index + 1);
+        });
+    }
+
+    toastr.success('Model Created Successfully');
+    $('#brandModal').modal('hide');
+},
+        error: function(xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+
+                // Clear all previous errors first
+                $('.error-message').text('');
+
+                for (let field in errors) {
+                    let originalMsg = errors[field][0];
+
+                    let customMsg = originalMsg
+                        .replace(/\.\d+/g, '') // remove .0, .1 etc
+                        .replace('name field', 'Name field')
+                        .replace('The Name field is required', 'This name field is required');
+
+                    $(`.error-message[data-error-for="${field}"]`).text(customMsg);
+
+                    $(`[name="${field.replace('.', '[').replace('.', ']')}"]`)
+                        .off('focus.clearError')
+                        .on('focus.clearError', function() {
+                            $(`.error-message[data-error-for="${field}"]`).text('');
+                        });
+                }
+            } else {
+                toastr.error('Something went wrong.');
+            }
+        },
+        complete: function() {
+            // Reset button state
+            $btn.prop('disabled', false).html('Save');
+        }
+    });
+});
+
 
             // Edit Modal Open
             // Edit button click
@@ -218,28 +235,41 @@
 
 
             // Edit Form Submit
-            $('#editForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#edit_id').val();
-                $.ajax({
-                    url: "{{ route('brands.model.update', ':id') }}".replace(':id', id),
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        updateBrandInTable(response.data);
-                        toastr.success('Model Updated Successfully');
-                        $('#editModal').modal('hide');
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            $('#edit_name_error').text(xhr.responseJSON.errors.name ? xhr
-                                .responseJSON.errors.name[0] : '');
-                        } else {
-                            toastr.error('Something went wrong.');
-                        }
-                    }
-                });
-            });
+         $('#editForm').submit(function(e) {
+    e.preventDefault();
+
+    let id = $('#edit_id').val();
+    let $btn = $('#editForm button[type="submit"]'); // update button
+
+    // Disable button + show loading
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving Changes...');
+
+    $.ajax({
+        url: "{{ route('brands.model.update', ':id') }}".replace(':id', id),
+        method: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+            updateBrandInTable(response.data);
+
+            toastr.success('Model Updated Successfully');
+
+            // Modal close
+            $('#editModal').modal('hide');
+        },
+        error: function(xhr) {
+            if (xhr.status === 422) {
+                $('#edit_name_error').text(xhr.responseJSON.errors.name ? xhr.responseJSON.errors.name[0] : '');
+            } else {
+                toastr.error('Something went wrong.');
+            }
+        },
+        complete: function() {
+            // Button ko wapas normal state par le aao
+            $btn.prop('disabled', false).html('Save Changes');
+        }
+    });
+});
+
 
             // Delete Brand
             $(document).on('click', '.deleteBrand', function() {
@@ -272,25 +302,30 @@
                 });
             });
 
-            function addBrandToTable(model) {
-                let newRow = table.row.add([
-                    table.rows().count() + 1,
-                    Array.isArray(model.name) ? model.name.join(', ') : model.name,
-                    `<div class="d-flex gap-1">
-                <button class="btn btn-primary editBrand"
-                    data-id="${model.id}"
-                    data-name="${Array.isArray(model.name) ? model.name.join(', ') : model.name}">
-                    <i class="fa fa-edit"></i>
-                </button>
-                <button class="btn deleteBrand" style="background-color: #009245;"
-                    data-id="${model.id}">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </div>`
-                ]).draw(false).node();
-                $(newRow).attr('id', `brand-row-${model.id}`);
-                $(newRow).find('td').eq(1).addClass('brand-name');
-            }
+        function addBrandToTable(model) {
+    let newRow = table.row.add([
+        table.rows().count() + 1,
+        Array.isArray(model.name) ? model.name.join(', ') : model.name,
+        `<div class="d-flex gap-1">
+            <button class="btn btn-primary editBrand"
+                data-id="${model.id}"
+                data-name="${Array.isArray(model.name) ? model.name.join(', ') : model.name}">
+                <i class="fa fa-edit"></i>
+            </button>
+            <button class="btn deleteBrand" style="background-color: #009245;"
+                data-id="${model.id}">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>`
+    ]).draw(false).node();
+
+    $(newRow).attr('id', `brand-row-${model.id}`);
+    $(newRow).find('td').eq(1).addClass('brand-name');
+
+    return newRow; // sirf row return karo
+}
+
+
 
             function updateBrandInTable(model) {
                 let row = $(`#brand-row-${model.id}`);
