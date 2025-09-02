@@ -30,7 +30,10 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Phone</th>
-                                            <th>Image</th>
+                                            <th>CNIC Front</th>
+                                            <th>CNIC BAck</th>
+                                            <th>Shop Images</th>
+                                            <th>Profile Image</th>
                                             <th>Toggle</th>
                                             <th>Actions</th>
                                         </tr>
@@ -45,8 +48,41 @@
                                                 </td>
                                                 <td>{{ $user->phone }}</td>
                                                 <td>
+                                                    @if ($user->cnic_front)
+                                                        <button class="btn btn-sm btn-info view-cnic"
+                                                            data-front="{{ asset($user->cnic_front) }}"
+                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                    @else
+                                                        <span>No CNIC</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($user->cnic_back)
+                                                        <button class="btn btn-sm btn-info view-cnic-back"
+                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                    @else
+                                                        <span>No CNIC Back</span>
+                                                    @endif
+                                                </td>
+
+                                                <td>
+                                                    @if ($user->images && $user->images->count() > 0)
+                                                        <button class="btn btn-sm btn-info view-shop-images"
+                                                            data-images='@json($user->images->pluck('image'))' title="View CNIC">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                    @else
+                                                        <span>No Shop Images</span>
+                                                    @endif
+                                                </td>
+
+                                                <td>
                                                     @if ($user->image)
-                                                        <img src="{{ asset($user->image) }}" alt="User Image"
+                                                        <img src="{{ asset($user->image) }}" alt="CNIC Back Image"
                                                             style="width: 50px; height: 50px;">
                                                     @else
                                                         <span>No Image</span>
@@ -65,29 +101,30 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-0">
-                                                    @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('edit')))
-                                                        <a href="{{ route('vendor.edit', $user->id) }}"
-                                                            class="btn btn-primary me-2"
-                                                            style="float: left; margin-left: 10px;">
-                                                            <i class="fa fa-edit"></i>
-                                                        </a>
-                                                    @endif
+                                                        @if (Auth::guard('admin')->check() ||
+                                                                ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('edit')))
+                                                            <a href="{{ route('vendor.edit', $user->id) }}"
+                                                                class="btn btn-primary me-2"
+                                                                style="float: left; margin-left: 10px;">
+                                                                <i class="fa fa-edit"></i>
+                                                            </a>
+                                                        @endif
 
-                                                    @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('delete')))
-                                                        <form id="delete-form-{{ $user->id }}"
-                                                            action="{{ route('vendor.delete', $user->id) }}" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                        </form>
+                                                        @if (Auth::guard('admin')->check() ||
+                                                                ($sideMenuPermissions->has('Vendors') && $sideMenuPermissions['Vendors']->contains('delete')))
+                                                            <form id="delete-form-{{ $user->id }}"
+                                                                action="{{ route('vendor.delete', $user->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                            </form>
 
-                                                        <button class="show_confirm btn d-flex gap-4"
-                                                            style="background-color: #009245;"
-                                                            data-form="delete-form-{{ $user->id }}" type="button">
-                                                            <span><i class="fa fa-trash"></i></span>
-                                                        </button>
-                                                    @endif
+                                                            <button class="show_confirm btn d-flex gap-4"
+                                                                style="background-color: #009245;"
+                                                                data-form="delete-form-{{ $user->id }}" type="button">
+                                                                <span><i class="fa fa-trash"></i></span>
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -131,25 +168,66 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="cnicModal" tabindex="-1" aria-labelledby="cnicModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cnicModalLabel">CNIC Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="cnicFront" src="" class="img-fluid mb-3" alt="CNIC Front">
+                    <img id="cnicBack" src="" class="img-fluid" alt="CNIC Back">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="shopImagesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Shop Images</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="shopCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="shopImagesContainer"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#shopCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#shopCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 
 @section('js')
     <script>
         $(document).ready(function() {
-            // Initialize DataTable
+            // ===== DataTable Initialization =====
             if ($.fn.DataTable.isDataTable('#table_id_events')) {
                 $('#table_id_events').DataTable().destroy();
             }
             $('#table_id_events').DataTable();
 
-            // SweetAlert2 delete confirmation
+            // ===== SweetAlert2 Delete Confirmation =====
             $('.show_confirm').click(function(event) {
                 event.preventDefault();
                 var formId = $(this).data("form");
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
@@ -161,7 +239,7 @@
                 });
             });
 
-            // Toggle status
+            // ===== Toggle Status =====
             let currentToggle = null;
             let currentUserId = null;
 
@@ -184,7 +262,6 @@
                     toastr.error('Please provide a deactivation reason');
                     return;
                 }
-
                 updateUserStatus(currentUserId, 0, reason);
             });
 
@@ -225,6 +302,38 @@
                     }
                 });
             }
+
+            // ===== CNIC Front Modal =====
+            $('.view-cnic').on('click', function() {
+                let front = $(this).data('front');
+                $('#cnicFront').attr('src', front).show();
+                $('#cnicModal').modal('show');
+            });
+
+            // ===== CNIC Back Modal =====
+            $('.view-cnic-back').on('click', function() {
+                let back = $(this).data('back');
+                $('#cnicFront').hide();
+                $('#cnicBack').attr('src', back).show();
+                $('#cnicModal').modal('show');
+            });
+
+            // ===== Shop Images Modal =====
+            $('.view-shop-images').on('click', function() {
+                let images = $(this).data('images');
+                let container = $('#shopImagesContainer');
+                container.empty();
+
+                images.forEach((img, i) => {
+                    container.append(`
+                    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                        <img src="{{ asset('') }}${img}" class="d-block w-100" style="max-height:500px; object-fit:contain;">
+                    </div>
+                `);
+                });
+
+                $('#shopImagesModal').modal('show');
+            });
         });
     </script>
 @endsection

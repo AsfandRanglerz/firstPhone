@@ -28,7 +28,7 @@ class AdminController extends Controller
         $totalCustomers = User::count();
         $totalVendors   = Vendor::count();
 
-        $activeOrders   = Order::where('order_status', 'confirmed')->count();
+        $activeOrders   = Order::whereIn('order_status', ['confirmed', 'in_progress', 'shipped'])->count();
         $pendingOrders  = Order::where('order_status', 'pending')->count();
         $cancelledOrders = Order::where('order_status', 'cancelled')->count();
 
