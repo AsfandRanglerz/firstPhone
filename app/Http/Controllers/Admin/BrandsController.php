@@ -12,7 +12,8 @@ class BrandsController extends Controller
     //
 
     public function index()   {
-        $brands = Brand::all();
+       $brands = Brand::orderBy('id', 'desc')->get();
+
         return view('admin.brands.index', compact('brands'));
     }
 
@@ -54,7 +55,7 @@ public function store(Request $request)
 
     return response()->json([
         'status' => 'success',
-        'message' => 'Brands created successfully',
+        'message' => 'Brand Created Successfully',
         'data' => $brands
     ]);
 }
@@ -85,7 +86,7 @@ public function delete($id) {
 
     $find->delete();
 
-    return redirect()->route('brands.index')->with(['success' => 'Brand delete successfully']);
+    return redirect()->route('brands.index')->with(['success' => 'Brand Deleted Successfully']);
     
 }
 

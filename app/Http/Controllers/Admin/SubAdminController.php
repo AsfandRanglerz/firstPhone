@@ -241,7 +241,7 @@ $validatedData = $validator->validated();
 
     return response()->json([
         'success' => true,
-        'message' => $request->status ? 'Status activated successfully' : 'Status deactivated successfully',
+        'message' => $request->status ? 'Status activated successfully' : 'Status Deactivated Successfully',
     ]);
 }
 

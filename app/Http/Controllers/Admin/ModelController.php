@@ -12,7 +12,9 @@ class ModelController extends Controller
 {
    public function index($id)
 {
-    $brand = Brand::with('mobileModels')->findOrFail($id);
+   $brand = Brand::with(['mobileModels' => function($query) {
+    $query->orderBy('id', 'desc'); 
+}])->findOrFail($id);
     $models = $brand->mobileModels;
 
     return view('admin.brands.models', compact('models' , 'brand'));
@@ -36,7 +38,7 @@ class ModelController extends Controller
     }
 
     return response()->json([
-        'message' => 'Models created successfully',
+        'message' => 'Models Created Successfully',
         'data'    => $createdModels
     ]);
 }
@@ -56,7 +58,7 @@ class ModelController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Model updated successfully',
+            'message' => 'Model Updated Successfully',
             'data' => $model,
         ]);
     }
@@ -68,7 +70,7 @@ class ModelController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Model deleted successfully',
+            'message' => 'Model Deleted Successfully',
         ]);
     }
 }

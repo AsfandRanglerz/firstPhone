@@ -158,7 +158,7 @@ class AdminController extends Controller
         // return $request;
         if ($request->password != $request->confirmPassword) {
             // return $request;
-            return back()->with('error', 'Password and confirm password do not match');
+            return back()->with('error', 'Password and confirm password does not match');
         }
         $password = bcrypt($request->password);
         $adminExists = Admin::where('email', $request->email)->first();
@@ -179,7 +179,7 @@ class AdminController extends Controller
 
         DB::table('password_resets')->where('email', $request->email)->delete();
 
-        return redirect('/admin')->with('success', 'Password updated successfully');
+        return redirect('/admin')->with('success', 'Password Updated Successfully');
     }
 
 
