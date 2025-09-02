@@ -11,7 +11,7 @@ class MobileRequestController extends Controller
 {
     public function index() //
     {
-        $mobilerequests = MobileRequest::with('brand', 'model')->get();
+        $mobilerequests = MobileRequest::with('brand', 'model')->latest()->get();
         return view('admin.mobilerequest.index', compact('mobilerequests'));
     } 
 

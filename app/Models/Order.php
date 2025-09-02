@@ -25,4 +25,10 @@ class Order extends Model
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
+
+    public function shippingAddress()
+{
+    return $this->hasOne(ShippingAddress::class, 'customer_id', 'customer_id');
+}
+
 }
