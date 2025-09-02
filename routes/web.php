@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\MobileRequestController;
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,15 +101,22 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
     // ############ Brands #################
     Route::controller(BrandsController::class)->group(function () {
         Route::get('/brands', 'index')->name('brands.index')->middleware('check.permission:brands,view');
-
         Route::get('/brands/create', 'create')->name('brands.create')->middleware('check.permission:create,view');
         Route::post('/brands/store', 'store')->name('brands.store');
         Route::get('/brands/edit', 'edit')->name('brands.edit')->middleware('check.permission:edit,view');
-        //  Route::post('/brands/update/{id}', 'update')->name('brands.update');
+        Route::post('/brands/update/{id}', 'update')->name('brands.update')->middleware('check.permission:update,view');
         Route::delete('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
     });
 
-    Route::post('/brands/update/{id}', [BrandsController::class, 'update'])->name('brands.update');
+    Route::controller(SubscriptionPlanController  ::class)->group(function () {
+        Route::get('/subscriptions', 'index')->name('subscription.index')->middleware('check.permission:Subscriptions,view');
+        Route::get('/subscription-create', 'createview')->name('subscription.createview')->middleware('check.permission:Subscriptions,create');
+        Route::post('/subscription-store', 'create')->name('subscription.create')->middleware('check.permission:Subscriptions,create');
+        Route::get('/subscription-edit/{id}', 'edit')->name('subscription.edit')->middleware('check.permission:Subscriptions,edit');
+        Route::post('/subscription-update/{id}', 'update')->name('subscription.update')->middleware('check.permission:Subscriptions,edit');
+        Route::delete('/subscription-destory/{id}', 'delete')->name('subscription.delete')->middleware('check.permission:Subscriptions,delete');
+        Route::post('/subscription/toggle-status', 'toggleStatus')->name('subscription.toggle-status');
+    });
 
     // ############ Models of Mobile #################
     Route::controller(ModelController::class)->group(function () {
