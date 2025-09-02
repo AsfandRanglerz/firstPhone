@@ -124,5 +124,6 @@ Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 // Customer device details api
 Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getCustomerDeviceDetail']);
 
-
+// Order list api
+Route::get('/orderlist/{id}', [OrderController::class, 'getorderlist']);
 

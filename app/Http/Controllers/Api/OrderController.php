@@ -130,28 +130,22 @@ class OrderController extends Controller
         }
     }
 
-    public function salesReport(Request $request)
-    {
-        try {
-            $vendorId = auth()->id();
-            if (!$vendorId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
-            }
-            $deliveryMethod = $request->get('delivery_method');
-            $orders = $this->orderRepository->getSalesReport($vendorId, $deliveryMethod);
-
-            $totalAmount = $orders->flatMap->items->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
-
-            return ResponseHelper::success([
-                'orders' => $orders,
-                'total_sales' => $totalAmount
-            ], 'Sales report fetched successfully', 200);
-        } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+   public function salesReport(Request $request)
+{
+    try {
+        $vendorId = auth()->id();
+        if (!$vendorId) {
+            return ResponseHelper::error(null, 'Unauthorized', 401);
         }
+         $type = $request->get('type', 'overall');
+         $report = $this->orderRepository->getSalesReport($vendorId, $type);
+        
+        return ResponseHelper::success($report,'Sales report fetched successfully',200);
+    } catch (\Exception $e) {
+        return ResponseHelper::error(null, $e->getMessage(), 500);
     }
+}
+
 
     public function show($id)
     {
@@ -165,6 +159,16 @@ class OrderController extends Controller
                 return ResponseHelper::error(null, 'Order not found', 404);
             }
             return ResponseHelper::success($order, 'Order details fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function getorderlist($orderId)
+    {
+        try {
+            $orders = $this->orderRepository->getorderlist($orderId);
+            return ResponseHelper::success($orders, 'Orders list fetched successfully', 200);
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 500);
         }
