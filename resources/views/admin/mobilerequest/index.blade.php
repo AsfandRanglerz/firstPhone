@@ -18,7 +18,7 @@
                                         href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif --}}
 
-                                <table class="table" id="table_id_events"> 
+                                <table class="table responsive" id="table_id_events"> 
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>

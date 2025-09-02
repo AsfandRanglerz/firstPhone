@@ -16,7 +16,7 @@
                                         ($sideMenuPermissions->has('Sub Admins') && $sideMenuPermissions['Sub Admins']->contains('create')))
                                     <a class="btn btn-primary mb-3" href="{{ route('subadmin.create') }}">Create</a>
                                 @endif
-                                <table class="table" id="table_id_events">
+                                <table class="table responsive" id="table_id_events">
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>

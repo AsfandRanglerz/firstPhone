@@ -17,7 +17,7 @@
                                 <button class="btn mb-3" style="background-color: #009245;"
                                     id="openCreateModal">Create</button>
 
-                                <table class="table" id="brandsTable">
+                                <table class="table responsive" id="brandsTable">
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
