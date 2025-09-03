@@ -83,6 +83,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
     Route::get('/sales-report', [OrderController::class, 'salesReport']);
 
+    //device receipt api
+    Route::post('/devicereceipts/{orderId}', [OrderController::class, 'deviceReceipt']);
+    Route::get('/receipt/{deviceReceiptId}', [OrderController::class, 'getReceipt']);
+
     // Mobile Listing API
     Route::post('/mobilelisting', [MobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);

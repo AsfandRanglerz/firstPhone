@@ -38,4 +38,8 @@ interface OrderRepositoryInterface
 
     public function getOrderStatistics(?string $date = null): Collection;
 
+    public function createDeviceReceipts(int $orderId, array $devices): array;
+
+    public function getReceiptById(int $deviceReceiptId): array;
+
 }

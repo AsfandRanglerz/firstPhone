@@ -173,4 +173,28 @@ class OrderController extends Controller
             return ResponseHelper::error(null, $e->getMessage(), 500);
         }
     }
+
+     public function deviceReceipt(Request $request, $orderId)
+    {
+        try {
+            $devices = $request->input('devices', []);
+
+            $receipts = $this->orderRepository->createDeviceReceipts($orderId, $devices);
+
+            return ResponseHelper::success($receipts, 'Device receipt created successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function getReceipt($deviceReceiptId)
+    {
+        try {
+            $receipt = $this->orderRepository->getReceiptById($deviceReceiptId);
+
+            return ResponseHelper::success($receipt, 'Receipt fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
 }
