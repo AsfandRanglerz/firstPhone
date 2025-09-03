@@ -25,4 +25,11 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
+
+  public function deviceReceipts()
+{
+    // ✅ recommended: use order_item_id in device_receipts table
+    return $this->hasMany(DeviceReceipt::class, 'order_item_id', 'id');
+}
+
 }

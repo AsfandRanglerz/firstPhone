@@ -4,7 +4,11 @@ namespace App\Repositories\Api;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\DeviceReceipt;
+use App\Models\MobileListing;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection; // <-- correct import
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
@@ -109,6 +113,97 @@ public function getorderlist($orderId)
     ];
 }
 
+public function createDeviceReceipts(int $orderId, array $devices): array
+{
+    $vendor = Auth::id();
+
+    // ✅ Load the order with items
+    $order = Order::with(['items'])->findOrFail($orderId);
+
+    $createdReceipts = [];
+
+    foreach ($devices as $device) {
+        // ✅ Make sure the product_id exists in this order
+        $item = $order->items->where('product_id', $device['product_id'])->first();
+
+        if (!$item) {
+            throw new \Exception("Product not found in this order");
+        }
+
+        // ✅ Fetch product details from mobile listing
+        $mobile = MobileListing::with(['brand', 'model'])->find($item->product_id);
+
+        if (!$mobile) {
+            throw new \Exception("Mobile listing not found for product_id: " . $item->product_id);
+        }
+
+         $paymentId = strtoupper(Str::random(12)); 
+
+        // Ensure uniqueness in DB
+        while (DeviceReceipt::where('payment_id', $paymentId)->exists()) {
+            $paymentId = strtoupper(Str::random(12));
+        }
+
+        // ✅ Create receipt
+        $receipt = DeviceReceipt::create([
+            'order_id'   => $orderId,
+            'order_item_id' => $item->id,
+            'product_id' => $mobile->id,
+            'brand'      => $mobile->brand->name ?? 'Unknown',
+            'model'      => $mobile->model->name ?? 'Unknown',
+            'imei_one'      => $device['imei_one'] ?? null,
+            'imei_two'      => $device['imei_two'] ?? null,
+            'payment_id'   => $paymentId,
+        ]);
+
+        $createdReceipts[] = $receipt;
+    }
+
+    return $createdReceipts;
+}
+
+public function getReceiptById(int $deviceReceiptId): array
+{
+    $deviceReceipt = DeviceReceipt::with([
+        'order.customer',
+        'order.vendor',
+        'order.items.deviceReceipts',
+        'order.items.vendor',
+    ])->findOrFail($deviceReceiptId);
+
+    $order = $deviceReceipt->order;
+
+    $vendorName = optional($order->items->first()->vendor)->name;
+    $deviceReceipt->created_at_formatted = $deviceReceipt->created_at->format('d-m-Y H:i:s');
+    $response = [
+        'order_number'    => $order->order_number,
+        'delivery_method' => $order->delivery_method,
+        'from_customer'   => $order->customer?->name,
+        'to_vendor'       => $vendorName,
+        'payment_id'     => $deviceReceipt->payment_id,
+        'total_products'  => $order->items->count(),
+        'products'        => [],
+        'created_at'      => $deviceReceipt->created_at_formatted,
+    ];
+
+    foreach ($order->items as $item) {
+        foreach ($item->deviceReceipts as $receipt) {
+            $response['products'][] = [
+                'brand'    => $receipt->brand,
+                'model'    => $receipt->model,
+                'imei_one' => $receipt->imei_one,
+                'imei_two' => $receipt->imei_two,
+                'quantity' => $item->quantity,
+                'price'    => $item->price,
+                'total'    => $item->quantity * $item->price,
+            ];
+        }
+    }
+
+    $response['total_amount'] = collect($response['products'])->sum('total');
+
+    return $response;
+}
 
 
 }

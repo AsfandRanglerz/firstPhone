@@ -27,6 +27,11 @@ class MobileListing extends Model
         return $this->hasMany(OrderItem::class, 'product_id');
     }
 
+    public function deviceReceipts()
+    {
+        return $this->hasMany(DeviceReceipt::class, 'product_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(User::class, 'customer_id');
