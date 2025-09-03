@@ -76,6 +76,18 @@
             </li>
         @endif
 
+        {{-- Subscription Plans --}}
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Subscription Plans') && $sideMenuPermissions['Subscription Plans']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/subscriptions*') ? 'active' : '' }}">
+                <a href="
+                {{ route('subscription.index') }}
+                " class="nav-link">
+                    <i data-feather="package"></i><span>Subscription Plans</span>
+                </a>
+            </li>
+        @endif
+
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
             <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
