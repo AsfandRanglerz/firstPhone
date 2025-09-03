@@ -4,8 +4,6 @@ namespace App\Providers;
 
 use App\Models\Faq;
  use Illuminate\Support\Facades\View;
-use App\Models\Seo;
-use App\Models\blog;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Brand;
@@ -21,7 +19,6 @@ use App\Observers\ModelObserver;
 
 use App\Models\TermsAndConditions;
 use App\Models\UserRolePermission;
-use App\Observers\SubAdminObserver;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\VendorRepository;
@@ -30,7 +27,6 @@ use App\Repositories\Api\AuthRepository;
 use App\Repositories\Api\HomeRepository;
 
 use App\Repositories\Api\OrderRepository;
-use App\Services\SubAdminActivityService;
 use App\Repositories\Api\NotificationRepo;
 use App\Repositories\NotificationRepository;
 use App\Repositories\Api\RequestedMobileRepository;
@@ -42,8 +38,12 @@ use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Api\Interfaces\NotificationRepoInterface;
 use App\Repositories\Interfaces\NotificationRepositoryInterface;
 use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
+use App\Repositories\Api\Interfaces\VendorSubscriptionRepositoryInterface;
+use App\Repositories\Api\VendorSubscriptionRepository;
 use App\Repositories\Interfaces\OrderRepoInterface;
+use App\Repositories\Interfaces\SubscriptionPlanInterface;
 use App\Repositories\OrderRepo;
+use App\Repositories\SubscriptionPlanRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -64,6 +64,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(HomeRepositoryInterface::class, HomeRepository::class);
         $this->app->bind(RequestedMobileRepositoryInterface::class, RequestedMobileRepository::class);
         $this->app->bind(OrderRepoInterface::class, OrderRepo::class);
+        $this->app->bind(SubscriptionPlanInterface::class, SubscriptionPlanRepository::class);
+        $this->app->bind(VendorSubscriptionRepositoryInterface::class, VendorSubscriptionRepository::class);
 
     }
 

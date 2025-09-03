@@ -110,11 +110,11 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
 
     Route::controller(SubscriptionPlanController  ::class)->group(function () {
         Route::get('/subscriptions', 'index')->name('subscription.index')->middleware('check.permission:Subscriptions,view');
-        Route::get('/subscription-create', 'createview')->name('subscription.createview')->middleware('check.permission:Subscriptions,create');
-        Route::post('/subscription-store', 'create')->name('subscription.create')->middleware('check.permission:Subscriptions,create');
+        Route::get('/subscription-create', 'create')->name('subscription.create')->middleware('check.permission:Subscriptions,create');
+        Route::post('/subscription-store', 'store')->name('subscription.store')->middleware('check.permission:Subscriptions,create');
         Route::get('/subscription-edit/{id}', 'edit')->name('subscription.edit')->middleware('check.permission:Subscriptions,edit');
         Route::post('/subscription-update/{id}', 'update')->name('subscription.update')->middleware('check.permission:Subscriptions,edit');
-        Route::delete('/subscription-destory/{id}', 'delete')->name('subscription.delete')->middleware('check.permission:Subscriptions,delete');
+        Route::delete('/subscription-destroy/{id}', 'delete')->name('subscription.delete')->middleware('check.permission:Subscriptions,delete');
         Route::post('/subscription/toggle-status', 'toggleStatus')->name('subscription.toggle-status');
     });
 
@@ -125,7 +125,6 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/brands/models/update/{id}', 'update')->name('brands.model.update')->middleware('check.permission:brands,update');
         Route::delete('/brands/models/delete/{id}', 'destroy')->name('brands.model.delete')->middleware('check.permission:brands,delete');
     });
-
 
 
     // ############ Mobile Listings #################

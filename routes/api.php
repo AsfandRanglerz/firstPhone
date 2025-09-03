@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\OnlinePaymentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\ShippingAddressController;
-
+use App\Http\Controllers\Api\VendorSubscriptionController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SideMenueController;
@@ -103,6 +103,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/mobile-delete-cart', [MobileCartController::class, 'deleteCart']);
     //get requested mobile api
     Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
+
+    //vendor subscription
+    Route::post('/vendor-subscription/subscribe', [VendorSubscriptionController::class, 'subscribe']);
+    Route::get('/vendor-subscription/current', [VendorSubscriptionController::class, 'current']);
 });
 
 //filter searchers api
@@ -126,4 +130,3 @@ Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getC
 
 // Order list api
 Route::get('/orderlist/{id}', [OrderController::class, 'getorderlist']);
-
