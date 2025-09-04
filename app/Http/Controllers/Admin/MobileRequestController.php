@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 class MobileRequestController extends Controller
 {
-    public function index() //
+    public function index() 
     {
         $mobilerequests = MobileRequest::with('brand', 'model')->latest()->get();
         return view('admin.mobilerequest.index', compact('mobilerequests'));
@@ -30,6 +30,18 @@ class MobileRequestController extends Controller
         $count = MobileRequest::where('status', 2)->count();
         return response()->json(['count' => $count]);
     }
+
+    public function markAsRead($id)
+{
+    $mobilerequest = MobileRequest::findOrFail($id);
+
+    if ($mobilerequest->status == 2) {
+        $mobilerequest->update(['status' => 0]); 
+    }
+
+    return redirect()->back()->with('success', 'Mobile request marked as read');
+}
+
     
     public function delete($id)
     {

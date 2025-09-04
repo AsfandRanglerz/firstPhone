@@ -56,7 +56,7 @@ public function getCart(Request $request)
     });
 
     return response()->json([
-        'message' => 'Cart details have been fetched successfully.',
+        'message' => 'Cart details have been fetched successfully',
         'user_id' => $user->id,
         'data' => $carts,
         'subtotal_price' => $subtotal

@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\MobileRequestController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\VendorMobileListingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,12 +141,21 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/mobilelistingDeactivate/{id}', 'deactive')->name('mobile.deactivate');
     });
 
+    // ############ Vendor Mobile Listings #################
+    Route::controller(VendorMobileListingController::class)->group(function () {
+        Route::get('/listingvendor', 'index')->name('vendormobile.index')->middleware('check.permission:VendorMobileListing,view');
+        Route::get('/listingvendor-show/{id}', 'show')->name('vendormobile.show');
+        Route::delete('/listingvendor-destroy/{id}', 'delete')->name('vendormobile.delete')->middleware('check.permission:VendorMobileListing,delete');
+    });
+
     // ############ Mobile Requests #################
     Route::controller(MobileRequestController::class)->group(function () {
         Route::get('/mobilerequest/count', 'mobileRequestCounter')->name('mobilerequest.counter');
         Route::get('/mobilerequest', 'index')->name('mobilerequest.index')->middleware('check.permission:MobileRequest,view');
         Route::get('/mobilerequest-show/{id}', 'show')->name('mobilerequest.show');
         Route::delete('/mobilerequest-destroy/{id}', 'delete')->name('mobilerequest.delete')->middleware('check.permission:MobileRequest,delete');
+        Route::patch('/mark-as-read/{id}',  'markAsRead')->name('mobilerequest.markAsRead');
+
     });
 
     // ############ Sub Admin #################
