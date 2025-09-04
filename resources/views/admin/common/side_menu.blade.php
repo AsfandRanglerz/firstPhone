@@ -93,7 +93,7 @@
             <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
                 <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
                     <i data-feather="smartphone"></i>
-                    <span>Mobile Listings</span>
+                    <span>Customer Mobiles</span>
                     <div id="updatemobilelistingCounter"
                         class="badge {{ request()->is('admin/mobilelisting*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
                         style="display: inline-flex; justify-content: center; align-items: center; 
@@ -101,6 +101,16 @@
                             text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
                         0
                     </div>
+                </a>
+            </li>
+        @endif
+
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('VendorMobile') && $sideMenuPermissions['VendorMobile']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/listingvendor*') ? 'active' : '' }}">
+                <a href="{{ url('admin/listingvendor') }}" class="nav-link">
+                    <i data-feather="smartphone"></i>
+                    <span>Vendor Mobiles</span>
                 </a>
             </li>
         @endif

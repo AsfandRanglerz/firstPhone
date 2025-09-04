@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-@section('title', 'Mobile Listings')
+@section('title', 'Customer Mobiles')
 
 @section('content')
     <div class="main-content" style="min-height: 562px;">
@@ -9,7 +9,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Mobile Listings</h4>
+                                <h4>Customer Mobiles</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
                                 {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('create')))
@@ -21,31 +21,12 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
-                                            <th>User Type</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage </th>
                                             <th>Price (PKR)</th>
                                             <th>Condition</th>
-                                            <th>Color</th>
                                             <th>RAM </th>
-                                            <th>Processor</th>
-                                            <th>Display</th>
-                                            <th>Charging</th>
-                                            <th>Refresh Rate</th>
-                                            <th>Main Camera</th>
-                                            <th>Ultra Wide Camera</th>
-                                            <th>Telephoto Camera</th>
-                                            <th>Front Camera</th>
-                                            <th>Build</th>
-                                            <th>Wireless</th>
-                                            <th>Stock</th>
-                                            <th>PTA Approved</th>
-                                            <th>AI Features</th>
-                                            <th>Battery Health (Hours)</th>
-                                            <th>OS Version</th>
-                                            <th>Warranty Start</th>
-                                            <th>Warranty End</th>
                                             <th>About</th>
                                             <th>Status</th>
                                             <th>Images/Videos</th>
@@ -57,16 +38,6 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>
-                                                    @if($mobile->customer)
-                                                        <span>Customer</span>
-                                                    @elseif($mobile->vendor)
-                                                        <span>Vendor</span>
-                                                    @else
-                                                        <span class="text-muted">No User</span>
-                                                    @endif
-                                                </td>
-
                                                 <td>
                                                 @if($mobile->brand->name)
                                                     {{ $mobile->brand->name }}
@@ -103,132 +74,13 @@
                                                 @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->color)
-                                                    {{ $mobile->color }}
-                                                @else
-                                                 <span class="text-muted">No Color</span>
-                                                @endif
-                                                </td>
-                                                <td>
                                                 @if($mobile->ram)
                                                     {{ $mobile->ram }}
                                                 @else
                                                  <span class="text-muted">No RAM</span>
                                                 @endif
                                                 </td>
-                                                <td>
-                                                @if($mobile->processor)
-                                                    {{ $mobile->processor }}
-                                                @else
-                                                 <span class="text-muted">No Processor</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->display)
-                                                    {{ $mobile->display }}
-                                                @else
-                                                 <span class="text-muted">No Display</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->charging) 
-                                                    {{ $mobile->charging }}
-                                                @else
-                                                 <span class="text-muted">No Charging</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->refresh_rate)
-                                                    {{ $mobile->refresh_rate }}
-                                                @else
-                                                 <span class="text-muted">No Refresh Rate</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->main_camera)
-                                                    {{ $mobile->main_camera }}
-                                                @else
-                                                 <span class="text-muted">No Main Camera</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->ultra_camera)
-                                                    {{ $mobile->ultra_camera }}
-                                                @else
-                                                 <span class="text-muted">No Ultra Wide Camera</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->telephoto_camera)
-                                                    {{ $mobile->telephoto_camera }}
-                                                @else
-                                                 <span class="text-muted">No TelePhoto Camera</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->front_camera)
-                                                    {{ $mobile->front_camera }}
-                                                @else
-                                                 <span class="text-muted">No Front Camera</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->build)
-                                                    {{ $mobile->build }}
-                                                @else
-                                                 <span class="text-muted">No Build</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->wireless)
-                                                    {{ $mobile->wireless }}
-                                                @else
-                                                 <span class="text-muted">No Wireless</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->stock)
-                                                    {{ $mobile->stock }}
-                                                @else
-                                                 <span class="text-muted">No Stock</span>   
-                                                @endif
-                                                </td>
-                                                <td>{{ $mobile->pta_approved == 0 ? 'Approved' : 'Not Approved' }}</td>
-                                                <td>
-                                                @if($mobile->ai_features)
-                                                    {{ $mobile->ai_features }}
-                                                @else
-                                                 <span class="text-muted">No AI Features</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->battery_health)
-                                                    {{ $mobile->battery_health }}
-                                                @else
-                                                 <span class="text-muted">No Battery Health</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->os_version)
-                                                    {{ $mobile->os_version }}
-                                                @else
-                                                 <span class="text-muted">No OS Version</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->warranty_start)
-                                                    {{ $mobile->warranty_start }}
-                                                @else
-                                                 <span class="text-muted">No Warranty Start Date</span>   
-                                                @endif
-                                                </td>
-                                                <td>
-                                                @if($mobile->warranty_end)
-                                                    {{ $mobile->warranty_end }}
-                                                @else
-                                                 <span class="text-muted">No Warranty End Date</span>   
-                                                @endif
-                                                </td>
+                                                
                                                 <td>{{ $mobile->about }}</td>
                                                 <td>
                                                     @php

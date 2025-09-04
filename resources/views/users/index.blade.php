@@ -181,23 +181,12 @@
                 let reason = $('#deactivationReason').val();
                 if (reason.trim() === '') {
                     toastr.error('Please provide a deactivation reason');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 800);
                     return;
                 }
 
                 $('#deactivationModal').modal('hide');
                 $('#deactivationReason').val('');
                 updateUserStatus(currentUserId, 0, reason);
-            });
-
-            $('#deactivationModal').on('hidden.bs.modal', function() {
-                if ($('#deactivationReason').val().trim() === '') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
-                }
             });
 
             function updateUserStatus(userId, status, reason = null) {
@@ -215,9 +204,6 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000);
                         } else {
                             currentToggle.prop('checked', !status);
                             toastr.error(res.message);

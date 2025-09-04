@@ -23,7 +23,7 @@
                                         <tr>
                                             <th>Sr.</th>
                                             <th>Customer Name</th>
-                                            <th>Location</th> {{--  --}}
+                                            <th>Location</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Min Price (PKR)</th>
@@ -79,14 +79,14 @@
                                                <td>
                                                     
                                                     @if ($mobilerequest->status == 0)
-                                                        <div class="badge badge-success badge-shadow">Notified</div>
+                                                        <div class="badge badge-success badge-shadow">Seen</div>
                                                     @elseif($mobilerequest->status == 2)
-                                                        <div class="badge badge-warning badge-shadow">Pending</div>
+                                                        <div class="badge badge-warning badge-shadow">UnSeen</div>
                                                     @endif
                                                 </td>
                                               
                                                 <td>
-
+                                                    <div class="d-flex gap-1">
                                                     @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('delete')))
                                                         <form id="delete-form-{{ $mobilerequest->id }}"
@@ -100,8 +100,19 @@
                                                             <span><i class="fa fa-trash"></i></span>
                                                         </button>
                                                     </form>
+                                                     @if ($mobilerequest->status == 2)
+                                                        <form action="{{ route('mobilerequest.markAsRead', $mobilerequest->id) }}" 
+                                                            method="POST" style="display:inline;">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" 
+                                                                    class="btn btn-warning d-flex gap-1">
+                                                                <span><i class="fa fa-eye"></i></span> Mark as Read
+                                                            </button>
+                                                        </form>
                                                     @endif
-                                                     </div>
+                                                    @endif
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach

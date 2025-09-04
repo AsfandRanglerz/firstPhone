@@ -55,7 +55,7 @@
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
-                                                        <span>No CNIC</span>
+                                                        <span class="text-muted">No CNIC</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -65,7 +65,7 @@
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
-                                                        <span>No CNIC Back</span>
+                                                        <span class="text-muted">No CNIC Back</span>
                                                     @endif
                                                 </td>
 
@@ -76,7 +76,7 @@
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
-                                                        <span>No Shop Images</span>
+                                                        <span class="text-muted">No Shop Images</span>
                                                     @endif
                                                 </td>
 
@@ -85,7 +85,7 @@
                                                         <img src="{{ asset($user->image) }}" alt="CNIC Back Image"
                                                             style="width: 50px; height: 50px;">
                                                     @else
-                                                        <span>No Image</span>
+                                                        <span class="text-muted">No Image</span>
                                                     @endif
                                                 </td>
                                                 <td>
