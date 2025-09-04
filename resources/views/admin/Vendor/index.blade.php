@@ -288,9 +288,6 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000);
                         } else {
                             currentToggle.prop('checked', !status);
                             toastr.error(res.message);

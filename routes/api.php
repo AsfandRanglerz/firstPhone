@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OnlinePaymentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RequestFormController;
-use App\Http\Controllers\Api\ShippingAddressController;
 use App\Http\Controllers\Api\VendorSubscriptionController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
@@ -78,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
+    Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
     Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
     Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);

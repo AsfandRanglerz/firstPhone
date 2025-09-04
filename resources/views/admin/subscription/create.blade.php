@@ -48,7 +48,7 @@
                                                 class="form-control @error('duration_days') is-invalid @enderror"
                                                 id="duration_days" name="duration_days"
                                                 value="{{ old('duration_days', 30) }}"
-                                                placeholder="Enter duration in days">
+                                                placeholder="Enter duration in days" readonly>
                                             @error('duration_days')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror

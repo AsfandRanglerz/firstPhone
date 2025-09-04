@@ -65,21 +65,32 @@ class OrderController extends Controller
             if (!$customerId) {
                 return ResponseHelper::error(null, 'Unauthorized', 401);
             }
+
             $order = $this->orderRepository->getOrderByIdAndCustomer($id, $customerId);
-            if (!$order) {
-                return ResponseHelper::error(null, 'Order not found', 404);
-            }
-            $tracking = [
-                ['stage' => 'Order Placed', 'date' => $order->created_at->format('d M Y')],
-                ['stage' => 'In Progress', 'date' => now()->subDays(5)->format('d M Y')],
-                ['stage' => 'Shipped', 'date' => now()->subDays(2)->format('d M Y')],
-                ['stage' => 'Delivered', 'date' => now()->format('d M Y')],
-            ];
+
             return ResponseHelper::success([
                 'order_id' => $order->id,
-                'status' => $order->order_status,
-                'tracking' => $tracking
-            ], 'Order tracking fetched successfully', 200);
+                'status'   => $order->order_status,
+            ], 'Order status fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
+        }
+    }
+
+    public function trackVendor($id)
+    {
+        try {
+            $vendorId = auth()->id();
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+
+            $order = $this->orderRepository->getOrderByIdAndVendor($id, $vendorId);
+
+            return ResponseHelper::success([
+                'order_id' => $order->id,
+                'status'   => $order->order_status,
+            ], 'Order status fetched successfully', 200);
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 500);
         }
@@ -130,21 +141,21 @@ class OrderController extends Controller
         }
     }
 
-   public function salesReport(Request $request)
-{
-    try {
-        $vendorId = auth()->id();
-        if (!$vendorId) {
-            return ResponseHelper::error(null, 'Unauthorized', 401);
+    public function salesReport(Request $request)
+    {
+        try {
+            $vendorId = auth()->id();
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Unauthorized', 401);
+            }
+            $type = $request->get('type', 'overall');
+            $report = $this->orderRepository->getSalesReport($vendorId, $type);
+
+            return ResponseHelper::success($report, 'Sales report fetched successfully', 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 500);
         }
-         $type = $request->get('type', 'overall');
-         $report = $this->orderRepository->getSalesReport($vendorId, $type);
-        
-        return ResponseHelper::success($report,'Sales report fetched successfully',200);
-    } catch (\Exception $e) {
-        return ResponseHelper::error(null, $e->getMessage(), 500);
     }
-}
 
 
     public function show($id)
@@ -174,7 +185,7 @@ class OrderController extends Controller
         }
     }
 
-     public function deviceReceipt(Request $request, $orderId)
+    public function deviceReceipt(Request $request, $orderId)
     {
         try {
             $devices = $request->input('devices', []);

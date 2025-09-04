@@ -36,31 +36,40 @@ class OrderRepository implements OrderRepositoryInterface
             ->findOrFail($orderId);
     }
 
-    public function getSalesReport(int $vendorId, string $type = 'overall'): array
-{
-    $query = OrderItem::where('vendor_id', $vendorId)
-        ->whereHas('order', function ($q) {
-            $q->where('payment_status', 'paid');
-        })
-        ->join('orders', 'orders.id', '=', 'order_items.order_id');
-
-    
-    if ($type === 'today') {
-        $query->whereDate('orders.created_at', now()->toDateString());
+    public function getOrderByIdAndVendor(int $orderId, int $vendorId): Order
+    {
+        return Order::where('id', $orderId)
+            ->whereHas('items', function ($query) use ($vendorId) {
+                $query->where('vendor_id', $vendorId);
+            })
+            ->firstOrFail();
     }
 
-    $totals = $query->selectRaw('orders.delivery_method, SUM(order_items.price * order_items.quantity) as total')
-        ->groupBy('orders.delivery_method')
-        ->pluck('total', 'orders.delivery_method')
-        ->toArray();
+    public function getSalesReport(int $vendorId, string $type = 'overall'): array
+    {
+        $query = OrderItem::where('vendor_id', $vendorId)
+            ->whereHas('order', function ($q) {
+                $q->where('payment_status', 'paid');
+            })
+            ->join('orders', 'orders.id', '=', 'order_items.order_id');
 
-    return [
-        'cod_orders_total'    => $totals['cod']    ?? 0,
-        'online_orders_total' => $totals['online'] ?? 0,
-        'pickup_orders_total' => $totals['pickup'] ?? 0,
-        'grand_total'         => array_sum($totals),
-    ];
-}
+
+        if ($type === 'today') {
+            $query->whereDate('orders.created_at', now()->toDateString());
+        }
+
+        $totals = $query->selectRaw('orders.delivery_method, SUM(order_items.price * order_items.quantity) as total')
+            ->groupBy('orders.delivery_method')
+            ->pluck('total', 'orders.delivery_method')
+            ->toArray();
+
+        return [
+            'cod_orders_total'    => $totals['cod']    ?? 0,
+            'online_orders_total' => $totals['online'] ?? 0,
+            'pickup_orders_total' => $totals['pickup'] ?? 0,
+            'grand_total'         => array_sum($totals),
+        ];
+    }
 
 
     public function getOrderStatistics(?string $date = null): Collection
@@ -72,138 +81,136 @@ class OrderRepository implements OrderRepositoryInterface
             ->get();
     }
 
-   // Repository
-public function getorderlist($orderId)
-{
-    $order = Order::with(['items', 'customer', 'shippingAddress'])
-        ->findOrFail($orderId);
+    // Repository
+    public function getorderlist($orderId)
+    {
+        $order = Order::with(['items', 'customer', 'shippingAddress'])
+            ->findOrFail($orderId);
 
-    $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
-    $shippingCharges = $order->shipping_charges ?? 0;
-    $total = $subtotal + $shippingCharges;
+        $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
+        $shippingCharges = $order->shipping_charges ?? 0;
+        $total = $subtotal + $shippingCharges;
 
-    return [
-        'order_id'       => $order->id,
-        'customer'       => [
-            'name'          => $order->shippingAddress->name ?? $order->customer->name,
-            'email'         => $order->shippingAddress->email ?? $order->customer->email,
-            'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
-            'city'          => $order->shippingAddress->city ?? null,
-            'postal_code'   => $order->shippingAddress->postal_code ?? null,
-            'street_address'=> $order->shippingAddress->street_address ?? null,
-        ],
-        'products'       => $order->items->map(fn($item) => [
-            'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name), 
-            'price'        => $item->price,
-            'quantity'     => $item->quantity,
-            'image'        => $item->product->image 
-                        ? asset(
-                            is_array(json_decode($item->product->image, true)) 
-                                ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
-                                : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
-                          ) 
-                        : null,
-        ]),
-        'order_status'   => $order->order_status,
-        'payment_status' => $order->payment_status,
-        'delivery_method'=> $order->delivery_method,
-        'subtotal'       => $subtotal,
-        'shipping'       => $shippingCharges,
-        'total'          => $total,
-    ];
-}
+        return [
+            'order_id'       => $order->id,
+            'customer'       => [
+                'name'          => $order->shippingAddress->name ?? $order->customer->name,
+                'email'         => $order->shippingAddress->email ?? $order->customer->email,
+                'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
+                'city'          => $order->shippingAddress->city ?? null,
+                'postal_code'   => $order->shippingAddress->postal_code ?? null,
+                'street_address' => $order->shippingAddress->street_address ?? null,
+            ],
+            'products'       => $order->items->map(fn($item) => [
+                'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
+                'price'        => $item->price,
+                'quantity'     => $item->quantity,
+                'image'        => $item->product->image
+                    ? asset(
+                        is_array(json_decode($item->product->image, true))
+                            ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
+                            : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
+                    )
+                    : null,
+            ]),
+            'order_status'   => $order->order_status,
+            'payment_status' => $order->payment_status,
+            'delivery_method' => $order->delivery_method,
+            'subtotal'       => $subtotal,
+            'shipping'       => $shippingCharges,
+            'total'          => $total,
+        ];
+    }
 
-public function createDeviceReceipts(int $orderId, array $devices): array
-{
-    $vendor = Auth::id();
+    public function createDeviceReceipts(int $orderId, array $devices): array
+    {
+        $vendor = Auth::id();
 
-    // ✅ Load the order with items
-    $order = Order::with(['items'])->findOrFail($orderId);
+        // ✅ Load the order with items
+        $order = Order::with(['items'])->findOrFail($orderId);
 
-    $createdReceipts = [];
+        $createdReceipts = [];
 
-    foreach ($devices as $device) {
-        // ✅ Make sure the product_id exists in this order
-        $item = $order->items->where('product_id', $device['product_id'])->first();
+        foreach ($devices as $device) {
+            // ✅ Make sure the product_id exists in this order
+            $item = $order->items->where('product_id', $device['product_id'])->first();
 
-        if (!$item) {
-            throw new \Exception("Product not found in this order");
-        }
+            if (!$item) {
+                throw new \Exception("Product not found in this order");
+            }
 
-        // ✅ Fetch product details from mobile listing
-        $mobile = MobileListing::with(['brand', 'model'])->find($item->product_id);
+            // ✅ Fetch product details from mobile listing
+            $mobile = MobileListing::with(['brand', 'model'])->find($item->product_id);
 
-        if (!$mobile) {
-            throw new \Exception("Mobile listing not found for product_id: " . $item->product_id);
-        }
+            if (!$mobile) {
+                throw new \Exception("Mobile listing not found for product_id: " . $item->product_id);
+            }
 
-         $paymentId = strtoupper(Str::random(12)); 
-
-        // Ensure uniqueness in DB
-        while (DeviceReceipt::where('payment_id', $paymentId)->exists()) {
             $paymentId = strtoupper(Str::random(12));
+
+            // Ensure uniqueness in DB
+            while (DeviceReceipt::where('payment_id', $paymentId)->exists()) {
+                $paymentId = strtoupper(Str::random(12));
+            }
+
+            // ✅ Create receipt
+            $receipt = DeviceReceipt::create([
+                'order_id'   => $orderId,
+                'order_item_id' => $item->id,
+                'product_id' => $mobile->id,
+                'brand'      => $mobile->brand->name ?? 'Unknown',
+                'model'      => $mobile->model->name ?? 'Unknown',
+                'imei_one'      => $device['imei_one'] ?? null,
+                'imei_two'      => $device['imei_two'] ?? null,
+                'payment_id'   => $paymentId,
+            ]);
+
+            $createdReceipts[] = $receipt;
         }
 
-        // ✅ Create receipt
-        $receipt = DeviceReceipt::create([
-            'order_id'   => $orderId,
-            'order_item_id' => $item->id,
-            'product_id' => $mobile->id,
-            'brand'      => $mobile->brand->name ?? 'Unknown',
-            'model'      => $mobile->model->name ?? 'Unknown',
-            'imei_one'      => $device['imei_one'] ?? null,
-            'imei_two'      => $device['imei_two'] ?? null,
-            'payment_id'   => $paymentId,
-        ]);
-
-        $createdReceipts[] = $receipt;
+        return $createdReceipts;
     }
 
-    return $createdReceipts;
-}
+    public function getReceiptById(int $deviceReceiptId): array
+    {
+        $deviceReceipt = DeviceReceipt::with([
+            'order.customer',
+            'order.vendor',
+            'order.items.deviceReceipts',
+            'order.items.vendor',
+        ])->findOrFail($deviceReceiptId);
 
-public function getReceiptById(int $deviceReceiptId): array
-{
-    $deviceReceipt = DeviceReceipt::with([
-        'order.customer',
-        'order.vendor',
-        'order.items.deviceReceipts',
-        'order.items.vendor',
-    ])->findOrFail($deviceReceiptId);
+        $order = $deviceReceipt->order;
 
-    $order = $deviceReceipt->order;
+        $vendorName = optional($order->items->first()->vendor)->name;
+        $deviceReceipt->created_at_formatted = $deviceReceipt->created_at->format('d-m-Y H:i:s');
+        $response = [
+            'order_number'    => $order->order_number,
+            'delivery_method' => $order->delivery_method,
+            'from_customer'   => $order->customer?->name,
+            'to_vendor'       => $vendorName,
+            'payment_id'     => $deviceReceipt->payment_id,
+            'total_products'  => $order->items->count(),
+            'products'        => [],
+            'created_at'      => $deviceReceipt->created_at_formatted,
+        ];
 
-    $vendorName = optional($order->items->first()->vendor)->name;
-    $deviceReceipt->created_at_formatted = $deviceReceipt->created_at->format('d-m-Y H:i:s');
-    $response = [
-        'order_number'    => $order->order_number,
-        'delivery_method' => $order->delivery_method,
-        'from_customer'   => $order->customer?->name,
-        'to_vendor'       => $vendorName,
-        'payment_id'     => $deviceReceipt->payment_id,
-        'total_products'  => $order->items->count(),
-        'products'        => [],
-        'created_at'      => $deviceReceipt->created_at_formatted,
-    ];
-
-    foreach ($order->items as $item) {
-        foreach ($item->deviceReceipts as $receipt) {
-            $response['products'][] = [
-                'brand'    => $receipt->brand,
-                'model'    => $receipt->model,
-                'imei_one' => $receipt->imei_one,
-                'imei_two' => $receipt->imei_two,
-                'quantity' => $item->quantity,
-                'price'    => $item->price,
-                'total'    => $item->quantity * $item->price,
-            ];
+        foreach ($order->items as $item) {
+            foreach ($item->deviceReceipts as $receipt) {
+                $response['products'][] = [
+                    'brand'    => $receipt->brand,
+                    'model'    => $receipt->model,
+                    'imei_one' => $receipt->imei_one,
+                    'imei_two' => $receipt->imei_two,
+                    'quantity' => $item->quantity,
+                    'price'    => $item->price,
+                    'total'    => $item->quantity * $item->price,
+                ];
+            }
         }
+
+        $response['total_amount'] = collect($response['products'])->sum('total');
+
+        return $response;
     }
-
-    $response['total_amount'] = collect($response['products'])->sum('total');
-
-    return $response;
-}
-
-
 }

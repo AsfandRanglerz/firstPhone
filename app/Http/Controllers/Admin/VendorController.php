@@ -45,7 +45,7 @@ class VendorController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'message' => 'Status updated successfully',
+                'message' => 'Status Updated Successfully',
                 'new_status' => $user->toggle ? 'Activated' : 'Deactivated'
             ]);
         }

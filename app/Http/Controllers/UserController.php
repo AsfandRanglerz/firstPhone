@@ -41,7 +41,7 @@ class UserController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'message' => 'Status updated successfully',
+                'message' => 'Status Updated Successfully',
                 'new_status' => $user->toggle ? 'Activated' : 'Deactivated'
             ]);
         }
@@ -56,7 +56,7 @@ class UserController extends Controller
 
     public function create(CustomerRequest $request)
     {
-       
+
         $this->userService->createUser($request);
         return redirect()->route('user.index')->with('success', 'Customer Created Successfully');
     }
@@ -69,22 +69,22 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-         $request->validate([
-        'name'  => 'required',
-       'email' => [
+        $request->validate([
+            'name'  => 'required',
+            'email' => [
                 'required',
                 'email',
                 'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
-                ],
-        'phone' => 'required|regex:/^[0-9]+$/|max:15',
-    ]);
+            ],
+            'phone' => 'required|regex:/^[0-9]+$/|max:15',
+        ]);
         $data = $request->only(['name', 'email', 'phone']);
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
-         if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image');
-    }
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image');
+        }
         $this->userService->updateUser($id, $data);
         return redirect('/admin/user')->with('success', 'Customer Updated Successfully');
     }
@@ -95,4 +95,3 @@ class UserController extends Controller
         return redirect()->back()->with($deleted ? 'success' : 'error', $deleted ? 'Customer Deleted Successfully' : 'User not found');
     }
 }
-
