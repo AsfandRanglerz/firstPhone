@@ -51,7 +51,7 @@
                                                     @if ($user->cnic_front)
                                                         <button class="btn btn-sm btn-info view-cnic"
                                                             data-front="{{ asset($user->cnic_front) }}"
-                                                             title="View CNIC">
+                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
@@ -163,7 +163,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmDeactivation">Submit</button>
+                    <button type="button" class="btn btn-primary" id="confirmDeactivation">
+                        Submit
+                        <span id="deactivationLoader" class="spinner-border spinner-border-sm text-light ml-2"
+                            role="status" style="display:none;"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -266,8 +270,10 @@
                     return;
                 }
 
-                $('#deactivationModal').modal('hide');
-                $('#deactivationReason').val('');
+                $('#deactivationLoader').show();
+                $('#confirmDeactivation').prop('disabled', true);
+
+                // abhi modal mat hide karo
                 updateUserStatus(currentUserId, 0, reason);
             });
 
@@ -286,6 +292,8 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
+                            $('#deactivationModal').modal('hide');
+                            $('#deactivationReason').val('');
                         } else {
                             currentToggle.prop('checked', !status);
                             toastr.error(res.message);
@@ -294,6 +302,10 @@
                     error: function() {
                         currentToggle.prop('checked', !status);
                         toastr.error('Error updating status');
+                    },
+                    complete: function() {
+                        $('#deactivationLoader').hide();
+                        $('#confirmDeactivation').prop('disabled', false);
                     }
                 });
             }

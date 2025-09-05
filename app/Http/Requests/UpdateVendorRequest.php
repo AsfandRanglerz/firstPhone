@@ -29,7 +29,8 @@ class UpdateVendorRequest extends FormRequest
                 'sometimes',
                 'required',
                 'email',
-                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
+                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/',
+                'unique:users,email,' . $this->route('id')
             ],
             'phone' => 'sometimes|required|regex:/^[0-9]+$/|max:15',
             'password' => 'nullable|min:6',

@@ -64,29 +64,29 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-1">
-                                                    @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('edit')))
-                                                        <a href="{{ route('user.edit', $user->id) }}"
-                                                            class="btn btn-primary"
-                                                            style="margin-left: 10px;">
-                                                            <i class="fa fa-edit"></i>
-                                                        </a>
-                                                    @endif
+                                                        @if (Auth::guard('admin')->check() ||
+                                                                ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('edit')))
+                                                            <a href="{{ route('user.edit', $user->id) }}"
+                                                                class="btn btn-primary" style="margin-left: 10px;">
+                                                                <i class="fa fa-edit"></i>
+                                                            </a>
+                                                        @endif
 
-                                                    @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('delete')))
-                                                        <form id="delete-form-{{ $user->id }}"
-                                                            action="{{ route('user.delete', $user->id) }}" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                        </form>
+                                                        @if (Auth::guard('admin')->check() ||
+                                                                ($sideMenuPermissions->has('Users') && $sideMenuPermissions['Users']->contains('delete')))
+                                                            <form id="delete-form-{{ $user->id }}"
+                                                                action="{{ route('user.delete', $user->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                            </form>
 
-                                                        <button class="show_confirm btn d-flex gap-4"
-                                                            style="background-color: #009245;"
-                                                            data-form="delete-form-{{ $user->id }}" type="button">
-                                                            <span><i class="fa fa-trash"></i></span>
-                                                        </button>
-                                                    @endif
+                                                            <button class="show_confirm btn d-flex gap-4"
+                                                                style="background-color: #009245;"
+                                                                data-form="delete-form-{{ $user->id }}" type="button">
+                                                                <span><i class="fa fa-trash"></i></span>
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -125,10 +125,15 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmDeactivation">Submit</button>
+                    <button type="button" class="btn btn-primary" id="confirmDeactivation">
+                        Submit
+                        <span id="deactivationLoader" class="spinner-border spinner-border-sm text-light ml-2"
+                            role="status" style="display:none;"></span>
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @endsection
 
@@ -148,7 +153,7 @@
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
@@ -184,8 +189,10 @@
                     return;
                 }
 
-                $('#deactivationModal').modal('hide');
-                $('#deactivationReason').val('');
+                $('#deactivationLoader').show();
+                $('#confirmDeactivation').prop('disabled', true);
+
+                // abhi modal mat hide karo
                 updateUserStatus(currentUserId, 0, reason);
             });
 
@@ -204,6 +211,8 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
+                            $('#deactivationModal').modal('hide'); // yahan modal close karo
+                            $('#deactivationReason').val('');
                         } else {
                             currentToggle.prop('checked', !status);
                             toastr.error(res.message);
@@ -212,9 +221,15 @@
                     error: function() {
                         currentToggle.prop('checked', !status);
                         toastr.error('Error updating status');
+                    },
+                    complete: function() {
+                        $('#deactivationLoader').hide();
+                        $('#confirmDeactivation').prop('disabled', false);
                     }
                 });
             }
+
+
         });
     </script>
 @endsection

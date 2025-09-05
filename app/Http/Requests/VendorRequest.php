@@ -28,7 +28,8 @@ class VendorRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/'
+                'regex:/^[\w\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/',
+                'unique:users,email'
             ],
             'phone' => 'required|regex:/^[0-9]+$/|max:15',
             'password' => 'required|min:6',
