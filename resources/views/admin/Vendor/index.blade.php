@@ -50,8 +50,7 @@
                                                 <td>
                                                     @if ($user->cnic_front)
                                                         <button class="btn btn-sm btn-info view-cnic"
-                                                            data-front="{{ asset($user->cnic_front) }}"
-                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
+                                                            data-front="{{ asset($user->cnic_front) }}" title="View CNIC">
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
@@ -289,7 +288,7 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
-                            $('#deactivationModal').modal('hide'); // yahan modal close karo
+                            $('#deactivationModal').modal('hide');
                             $('#deactivationReason').val('');
                         } else {
                             currentToggle.prop('checked', !status);
@@ -310,6 +309,7 @@
             // ===== CNIC Front Modal =====
             $('.view-cnic').on('click', function() {
                 let front = $(this).data('front');
+                $('#cnicBack').hide();
                 $('#cnicFront').attr('src', front).show();
                 $('#cnicModal').modal('show');
             });
