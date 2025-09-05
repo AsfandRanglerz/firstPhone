@@ -226,24 +226,22 @@
 
             // ===== SweetAlert2 Delete Confirmation =====
             $('.show_confirm').click(function(event) {
-    event.preventDefault();
-    var formId = $(this).data("form");
-    var form = document.getElementById(formId);
+            event.preventDefault();
+            var formId = $(this).data("form");
+            var form = document.getElementById(formId);
 
-    swal({
-        title: "Are you sure?",
-        text: "If you delete this, it will be gone forever.",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-    }).then(function(willDelete) {
-        if (willDelete) {
-            form.submit();
-        }else{
-            console.error('Deletion cancelled');
-        }
-    });
-});
+            swal({
+                title: "Are you sure?",
+                text: "If you delete this, it will be gone forever.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function(willDelete) {
+                if (willDelete) {
+                    form.submit();
+                }
+            });
+        });
 
 
             // ===== Toggle Status =====
