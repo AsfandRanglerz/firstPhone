@@ -31,7 +31,7 @@
                                             <th>Email</th>
                                             <th>Phone</th>
                                             <th>CNIC Front</th>
-                                            <th>CNIC BAck</th>
+                                            <th>CNIC Back</th>
                                             <th>Shop Images</th>
                                             <th>Profile Image</th>
                                             <th>Toggle</th>
@@ -51,7 +51,7 @@
                                                     @if ($user->cnic_front)
                                                         <button class="btn btn-sm btn-info view-cnic"
                                                             data-front="{{ asset($user->cnic_front) }}"
-                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
+                                                             title="View CNIC">
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
@@ -222,22 +222,25 @@
 
             // ===== SweetAlert2 Delete Confirmation =====
             $('.show_confirm').click(function(event) {
-                event.preventDefault();
-                var formId = $(this).data("form");
-                var form = document.getElementById(formId);
+    event.preventDefault();
+    var formId = $(this).data("form");
+    var form = document.getElementById(formId);
 
-                swal({
-                    title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
-            });
+    swal({
+        title: "Are you sure?",
+        text: "If you delete this, it will be gone forever.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    }).then(function(willDelete) {
+        if (willDelete) {
+            form.submit();
+        }else{
+            console.error('Deletion cancelled');
+        }
+    });
+});
+
 
             // ===== Toggle Status =====
             let currentToggle = null;
@@ -262,15 +265,10 @@
                     toastr.error('Please provide a deactivation reason');
                     return;
                 }
-                updateUserStatus(currentUserId, 0, reason);
-            });
 
-            $('#deactivationModal').on('hidden.bs.modal', function() {
-                if ($('#deactivationReason').val().trim() === '') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
+                $('#deactivationModal').modal('hide');
+                $('#deactivationReason').val('');
+                updateUserStatus(currentUserId, 0, reason);
             });
 
             function updateUserStatus(userId, status, reason = null) {
@@ -303,6 +301,7 @@
             // ===== CNIC Front Modal =====
             $('.view-cnic').on('click', function() {
                 let front = $(this).data('front');
+                $('#cnicBack').hide();
                 $('#cnicFront').attr('src', front).show();
                 $('#cnicModal').modal('show');
             });
