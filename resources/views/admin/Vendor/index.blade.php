@@ -31,7 +31,7 @@
                                             <th>Email</th>
                                             <th>Phone</th>
                                             <th>CNIC Front</th>
-                                            <th>CNIC BAck</th>
+                                            <th>CNIC Back</th>
                                             <th>Shop Images</th>
                                             <th>Profile Image</th>
                                             <th>Toggle</th>
@@ -163,7 +163,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmDeactivation">Submit</button>
+                    <button type="button" class="btn btn-primary" id="confirmDeactivation">
+                        Submit
+                        <span id="deactivationLoader" class="spinner-border spinner-border-sm text-light ml-2"
+                            role="status" style="display:none;"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -262,15 +266,12 @@
                     toastr.error('Please provide a deactivation reason');
                     return;
                 }
-                updateUserStatus(currentUserId, 0, reason);
-            });
 
-            $('#deactivationModal').on('hidden.bs.modal', function() {
-                if ($('#deactivationReason').val().trim() === '') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
+                $('#deactivationLoader').show();
+                $('#confirmDeactivation').prop('disabled', true);
+
+                // abhi modal mat hide karo
+                updateUserStatus(currentUserId, 0, reason);
             });
 
             function updateUserStatus(userId, status, reason = null) {
@@ -288,6 +289,8 @@
                         if (res.success) {
                             $descriptionSpan.text(res.new_status);
                             toastr.success(res.message);
+                            $('#deactivationModal').modal('hide'); // yahan modal close karo
+                            $('#deactivationReason').val('');
                         } else {
                             currentToggle.prop('checked', !status);
                             toastr.error(res.message);
@@ -296,6 +299,10 @@
                     error: function() {
                         currentToggle.prop('checked', !status);
                         toastr.error('Error updating status');
+                    },
+                    complete: function() {
+                        $('#deactivationLoader').hide();
+                        $('#confirmDeactivation').prop('disabled', false);
                     }
                 });
             }
