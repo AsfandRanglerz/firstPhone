@@ -68,7 +68,7 @@
                 </div>
 
                 <!-- Orders Status -->
-                {{-- <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <a href="{{ route('order.index') }}" style="text-decoration: none; color: inherit;">
                         <div class="card">
                             <div class="card-statistic-4">
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     </a>
-                </div> --}}
+                </div>
 
                 <!-- Example Extra Card (Optional: Total Customers) -->
                 {{-- 
