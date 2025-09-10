@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\NotificationHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -43,6 +44,19 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $order = $this->orderRepo->updateOrderStatus($request, $id);
+
+        $vendor = $order->vendor;
+        if ($vendor && $vendor->fcm_token) {
+            NotificationHelper::sendFcmNotification(
+                $vendor->fcm_token,
+                "Order Status Updated",
+                "Order #{$order->id} status changed to {$order->order_status}.",
+                [
+                    'order_id' => $order->id,
+                    'new_status' => $order->order_status
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,

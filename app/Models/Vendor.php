@@ -13,8 +13,13 @@ class Vendor extends Authenticatable
     use HasApiTokens, HasFactory;
     protected $guarded = [];
 
-     public function images()
+    public function images()
     {
         return $this->hasMany(VendorImage::class);
+    }
+
+    public function mobileListings()
+    {
+        return $this->hasMany(MobileListing::class);
     }
 }

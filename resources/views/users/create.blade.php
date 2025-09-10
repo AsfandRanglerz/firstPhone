@@ -20,8 +20,8 @@
                                         <div class="form-group">
                                             <label for="name">Name <span style="color: red;">*</span></label>
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                required id="name" name="name" value="{{ old('name') }}"
-                                                placeholder="Enter name" required autofocus>
+                                                id="name" name="name" value="{{ old('name') }}"
+                                                placeholder="Enter name"  autofocus>
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -33,8 +33,8 @@
                                         <div class="form-group">
                                             <label for="email">Email <span style="color: red;">*</span></label>
                                             <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                                required id="email" name="email" value="{{ old('email') }}"
-                                                placeholder="example@gmail.com" required autofocus>
+                                                id="email" name="email" value="{{ old('email') }}"
+                                                placeholder="example@gmail.com" autofocus>
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -46,8 +46,8 @@
                                         <div class="form-group">
                                             <label for="phone">Phone <span style="color: red;">*</span></label>
                                             <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                                required id="phone" name="phone" value="{{ old('phone') }}"
-                                                placeholder="Enter phone" required autofocus>
+                                                id="phone" name="phone" value="{{ old('phone') }}"
+                                                placeholder="Enter phone" autofocus>
                                             @error('phone')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -60,7 +60,7 @@
                                             <label for="password">Password <span style="color: red;">*</span></label>
                                             <input type="password"
                                                 class="form-control @error('password') is-invalid @enderror" id="password"
-                                                required name="password" placeholder="Password">
+                                                name="password" placeholder="Password">
 
                                             <span class="fa fa-eye position-absolute toggle-password"
                                                 style="top: 42px; right: 15px; cursor: pointer;"></span>

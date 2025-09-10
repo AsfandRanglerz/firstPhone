@@ -19,7 +19,6 @@
             {{--  Roles --}}
             @if (Auth::guard('admin')->check() ||
                     ($sideMenuPermissions->has('Roles') && $sideMenuPermissions['Roles']->contains('view')))
-                {{-- FAQS --}}
                 <li class="dropdown {{ request()->is('admin/roles*') ? 'active' : '' }}">
                     <a href="{{ url('admin/roles') }}" class="nav-link"><i
                             data-feather="user"></i><span>Roles</span></a>
@@ -77,7 +76,7 @@
         @endif
 
         {{-- Subscription Plans --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Subscription Plans') && $sideMenuPermissions['Subscription Plans']->contains('view')))
             <li class="dropdown {{ request()->is('admin/subscriptions*') ? 'active' : '' }}">
                 <a href="
@@ -86,9 +85,9 @@
                     <i data-feather="package"></i><span>Subscription Plans</span>
                 </a>
             </li>
-        @endif
+        @endif --}}
 
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('view')))
             <li class="dropdown {{ request()->is('admin/mobilelisting*') ? 'active' : '' }}">
                 <a href="{{ url('admin/mobilelisting') }}" class="nav-link">
@@ -103,9 +102,9 @@
                     </div>
                 </a>
             </li>
-        @endif
+        @endif --}}
 
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('VendorMobile') && $sideMenuPermissions['VendorMobile']->contains('view')))
             <li class="dropdown {{ request()->is('admin/listingvendor*') ? 'active' : '' }}">
                 <a href="{{ url('admin/listingvendor') }}" class="nav-link">
@@ -113,7 +112,7 @@
                     <span>Vendor Mobiles</span>
                 </a>
             </li>
-        @endif
+        @endif --}}
 
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('view')))
@@ -133,7 +132,7 @@
         @endif
 
         {{-- Orders --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
             <li class="dropdown {{ request()->is('admin/orders*') ? 'active' : '' }}">
                 <a href="{{ route('order.index') }}" class="nav-link">
@@ -148,11 +147,11 @@
                     </div>
                 </a>
             </li>
-        @endif
+        @endif --}}
 
 
         {{-- Notification --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
             <li class="dropdown {{ request()->is('admin/notification*') ? 'active' : '' }}">
                 <a href="
@@ -161,7 +160,7 @@
                     <i data-feather="bell"></i><span>Notifications</span>
                 </a>
             </li>
-        @endif
+        @endif --}}
 
         {{--  SEO --}}
         {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('Roles') && $sideMenuPermissions['seo']->contains('seo')))
@@ -197,26 +196,26 @@
 
 
         {{--  About Us --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('About us') && $sideMenuPermissions['About us']->contains('view')))
             <li class="dropdown {{ request()->is('admin/about-us*') ? 'active' : '' }}">
                 <a href="{{ url('admin/about-us') }}" class="nav-link"><i data-feather="help-circle"></i><span>About
                         Us</span></a>
             </li>
-        @endif
+        @endif --}}
 
 
         {{--  Privacy Policy --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Privacy & Policy') && $sideMenuPermissions['Privacy & Policy']->contains('view')))
             <li class="dropdown {{ request()->is('admin/privacy-policy*') ? 'active' : '' }}">
                 <a href="{{ url('admin/privacy-policy') }}" class="nav-link"><i data-feather="shield"></i><span>Privacy
                         & Policy</span></a>
             </li>
-        @endif
+        @endif --}}
 
         {{--  Terms & Conditions --}}
-        @if (Auth::guard('admin')->check() ||
+        {{-- @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Terms & Conditions') &&
                     $sideMenuPermissions['Terms & Conditions']->contains('view')))
             <li class="dropdown {{ request()->is('admin/term-condition*') ? 'active' : '' }}">
@@ -224,7 +223,7 @@
                         data-feather="file-text"></i><span>Terms
                         & Conditions</span></a>
             </li>
-        @endif
+        @endif --}}
 
 
 

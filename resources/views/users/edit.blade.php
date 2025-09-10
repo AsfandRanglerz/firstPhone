@@ -24,7 +24,7 @@
                                             <label for="name">Name <span style="color: red;">*</span></label>
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                                 id="name" name="name" value="{{ old('name', $user->name) }}"
-                                                placeholder="Enter your name" required>
+                                                placeholder="Enter your name">
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -37,7 +37,7 @@
                                             <label for="email">Email <span style="color: red;">*</span></label>
                                             <input type="email" class="form-control @error('email') is-invalid @enderror"
                                                 id="email" name="email" value="{{ old('email', $user->email) }}"
-                                                placeholder="example@gmail.com" required>
+                                                placeholder="example@gmail.com">
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -50,7 +50,7 @@
                                             <label for="phone">Phone <span style="color: red;">*</span></label>
                                             <input type="text" class="form-control @error('phone') is-invalid @enderror"
                                                 id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
-                                                placeholder="Enter your phone" required>
+                                                placeholder="Enter your phone">
                                             @error('phone')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
