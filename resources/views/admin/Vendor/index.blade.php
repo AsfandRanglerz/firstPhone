@@ -50,7 +50,8 @@
                                                 <td>
                                                     @if ($user->cnic_front)
                                                         <button class="btn btn-sm btn-info view-cnic"
-                                                            data-front="{{ asset($user->cnic_front) }}" title="View CNIC">
+                                                            data-front="{{ asset($user->cnic_front) }}"
+                                                            data-back="{{ asset($user->cnic_back) }}" title="View CNIC">
                                                             <i class="fa fa-eye"></i>
                                                         </button>
                                                     @else
@@ -224,23 +225,24 @@
             $('#table_id_events').DataTable();
 
             // ===== SweetAlert2 Delete Confirmation =====
-            $('.show_confirm').click(function(event) {
-                event.preventDefault();
-                var formId = $(this).data("form");
-                var form = document.getElementById(formId);
+            $(document).on('click', '.show_confirm', function(event) {
+            event.preventDefault();
+            var formId = $(this).data("form");
+            var form = document.getElementById(formId);
 
-                swal({
-                    title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
+            swal({
+                title: "Are you sure?",
+                text: "If you delete this, it will be gone forever.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function(willDelete) {
+                if (willDelete) {
+                    form.submit();
+                }
             });
+        });
+
 
             // ===== Toggle Status =====
             let currentToggle = null;

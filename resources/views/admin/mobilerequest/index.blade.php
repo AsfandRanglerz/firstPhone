@@ -140,7 +140,7 @@
             $('#table_id_events').DataTable();
 
             // SweetAlert2 delete confirmation
-            $('.show_confirm').click(function(event) {
+            $(document).on('click', '.show_confirm', function(event) {
                 event.preventDefault();
                 var formId = $(this).data("form");
                 var form = document.getElementById(formId);

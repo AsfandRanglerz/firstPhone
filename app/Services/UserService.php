@@ -30,7 +30,7 @@ class UserService
         $file->move(public_path('admin/assets/images/users/'), $filename);
         $data['image'] = 'public/admin/assets/images/users/' . $filename;
     } else {
-        $data['image'] = 'public/admin/assets/images/avator.png';
+        $data['image'] = 'public/admin/assets/images/default.png';
     }
         return $this->userRepo->create($data);
     }
