@@ -21,6 +21,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>Name</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage </th>
@@ -55,7 +56,15 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
-
+<td>
+                                                    {{ $mobile->vendor->name ?? '' }} <br>
+                                                    <a href="mailto:{{ $mobile->vendor->email ?? '' }}" class="mail-to">
+                                                        {{ $mobile->vendor->email ?? '' }}
+                                                    </a> <br>
+                                                    <a href="tel:{{ $mobile->vendor->phone ?? '' }}" class="tel">
+                                                        {{ $mobile->vendor->phone ?? '' }}
+                                                    </a>
+                                                </td>
                                                 <td>
                                                 @if($mobile->brand->name)
                                                     {{ $mobile->brand->name }}

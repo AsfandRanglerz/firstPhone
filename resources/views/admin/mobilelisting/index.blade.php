@@ -21,6 +21,8 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>Name</th>
+                                            <th>Location</th>
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Storage </th>
@@ -39,48 +41,58 @@
 
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
-                                                @if($mobile->brand->name)
-                                                    {{ $mobile->brand->name }}
-                                                @else
-                                                 <span class="text-muted">No Brand</span>
-                                                @endif
+                                                    {{ $mobile->customer->name ?? '' }} <br>
+                                                    <a href="mailto:{{ $mobile->customer->email ?? '' }}" class="mail-to">
+                                                        {{ $mobile->customer->email ?? '' }}
+                                                    </a> <br>
+                                                    <a href="tel:{{ $mobile->customer->phone ?? '' }}" class="tel">
+                                                        {{ $mobile->customer->phone ?? '' }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $mobile->location }}</td>
+                                                <td>
+                                                    @if ($mobile->brand->name)
+                                                        {{ $mobile->brand->name }}
+                                                    @else
+                                                        <span class="text-muted">No Brand</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->model->name)
-                                                    {{ $mobile->model->name }}
-                                                @else
-                                                 <span class="text-muted">No Model</span>
-                                                @endif
+                                                    @if ($mobile->model->name)
+                                                        {{ $mobile->model->name }}
+                                                    @else
+                                                        <span class="text-muted">No Model</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->storage)
-                                                    {{ $mobile->storage }}
-                                                @else
-                                                 <span class="text-muted">No Storage</span>
-                                                @endif
+                                                    @if ($mobile->storage)
+                                                        {{ $mobile->storage }}
+                                                    @else
+                                                        <span class="text-muted">No Storage</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->price )
-                                                    {{ $mobile->price }}
-                                                @else
-                                                 <span class="text-muted">No Price</span>
-                                                @endif
+                                                    @if ($mobile->price)
+                                                        {{ $mobile->price }}
+                                                    @else
+                                                        <span class="text-muted">No Price</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->condition)
-                                                    {{ $mobile->condition }}
-                                                @else
-                                                 <span class="text-muted">No Condition</span>
-                                                @endif
+                                                    @if ($mobile->condition)
+                                                        {{ $mobile->condition }}
+                                                    @else
+                                                        <span class="text-muted">No Condition</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->ram)
-                                                    {{ $mobile->ram }}
-                                                @else
-                                                 <span class="text-muted">No RAM</span>
-                                                @endif
+                                                    @if ($mobile->ram)
+                                                        {{ $mobile->ram }}
+                                                    @else
+                                                        <span class="text-muted">No RAM</span>
+                                                    @endif
                                                 </td>
-                                                
+
                                                 <td>{{ $mobile->about }}</td>
                                                 <td>
                                                     @php

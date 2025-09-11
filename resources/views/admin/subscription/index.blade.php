@@ -15,14 +15,14 @@
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
                                 <div class="clearfix">
-                                    <div class="create-btn">
+                                    {{-- <div class="create-btn">
                                         @if (Auth::guard('admin')->check() ||
                                                 ($sideMenuPermissions->has('Subscription Plan') &&
                                                     $sideMenuPermissions['Subscription Plan']->contains('create')))
                                             <a class="btn btn-primary mb-3 text-white"
                                                 href="{{ route('subscription.create') }}">Create</a>
                                         @endif
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                                 <table class="table responsive" id="table_id_events">
@@ -63,7 +63,7 @@
                                                             class="btn btn-primary btn-action mr-1" data-toggle="tooltip"
                                                             title="Edit"><i class="fa fa-edit"></i></a>
                                                     @endif
-                                                    @if (Auth::guard('admin')->check() ||
+                                                    {{-- @if (Auth::guard('admin')->check() ||
                                                             ($sideMenuPermissions->has('Subscription Plan') &&
                                                                 $sideMenuPermissions['Subscription Plan']->contains('delete')))
                                                         <form action="{{ route('subscription.delete', $plan->id) }}"
@@ -75,7 +75,7 @@
                                                                 data-toggle="tooltip" title='Delete'><i
                                                                     class="fas fa-trash"></i></button>
                                                         </form>
-                                                    @endif
+                                                    @endif --}}
                                                 </td>
                                             </tr>
                                         @endforeach

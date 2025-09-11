@@ -10,7 +10,7 @@ class VendorMobileListingController extends Controller
 {
      public function index()
     {
-        $mobiles = VendorMobile::with('model','brand')->latest()->get();
+        $mobiles = VendorMobile::with('model','brand', 'vendor')->latest()->get();
         return view('admin.vendormobilelisting.index', compact('mobiles'));
     }
 

@@ -26,24 +26,24 @@
                                             @if ($mobile && is_object($mobile))
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
-                                                  <td>
+                                                    <td>
                                                         @php
-                                                            $images = json_decode($mobile->image, true);
+                                                            $images = !empty($mobile->image)
+                                                                ? json_decode($mobile->image, true)
+                                                                : [];
                                                         @endphp
 
-                                                            @if(!empty($images))
-                                                                {{-- Show only first image in table --}}
-                                                                <img src="{{ asset($images[0]) }}" 
-                                                                    alt="Mobile Image" 
-                                                                    style="width: 50px; height: 50px; cursor: pointer;" 
-                                                                    data-bs-toggle="modal" 
-                                                                    data-bs-target="#imageModal" 
-                                                                    data-images='@json(array_map("asset", $images))'
-                                                                    data-start-index="0">
-                                                            @else
-                                                                <span class="text-muted">No Image</span>
-                                                            @endif
-                                                        </td>
+                                                        @if (is_array($images) && count($images) > 0)
+                                                            <img src="{{ asset($images[0]) }}" alt="Mobile Image"
+                                                                style="width: 50px; height: 50px; cursor: pointer;"
+                                                                data-bs-toggle="modal" data-bs-target="#imageModal"
+                                                                data-images='@json(array_map('asset', $images))'
+                                                                data-start-index="0">
+                                                        @else
+                                                            <span class="text-muted">No Image</span>
+                                                        @endif
+
+                                                    </td>
                                                 </tr>
                                             @endif
                                         @endforeach
@@ -59,29 +59,31 @@
     </div>
 
 
-<!-- Modal Structure -->
-<div id="imageModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-transparent shadow-none border-0">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div id="imageCarousel" class="carousel slide" data-bs-interval="false">
-                    <div class="carousel-inner" id="carouselImages">
-                        <!-- Images injected by JS -->
+    <!-- Modal Structure -->
+    <div id="imageModal" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-transparent shadow-none border-0">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="imageCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-inner" id="carouselImages">
+                            <!-- Images injected by JS -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -104,7 +106,7 @@
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
@@ -115,45 +117,42 @@
                     }
                 });
             });
-             
+
 
         });
 
-        
-   document.addEventListener("DOMContentLoaded", function () {
-    var imageModal = document.getElementById('imageModal');
-    var carouselInner = document.getElementById('carouselImages');
 
-    imageModal.addEventListener('show.bs.modal', function (event) {
-        var triggerImg = event.relatedTarget;
-        var images = JSON.parse(triggerImg.getAttribute('data-images'));
-        var startIndex = parseInt(triggerImg.getAttribute('data-start-index'), 10);
+        document.addEventListener("DOMContentLoaded", function() {
+            var imageModal = document.getElementById('imageModal');
+            var carouselInner = document.getElementById('carouselImages');
 
-        // Clear previous slides
-        carouselInner.innerHTML = '';
+            imageModal.addEventListener('show.bs.modal', function(event) {
+                var triggerImg = event.relatedTarget;
+                var images = JSON.parse(triggerImg.getAttribute('data-images'));
+                var startIndex = parseInt(triggerImg.getAttribute('data-start-index'), 10);
 
-        images.forEach((img, index) => {
-            var div = document.createElement('div');
-            div.classList.add('carousel-item');
-            if (index === startIndex) {
-                div.classList.add('active');
-            }
-            div.innerHTML = `<img src="${img}" class="img-fluid" 
+                // Clear previous slides
+                carouselInner.innerHTML = '';
+
+                images.forEach((img, index) => {
+                    var div = document.createElement('div');
+                    div.classList.add('carousel-item');
+                    if (index === startIndex) {
+                        div.classList.add('active');
+                    }
+                    div.innerHTML = `<img src="${img}" class="img-fluid" 
              style="max-height:60vh; max-width:80%; object-fit:contain;">`;
-            carouselInner.appendChild(div);
+                    carouselInner.appendChild(div);
+                });
+
+                // Force carousel to start at clicked image
+                var carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
+                    interval: false, // disables auto-slide
+                    ride: false // prevents starting automatically
+                });
+
+                carousel.to(startIndex);
+            });
         });
-
-        // Force carousel to start at clicked image
-      var carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
-    interval: false,   // disables auto-slide
-    ride: false        // prevents starting automatically
-});
-
-        carousel.to(startIndex);
-    });
-});
-
-
-
     </script>
 @endsection

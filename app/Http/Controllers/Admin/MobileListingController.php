@@ -10,7 +10,7 @@ class MobileListingController extends Controller
 {
     public function index()
     {
-        $mobiles = MobileListing::with('model','brand')->latest()->get();
+        $mobiles = MobileListing::with('model','brand', 'customer')->latest()->get();
         return view('admin.mobilelisting.index', compact('mobiles'));
     }
 
