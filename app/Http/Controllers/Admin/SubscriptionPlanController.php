@@ -19,7 +19,7 @@ class SubscriptionPlanController extends Controller
     public function index()
     {
         $subscriptionPlans = $this->subscriptionPlanRepo->all();
-        return view('admin.Subscription.index', compact('subscriptionPlans'));
+        return view('admin.subscription.index', compact('subscriptionPlans'));
     }
 
     public function create()

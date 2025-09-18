@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\NotificationHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\admin;
+use App\Models\CancelOrder;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\OrderRepoInterface;
@@ -20,7 +22,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = $this->orderRepo->getAllOrders();
-        $statuses = ['pending', 'confirmed', 'in_progress', 'shipped', 'delivered', 'cancelled'];
+        $statuses = ['inprogress', 'shipped', 'delivered', 'cancelled'];
 
         $totals = $this->orderRepo->getTotals();
 
@@ -85,5 +87,71 @@ class OrderController extends Controller
     {
         $total = $this->orderRepo->getTotals();
         return response()->json($total);
+    }
+
+    public function cancel_order()
+    {
+        $cancelOrders = CancelOrder::with([
+            'order.customer',
+            'orderItem.vendor'
+        ])->latest()->get();
+
+        return view('admin.order.cancel', compact('cancelOrders'));
+    }
+
+    public function updateCancelStatus(Request $request, $id)
+    {
+        $cancelOrder = CancelOrder::findOrFail($id);
+
+        if ($request->hasFile('proof_file_image')) {
+            $file = $request->file('proof_file_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/cancel_proofs'), $filename);
+            $cancelOrder->proof_file_image = 'uploads/cancel_proofs/' . $filename;
+        }
+
+        $cancelOrder->status = $request->status ?? 'approved';
+        $cancelOrder->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cancel order status updated successfully.'
+        ]);
+    }
+
+    public function checkDeliveryStatus($id)
+    {
+        $cancelOrder = CancelOrder::with('order')->findOrFail($id);
+
+        if ($cancelOrder->order->delivery_method === 'online') {
+            return response()->json([
+                'delivery_method' => 'online'
+            ]);
+        }
+
+        $cancelOrder->status = 'approved';
+        $cancelOrder->save();
+
+        return response()->json([
+            'delivery_method' => 'approved_direct'
+        ]);
+    }
+
+
+    public function pendingCancelOrderCounter()
+    {
+        $count = CancelOrder::where('status', 'requested')->count();
+
+        return response()->json(['count' => $count]);
+    }
+
+
+    public function deleteCancelOrder($id)
+    {
+        $cancelOrder = CancelOrder::findOrFail($id);
+        $cancelOrder->delete();
+
+        return redirect()->route('cancel-orders.index')
+            ->with('success', 'Cancel order deleted successfully.');
     }
 }

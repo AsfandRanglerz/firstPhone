@@ -4,10 +4,9 @@
     <div class="main-content">
         <section class="section">
             <div class="section-body">
-                <a class="btn btn-primary mb-3" href="{{ route('subscription.index') }}">Back</a> 
+                <a class="btn btn-primary mb-3" href="{{ route('subscription.index') }}">Back</a>
                 <form id="edit_subscription_plan" action="{{ route('subscription.update', $plan->id) }}" method="POST">
                     @csrf
-
                     <div class="row">
                         <div class="col-12 col-md-12 col-lg-12">
                             <div class="card">
@@ -30,7 +29,7 @@
                                     <!-- Price -->
                                     <div class="col-sm-6 pl-sm-0 pr-sm-3">
                                         <div class="form-group">
-                                            <label for="price">Price <span style="color: red;">*</span></label>
+                                            <label for="price">Price<span style="color: red;">*</span></label>
                                             <input type="number" step="0.01"
                                                 class="form-control @error('price') is-invalid @enderror" id="price"
                                                 name="price" value="{{ old('price', intval($plan->price)) }}"
@@ -49,7 +48,7 @@
                                                 class="form-control @error('duration_days') is-invalid @enderror"
                                                 id="duration_days" name="duration_days"
                                                 value="{{ old('duration_days', $plan->duration_days) }}"
-                                                placeholder="Enter duration in days" readonly
+                                                placeholder="Enter duration in days" readonly>
                                             @error('duration_days')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror

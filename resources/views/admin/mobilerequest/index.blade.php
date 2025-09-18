@@ -12,13 +12,12 @@
                                 <h4>Mobile Requests</h4>
                             </div>
                             <div class="card-body table-striped table-bordered table-responsive">
-                                {{-- @if (Auth::guard('admin')->check() ||
-                                        ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('create')))
+                                {{-- @if (Auth::guard('admin')->check() || ($sideMenuPermissions->has('MobileListing') && $sideMenuPermissions['MobileListing']->contains('create')))
                                     <a class="btn btn-primary mb-3 text-white"
                                         href="{{ url('/admin/vendor-create') }}">Create</a>
                                 @endif --}}
 
-                                <table class="table responsive" id="table_id_events"> 
+                                <table class="table responsive" id="table_id_events">
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
@@ -42,76 +41,88 @@
                                         @foreach ($mobilerequests as $mobilerequest)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $mobilerequest->name }}</td>
+                                                <td>
+                                                    {{ $mobilerequest->customer->name ?? '' }} <br>
+                                                    <a href="mailto:{{ $mobilerequest->customer->email ?? '' }}" class="mail-to">
+                                                        {{ $mobilerequest->customer->email ?? '' }}
+                                                    </a> <br>
+                                                    <a href="tel:{{ $mobilerequest->customer->phone ?? '' }}" class="tel">
+                                                        {{ $mobilerequest->customer->phone ?? '' }}
+                                                    </a>
+                                                </td>
                                                 <td>{{ $mobilerequest->location }}</td>
                                                 <td>{{ $mobilerequest->brand->name }}</td>
-                                                <td>{{ $mobilerequest->model->name}}</td>
+                                                <td>{{ $mobilerequest->model->name }}</td>
                                                 <td>
-                                                @if($mobilerequest->min_price)
-                                                    {{ number_format($mobilerequest->min_price, 0) }}
-                                                @else
-                                                <span class="text-muted">No Price</span>
-                                                @endif
+                                                    @if ($mobilerequest->min_price)
+                                                        {{ number_format($mobilerequest->min_price, 0) }}
+                                                    @else
+                                                        <span class="text-muted">No Price</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                @if($mobilerequest->max_price)
-                                                    {{ number_format($mobilerequest->max_price, 0) }}
-                                                @else
-                                                <span class="text-muted">No Price</span>
-                                                @endif
+                                                    @if ($mobilerequest->max_price)
+                                                        {{ number_format($mobilerequest->max_price, 0) }}
+                                                    @else
+                                                        <span class="text-muted">No Price</span>
+                                                    @endif
                                                 </td>
                                                 <td>{{ $mobilerequest->storage }}</td>
                                                 <td>{{ $mobilerequest->ram }}</td>
                                                 <td>{{ $mobilerequest->color }}</td>
                                                 <td>{{ $mobilerequest->condition }}</td>
                                                 <td>
-                                                @if($mobilerequest->description)
-                                                    {{ Str::limit($mobilerequest->description, 50) }}
-                                                @else
-                                                <span class="text-muted">No Description</span>
-                                                @endif
+                                                    @if ($mobilerequest->description)
+                                                        {{ Str::limit($mobilerequest->description, 50) }}
+                                                    @else
+                                                        <span class="text-muted">No Description</span>
+                                                    @endif
                                                 </td>
-                                                 <td>
-                                                    <a class="btn btn-primary ml-1" href="
+                                                <td>
+                                                    <a class="btn btn-primary ml-1"
+                                                        href="
                                                     {{ route('mobilerequest.show', $mobilerequest->id) }}
                                                      ">View</a>
                                                 </td>
-                                               <td>
-                                                    
+                                                <td>
+
                                                     @if ($mobilerequest->status == 0)
                                                         <div class="badge badge-success badge-shadow">Seen</div>
                                                     @elseif($mobilerequest->status == 2)
                                                         <div class="badge badge-warning badge-shadow">UnSeen</div>
                                                     @endif
                                                 </td>
-                                              
+
                                                 <td>
                                                     <div class="d-flex gap-1">
-                                                    @if (Auth::guard('admin')->check() ||
-                                                            ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('delete')))
-                                                        <form id="delete-form-{{ $mobilerequest->id }}"
-                                                            action="{{ route('mobilerequest.delete', $mobilerequest->id) }}" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            
-                                                            <button class="show_confirm btn d-flex gap-1"
-                                                            style="background-color: #009245;"
-                                                            data-form="delete-form-{{ $mobilerequest->id }}" type="button">
-                                                            <span><i class="fa fa-trash"></i></span>
-                                                        </button>
-                                                    </form>
-                                                     @if ($mobilerequest->status == 2)
-                                                        <form action="{{ route('mobilerequest.markAsRead', $mobilerequest->id) }}" 
-                                                            method="POST" style="display:inline;">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit" 
-                                                                    class="btn btn-warning d-flex gap-1">
-                                                                <span><i class="fa fa-eye"></i></span> Mark as Read
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                    @endif
+                                                        @if (Auth::guard('admin')->check() ||
+                                                                ($sideMenuPermissions->has('MobileRequest') && $sideMenuPermissions['MobileRequest']->contains('delete')))
+                                                            <form id="delete-form-{{ $mobilerequest->id }}"
+                                                                action="{{ route('mobilerequest.delete', $mobilerequest->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+
+                                                                <button class="show_confirm btn d-flex gap-1"
+                                                                    style="background-color: #009245;"
+                                                                    data-form="delete-form-{{ $mobilerequest->id }}"
+                                                                    type="button">
+                                                                    <span><i class="fa fa-trash"></i></span>
+                                                                </button>
+                                                            </form>
+                                                            @if ($mobilerequest->status == 2)
+                                                                <form
+                                                                    action="{{ route('mobilerequest.markAsRead', $mobilerequest->id) }}"
+                                                                    method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <button type="submit"
+                                                                        class="btn btn-warning d-flex gap-1">
+                                                                        <span><i class="fa fa-eye"></i></span> Mark as Read
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -127,7 +138,7 @@
     </div>
 
 
-  
+
 @endsection
 
 @section('js')
@@ -146,7 +157,7 @@
                 var form = document.getElementById(formId);
 
                 swal({
-                   title: "Are you sure you want to delete this record?",
+                    title: "Are you sure you want to delete this record?",
                     text: "If you delete this, it will be gone forever.",
                     icon: "warning",
                     buttons: true,
@@ -157,9 +168,8 @@
                     }
                 });
             });
-             
+
 
         });
-
-</script>
+    </script>
 @endsection

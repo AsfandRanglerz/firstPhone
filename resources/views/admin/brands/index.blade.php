@@ -106,7 +106,7 @@
                         <div class="form-group">
                             <label>Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="name" id="edit_name"
-                                placeholder="Enter model name">
+                                placeholder="Enter brand name">
                             <div class="text-danger error-message" id="edit_name_error"></div>
                         </div>
                         <div class="form-group">
@@ -169,59 +169,63 @@
             });
 
             // Create form submission
-         $('#brandForm').submit(function(e) {
-    e.preventDefault();
+            $('#brandForm').submit(function(e) {
+                e.preventDefault();
 
-    let $submitBtn = $(this).find('button[type="submit"]');
-    let originalText = $submitBtn.html();
+                let $submitBtn = $(this).find('button[type="submit"]');
+                let originalText = $submitBtn.html();
 
-    // Button disable + loading text
-    $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+                // Button disable + loading text
+                $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-    $.ajax({
-        url: "{{ route('brands.store') }}",
-        method: 'POST',
-        data: $(this).serialize(),
-       success: function(response) {
-    if (response.data && Array.isArray(response.data)) {
-        // Sabse pehle reverse karne ki zarurat nahi
-        // har brand ko ek temporary array me rows store karo
-        let newRows = [];
+                $.ajax({
+                    url: "{{ route('brands.store') }}",
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.data && Array.isArray(response.data)) {
+                            // Sabse pehle reverse karne ki zarurat nahi
+                            // har brand ko ek temporary array me rows store karo
+                            let newRows = [];
 
-        response.data.forEach(function(brand) {
-            let newRow = addBrandToTable(brand, table, false); // yaha false pass karo -> row auto-prepend mat karo
-            newRows.push(newRow);
-        });
+                            response.data.forEach(function(brand) {
+                                let newRow = addBrandToTable(brand, table,
+                                false); // yaha false pass karo -> row auto-prepend mat karo
+                                newRows.push(newRow);
+                            });
 
-        // Ab sab rows ko ek sath ulta order me prepend kar do
-        $(newRows.reverse()).prependTo($(table.table().body()));
-    }
+                            // Ab sab rows ko ek sath ulta order me prepend kar do
+                            $(newRows.reverse()).prependTo($(table.table().body()));
+                        }
 
-    toastr.success('Brand Created Successfully');
-    $('#brandModal').modal('hide');
-},
-        error: function(xhr) {
-            $('.error-message').text('');
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                for (let field in errors) {
-                    if (field.startsWith('name.')) {
-                        let input = $(`input[name="name[]"]`).eq(field.split('.')[1]);
-                        input.next('.error-message').text(errors[field][0].replace(/name\.\d+/g, 'name'));
+                        toastr.success('Brand Created Successfully');
+                        $('#brandModal').modal('hide');
+                    },
+                    error: function(xhr) {
+                        $('.error-message').text('');
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            for (let field in errors) {
+                                if (field.startsWith('name.')) {
+                                    let input = $(`input[name="name[]"]`).eq(field.split('.')[
+                                        1]);
+                                    input.next('.error-message').text(errors[field][0].replace(
+                                        /name\.\d+/g, 'name'));
+                                }
+                            }
+                        } else if (xhr.status === 419) {
+                            $('#inputWrapper .error-message').first().text(
+                                'Session expired. Please refresh the page.');
+                        } else {
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
+                        }
+                    },
+                    complete: function() {
+                        // Button ko wapas normal state me laana
+                        $submitBtn.prop('disabled', false).html(originalText);
                     }
-                }
-            } else if (xhr.status === 419) {
-                $('#inputWrapper .error-message').first().text('Session expired. Please refresh the page.');
-            } else {
-                toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
-            }
-        },
-        complete: function() {
-            // Button ko wapas normal state me laana
-            $submitBtn.prop('disabled', false).html(originalText);
-        }
-    });
-});
+                });
+            });
 
 
             // Modal close hone par form aur inputWrapper reset
@@ -261,46 +265,48 @@
             });
 
             // Edit form submission
-        $('#editForm').submit(function(e) {
-    e.preventDefault();
+            $('#editForm').submit(function(e) {
+                e.preventDefault();
 
-    let id = $('#edit_id').val();
-    let $submitBtn = $(this).find('button[type="submit"]');
-    let originalText = $submitBtn.html();
+                let id = $('#edit_id').val();
+                let $submitBtn = $(this).find('button[type="submit"]');
+                let originalText = $submitBtn.html();
 
-    // Loading state start
-    $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving Changes...');
+                // Loading state start
+                $submitBtn.prop('disabled', true).html(
+                    '<i class="fa fa-spinner fa-spin"></i> Saving Changes...');
 
-    $.ajax({
-        url: "{{ route('brands.update', ':id') }}".replace(':id', id),
-        method: 'POST',
-        data: $(this).serialize(),
-        success: function(response) {
-            updateBrandInTable(response.data);
-            toastr.success('Brand Updated Successfully');
-            $('#editModal').modal('hide');
-        },
-        error: function(xhr) {
-            $('#edit_name_error').text('');
-            $('#edit_slug_error').text('');
+                $.ajax({
+                    url: "{{ route('brands.update', ':id') }}".replace(':id', id),
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        updateBrandInTable(response.data);
+                        toastr.success('Brand Updated Successfully');
+                        $('#editModal').modal('hide');
+                    },
+                    error: function(xhr) {
+                        $('#edit_name_error').text('');
+                        $('#edit_slug_error').text('');
 
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                for (let field in errors) {
-                    $(`#edit_${field}_error`).text(errors[field][0]);
-                }
-            } else if (xhr.status === 419) {
-                $('#edit_name_error').text('Session expired. Please refresh the page.');
-            } else {
-                toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
-            }
-        },
-        complete: function() {
-            // Loading state remove (success/error dono case me chalega)
-            $submitBtn.prop('disabled', false).html(originalText);
-        }
-    });
-});
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            for (let field in errors) {
+                                $(`#edit_${field}_error`).text(errors[field][0]);
+                            }
+                        } else if (xhr.status === 419) {
+                            $('#edit_name_error').text(
+                                'Session expired. Please refresh the page.');
+                        } else {
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
+                        }
+                    },
+                    complete: function() {
+                        // Loading state remove (success/error dono case me chalega)
+                        $submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
 
 
 
@@ -336,14 +342,14 @@
 
             // Helper function to add new brand to table
             // Helper function to add new brand to table
-function addBrandToTable(brand, table) {
-    let newRow = table.row.add([
-        table.rows().count() + 1,
-        brand.name,
-        `<a href="${brand.model_view_url}" class="btn" style="background-color: #009245;">
+            function addBrandToTable(brand, table) {
+                let newRow = table.row.add([
+                    table.rows().count() + 1,
+                    brand.name,
+                    `<a href="${brand.model_view_url}" class="btn" style="background-color: #009245;">
             <span class="fa fa-eye"></span>
         </a>`,
-        `<div class="d-flex gap-1">
+                    `<div class="d-flex gap-1">
             <button class="btn btn-primary editBrand"
                 data-id="${brand.id}" 
                 data-name="${brand.name}"
@@ -355,15 +361,15 @@ function addBrandToTable(brand, table) {
                 <i class="fa fa-trash"></i>
             </button>
         </div>`
-    ]).draw(false).node();
+                ]).draw(false).node();
 
-    $(newRow).attr('id', `brand-row-${brand.id}`);
-    $(newRow).find('td').eq(1).addClass('brand-name');
+                $(newRow).attr('id', `brand-row-${brand.id}`);
+                $(newRow).find('td').eq(1).addClass('brand-name');
 
-    // $(newRow).prependTo($(table.table().body()));
+                // $(newRow).prependTo($(table.table().body()));
 
-    return newRow; // row return karni zaruri hai
-}
+                return newRow; // row return karni zaruri hai
+            }
 
 
             // Helper function to update brand in table
@@ -382,7 +388,7 @@ function addBrandToTable(brand, table) {
             <div class="brand-input-set mb-3" data-index="${idx}">
                 <div class="form-group">
                     <label>Name <span class="text-danger">*</span></label>
-                    <input type="text" name="name[]" class="form-control name-input" placeholder="Enter model name">
+                    <input type="text" name="name[]" class="form-control name-input" placeholder="Enter brand name">
                     <div class="text-danger error-message" data-error-for="name.${idx}"></div>
                 </div>
                 <div class="form-group">
@@ -393,6 +399,5 @@ function addBrandToTable(brand, table) {
             </div>`;
             }
         });
-      
     </script>
 @endsection

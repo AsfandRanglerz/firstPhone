@@ -42,7 +42,7 @@
                                     <div class="col-md-3">
                                         <div class="card shadow border-0 text-white mb-0">
                                             <div class="card-body py-2">
-                                                <h6 class="mb-1">Total Pickup</h6>
+                                                <h6 class="mb-1">Total GoShop</h6>
                                                 <h6 class="mb-0 fw-bold" id="pickupAmount">Rs
                                                     {{ number_format($pickupTotal) }}</h6>
                                             </div>
@@ -71,10 +71,13 @@
                                         @foreach ($orders as $index => $order)
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
-                                                <td>#{{ $order->order_number }}</td>
+                                                <td>{{ $order->order_number }}</td>
                                                 <td>
                                                     {{ $order->customer->name ?? 'N/A' }}<br>
-                                                    <small>{{ $order->customer->email ?? 'N/A' }}</small>
+                                                    <small><a
+                                                            href="mailto:{{ $order->customer->email }}">{{ $order->customer->email }}</a></small><br>
+                                                    <small><a
+                                                            href="tel:{{ $order->customer->phone }}">{{ $order->customer->phone }}</a></small>
                                                 </td>
                                                 {{-- <td>
                                                     {{ $order->shipping_address ?? 'N/A' }}
@@ -84,7 +87,8 @@
                                                         {{ $item->vendor->name ?? 'No Vendor' }}<br>
                                                         <small><a
                                                                 href="mailto:{{ $item->vendor->email }}">{{ $item->vendor->email }}</a></small><br>
-                                                        <small>{{ $item->vendor->phone ?? 'N/A' }}</small>
+                                                        <small><a
+                                                                href="tel:{{ $item->vendor->phone }}">{{ $item->vendor->phone }}</a></small>
                                                     @endforeach
                                                 </td>
                                                 <td>
@@ -106,9 +110,8 @@
                                                     @php
                                                         $paymentColors = [
                                                             'paid' => 'btn-primary',
-                                                            'pending' => 'btn-warning',
-                                                            'failed' => 'btn-danger',
-                                                            'refunded' => 'btn-secondary',
+                                                            'unpaid' => 'btn-warning',
+                                                            // 'unpaid' => 'btn-secondary',
                                                         ];
                                                     @endphp
 
@@ -120,7 +123,7 @@
                                                             {{ ucfirst($order->payment_status) }}
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            @foreach (['paid', 'pending', 'failed', 'refunded'] as $status)
+                                                            @foreach (['paid', 'unpaid'] as $status)
                                                                 <button type="button"
                                                                     class="dropdown-item change-payment-status"
                                                                     data-order-id="{{ $order->id }}"
@@ -134,26 +137,36 @@
 
                                                 <td>
                                                     @php
-                                                        $deliveryClass = match ($order->delivery_method) {
+                                                        $deliveryLabels = [
+                                                            'cod' => 'COD',
+                                                            'online' => 'Online',
+                                                            'go_shop' => 'GoShop',
+                                                        ];
+
+                                                        $deliveryClassMap = [
                                                             'cod' => 'bg-warning',
                                                             'online' => 'bg-primary',
-                                                            'pickup' => 'bg-info',
-                                                            default => 'bg-secondary',
-                                                        };
+                                                            'go_shop' => 'bg-info',
+                                                        ];
+
+                                                        // ensure variable exists for current order
+                                                        $deliveryClass =
+                                                            $deliveryClassMap[$order->delivery_method] ??
+                                                            'bg-secondary';
                                                     @endphp
 
                                                     <span class="badge {{ $deliveryClass }}">
-                                                        {{ ucfirst($order->delivery_method) }}
+                                                        {{ $deliveryLabels[$order->delivery_method] ?? ucwords(str_replace('_', ' ', $order->delivery_method)) }}
                                                     </span>
                                                 </td>
 
+
                                                 @php
+                                                    // ✅ Order Status Colors (new statuses only)
                                                     $statusColors = [
-                                                        'pending' => 'btn-warning',
-                                                        'confirmed' => 'btn-info',
-                                                        'in_progress' => 'btn-primary',
+                                                        'inprogress' => 'btn-warning',
                                                         'shipped' => 'btn-secondary',
-                                                        'delivered' => 'btn-success',
+                                                        'delivered' => 'btn-primary',
                                                         'cancelled' => 'btn-danger',
                                                     ];
                                                 @endphp
@@ -167,7 +180,7 @@
                                                             {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            @foreach ($statuses as $status)
+                                                            @foreach (['inprogress', 'shipped', 'delivered', 'cancelled'] as $status)
                                                                 @if ($status !== $order->order_status)
                                                                     <button type="button"
                                                                         class="dropdown-item change-order-status"
@@ -180,6 +193,7 @@
                                                         </div>
                                                     </div>
                                                 </td>
+
 
                                                 <td>
                                                     @if (Auth::guard('admin')->check() ||
@@ -240,49 +254,6 @@
                 });
             });
 
-            // ===== Order Status Change via AJAX =====
-            $('.change-order-status').on('click', function() {
-                let orderId = $(this).data('order-id');
-                let newStatus = $(this).data('new-status');
-
-                $.ajax({
-                    url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
-                    type: 'POST',
-                    data: {
-                        order_status: newStatus,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(data) {
-                        if (data.success) {
-                            const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g,
-                                c => c.toUpperCase());
-                            const button = $(`#statusBtn-${orderId}`);
-
-                            const colorClasses = {
-                                'pending': 'btn-warning',
-                                'confirmed': 'btn-info',
-                                'in_progress': 'btn-primary',
-                                'shipped': 'btn-secondary',
-                                'delivered': 'btn-success',
-                                'cancelled': 'btn-danger',
-                            };
-
-                            button.text(statusText)
-                                .removeClass()
-                                .addClass(
-                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
-
-                            toastr.success(data.message);
-                        } else {
-                            toastr.error('Something went wrong');
-                        }
-                    },
-                    error: function() {
-                        toastr.error('Failed to update status');
-                    }
-                });
-            });
-
             // ===== Payment Status Change via AJAX =====
             $('.change-payment-status').on('click', function() {
                 let orderId = $(this).data('order-id');
@@ -303,9 +274,7 @@
 
                             const colorClasses = {
                                 'paid': 'btn-primary',
-                                'pending': 'btn-warning',
-                                'failed': 'btn-danger',
-                                'refunded': 'btn-secondary',
+                                'unpaid': 'btn-warning',
                             };
 
                             button.text(statusText)
@@ -323,6 +292,48 @@
                     }
                 });
             });
+
+            // ===== Order Status Change via AJAX =====
+            $('.change-order-status').on('click', function() {
+                let orderId = $(this).data('order-id');
+                let newStatus = $(this).data('new-status');
+
+                $.ajax({
+                    url: "{{ route('order.updateStatus', ':id') }}".replace(':id', orderId),
+                    type: 'POST',
+                    data: {
+                        order_status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            const statusText = newStatus.replace(/_/g, ' ').replace(/\b\w/g,
+                                c => c.toUpperCase());
+                            const button = $(`#statusBtn-${orderId}`);
+
+                            const colorClasses = {
+                                'inprogress': 'btn-warning',
+                                'shipped': 'btn-secondary',
+                                'delivered': 'btn-primary',
+                                'cancelled': 'btn-danger',
+                            };
+
+                            button.text(statusText)
+                                .removeClass()
+                                .addClass(
+                                    `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
+
+                            toastr.success(data.message);
+                        } else {
+                            toastr.error('Something went wrong');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to update status');
+                    }
+                });
+            });
+
 
         });
 

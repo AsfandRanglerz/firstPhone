@@ -93,9 +93,24 @@
                 }
             });
         }
-
         updateOrdersCounter();
         setInterval(updateOrdersCounter, 10000);
+
+        function updateCancelOrdersCounter() {
+            $.ajax({
+                url: "{{ route('cancelOrders.pendingCounter') }}",
+                type: 'GET',
+                success: function(response) {
+                    let count = response.count || 0;
+                    $('#updateCancelOrdersCounter').text(count > 99 ? '99+' : count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching cancel orders count:', error);
+                }
+            });
+        }
+        updateCancelOrdersCounter();
+        setInterval(updateCancelOrdersCounter, 10000);
     </script>
 
     <!-- ========== Core JS Libraries ========== -->

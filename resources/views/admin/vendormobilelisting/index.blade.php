@@ -66,14 +66,14 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                @if($mobile->brand->name)
+                                                @if(optional($mobile->brand)->name)
                                                     {{ $mobile->brand->name }}
                                                 @else
                                                  <span class="text-muted">No Brand</span>
                                                 @endif
                                                 </td>
                                                 <td>
-                                                @if($mobile->model->name)
+                                                @if(optional($mobile->model)->name)
                                                     {{ $mobile->model->name }}
                                                 @else
                                                  <span class="text-muted">No Model</span>

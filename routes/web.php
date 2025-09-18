@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\MobileListingController;
 use App\Http\Controllers\Admin\MobileRequestController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\VendorMobileListingController;
@@ -109,7 +110,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::delete('/brands/delete/{id}', 'delete')->name('brands.delete')->middleware('check.permission:brands,delete');
     });
 
-    Route::controller(SubscriptionPlanController  ::class)->group(function () {
+    Route::controller(SubscriptionPlanController::class)->group(function () {
         Route::get('/subscriptions', 'index')->name('subscription.index')->middleware('check.permission:Subscriptions,view');
         Route::get('/subscriptions-create', 'create')->name('subscription.create')->middleware('check.permission:Subscriptions,create');
         Route::post('/subscriptions-store', 'store')->name('subscription.store')->middleware('check.permission:Subscriptions,create');
@@ -155,7 +156,6 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::get('/mobilerequest-show/{id}', 'show')->name('mobilerequest.show');
         Route::delete('/mobilerequest-destroy/{id}', 'delete')->name('mobilerequest.delete')->middleware('check.permission:MobileRequest,delete');
         Route::patch('/mark-as-read/{id}',  'markAsRead')->name('mobilerequest.markAsRead');
-
     });
 
     // ############ Sub Admin #################
@@ -179,8 +179,17 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::post('/order/update-status/{id}', 'updateStatus')->name('order.updateStatus');
         Route::post('/order/{id}/update-payment-status', 'updatePaymentStatus')->name('order.updatePaymentStatus');
         Route::get('/orders/pending-counter', 'pendingCounter')->name('order.pendingCounter');
+        Route::get('/orders/totals', 'getTotals')->name('orders.totals');
+
+        Route::get('/cancel-orders',  'cancel_order')->name('cancel-order.index')->middleware('check.permission:Orders,view');
+        Route::delete('cancel-orders/{id}', 'deleteCancelOrder')->name('cancel-orders.destroy');
+        Route::get('cancel-orders/pending-counter', 'pendingCancelOrderCounter')->name('cancelOrders.pendingCounter');
+        // routes/web.php
+        Route::get('cancel-orders/check-delivery-status/{id}', 'checkDeliveryStatus')->name('cancel-orders.checkDeliveryStatus');
+        Route::post('cancel-orders/update-status/{id}', 'updateCancelStatus')->name('cancel-orders.updateStatus');
     });
-Route::get('/orders/totals', [OrderController::class, 'getTotals'])->name('orders.totals');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     // ############ Notifications #################
     Route::controller(NotificationController::class)->group(function () {

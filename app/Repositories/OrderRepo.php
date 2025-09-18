@@ -50,7 +50,7 @@ class OrderRepo implements OrderRepoInterface
 
     public function pendingOrdersCount()
     {
-        return Order::where('order_status', 'pending')->count();
+        return Order::where('order_status', 'inprogress')->count();
     }
 
     public function getTotals()
@@ -67,7 +67,7 @@ class OrderRepo implements OrderRepoInterface
             ->flatMap->items
             ->sum(fn($item) => $item->price * $item->quantity);
 
-        $pickupTotal = $orders->where('delivery_method', 'pickup')
+        $pickupTotal = $orders->where('delivery_method', 'go_shop')
             ->flatMap->items
             ->sum(fn($item) => $item->price * $item->quantity);
 

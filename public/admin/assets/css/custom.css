@@ -259,7 +259,7 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu>li.active>a {
 }
 .sidebar-style-2 .sidebar-menu .dropdown-menu li.active > a,
 .sidebar-style-2 .sidebar-menu .dropdown-menu li.active > a:hover {
-    background-color: #009245 !important; 
+    background-color: #55b25a !important; 
     color: #ffffff !important;
 }
 

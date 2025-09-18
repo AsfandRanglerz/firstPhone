@@ -13,7 +13,7 @@ class OrderItem extends Model
 
      public function product()
     {
-        return $this->belongsTo(MobileListing::class, 'product_id');
+        return $this->belongsTo(VendorMobile::class, 'product_id');
     }
 
     public function vendor()

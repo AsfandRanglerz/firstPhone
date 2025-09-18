@@ -16,80 +16,80 @@ class OnlinePaymentController extends Controller
 
         try {
             $totalAmount = 0;
-            $productCount = 0;
             $products = $request->products;
 
-            if (isset($products['product_id'])) {
-                // Single product case
-                $totalAmount = $products['price'];
-                $productCount = 1;
-                $firstProductId = $products['product_id'];
-                $firstVendorId = $products['vendor_id'];
-            } else {
-                // Multiple products case
-                $firstProductId = $products[0]['product_id'];
-                $firstVendorId = $products[0]['vendor_id'];
+            // Sequential Order Number
+            $lastOrder = Order::orderBy('id', 'desc')->first();
+            $newOrderNumber = $lastOrder ? $lastOrder->order_number + 1 : 10000000;
 
-                foreach ($products as $product) {
-                    if (
-                        !isset($product['product_id']) || !isset($product['vendor_id']) ||
-                        !isset($product['price'])
-                    ) {
-                        throw new \Exception('Invalid product data structure');
-                    }
-                    $totalAmount += $product['price'];
-                    $productCount++;
-                }
-            }
-
-            // Create order
+            // Create Order
             $order = Order::create([
                 'customer_id'      => auth()->id(),
-                'order_number'     => rand(100000, 999999),
+                'order_number'     => $newOrderNumber,
                 'shipping_address' => $request->shipping_address,
                 'payment_status'   => 'pending',
                 'order_status'     => 'pending',
                 'delivery_method'  => $request->delivery_method,
             ]);
 
-            // Create order item
-            $orderItem = OrderItem::create([
-                'order_id'   => $order->id,
-                'product_id' => $firstProductId,
-                'vendor_id'  => $firstVendorId,
-                'quantity'   => $productCount,
-                'price'      => $totalAmount,
-            ]);
+            $vendorIds = [];
 
-            // ✅ Notification to Vendor
-            $vendor = \App\Models\Vendor::find($firstVendorId);
-            if ($vendor && !empty($vendor->fcm_token)) {
-                \App\Helpers\NotificationHelper::sendFcmNotification(
-                    $vendor->fcm_token,
-                    "New Order Received",
-                    "You have received a new order #{$order->order_number} with {$productCount} product(s), Total: Rs {$totalAmount}",
-                    [
-                        'order_id'     => (string) $order->id,
-                        'order_number' => (string) $order->order_number,
-                        'total_amount' => (string) $totalAmount,
-                        'products'     => (string) $productCount,
-                    ]
-                );
+            // Handle Single Product
+            if (isset($products['product_id'])) {
+                $totalAmount = $products['price'];
+                $vendorIds[] = $products['vendor_id'];
+
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $products['product_id'],
+                    'vendor_id'  => $products['vendor_id'],
+                    'quantity'   => $products['quantity'] ?? 1,
+                    'price'      => $products['price'],
+                ]);
+            } else {
+                // Handle Multiple Products
+                foreach ($products as $product) {
+                    $vendorIds[] = $product['vendor_id'];
+
+                    OrderItem::create([
+                        'order_id'   => $order->id,
+                        'product_id' => $product['product_id'],
+                        'vendor_id'  => $product['vendor_id'],
+                        'quantity'   => $product['quantity'] ?? 1,
+                        'price'      => $product['price'],
+                    ]);
+
+                    $totalAmount += $product['price'];
+                }
+            }
+
+            // Update order total
+            $order->update(['total_amount' => $totalAmount]);
+
+            // Notify all unique vendors
+            foreach (array_unique($vendorIds) as $vendorId) {
+                $vendor = \App\Models\Vendor::find($vendorId);
+                if ($vendor && !empty($vendor->fcm_token)) {
+                    \App\Helpers\NotificationHelper::sendFcmNotification(
+                        $vendor->fcm_token,
+                        "New Order Received",
+                        "You have received a new order #{$order->order_number}, Total: Rs {$totalAmount}",
+                        [
+                            'order_id'     => (string) $order->id,
+                            'order_number' => (string) $order->order_number,
+                            'total_amount' => (string) $totalAmount,
+                        ]
+                    );
+                }
             }
 
             DB::commit();
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Order placed successfully & vendor notified',
+                'message' => 'Order placed successfully & vendors notified',
                 'data'    => [
                     'order' => $order,
-                    'order_item' => [
-                        'product_id'     => $firstProductId,
-                        'vendor_id'      => $firstVendorId,
-                        'total_products' => $productCount,
-                        'total_amount'   => $totalAmount
-                    ]
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

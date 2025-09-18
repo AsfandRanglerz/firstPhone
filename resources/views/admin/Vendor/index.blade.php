@@ -46,7 +46,7 @@
                                                 <td>
                                                     <a href="mailto:{{ $user->email }}">{{ $user->email }}</a>
                                                 </td>
-                                                <td>{{ $user->phone }}</td>
+                                                <td><a href="tel:{{ $user->phone }}">{{ $user->phone }}</a></td>
                                                 <td>
                                                     @if ($user->cnic_front)
                                                         <button class="btn btn-sm btn-info view-cnic"

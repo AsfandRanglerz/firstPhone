@@ -21,4 +21,9 @@ class MobileRequest extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id');
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
 }

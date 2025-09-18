@@ -77,11 +77,12 @@
 
         {{-- Subscription Plans --}}
         @if (Auth::guard('admin')->check() ||
-                ($sideMenuPermissions->has('Subscription Plans') && $sideMenuPermissions['Subscription Plans']->contains('view')))
+                ($sideMenuPermissions->has('Subscription Plans') &&
+                    $sideMenuPermissions['Subscription Plans']->contains('view')))
             <li class="dropdown {{ request()->is('admin/subscriptions*') ? 'active' : '' }}">
                 <a href="
-                {{ route('subscription.index') }}
-                " class="nav-link">
+                 {{ route('subscription.index') }}
+                 " class="nav-link">
                     <i data-feather="package"></i><span>Subscription Plans</span>
                 </a>
             </li>
@@ -123,8 +124,8 @@
                     <div id="updatemobilerequestCounter"
                         class="badge {{ request()->is('admin/mobilerequest*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
                         style="display: inline-flex; justify-content: center; align-items: center; 
-                            min-width: 22px; height: 22px; border-radius: 50%; 
-                            text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                             min-width: 22px; height: 22px; border-radius: 50%; 
+                             text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
                         0
                     </div>
                 </a>
@@ -133,7 +134,7 @@
 
         {{-- Orders --}}
         @if (Auth::guard('admin')->check() ||
-                ($sideMenuPermissions->has('Notifications') && $sideMenuPermissions['Notifications']->contains('view')))
+                ($sideMenuPermissions->has('Orders') && $sideMenuPermissions['Orders']->contains('view')))
             <li class="dropdown {{ request()->is('admin/orders*') ? 'active' : '' }}">
                 <a href="{{ route('order.index') }}" class="nav-link">
                     <i data-feather="shopping-cart"></i>
@@ -141,10 +142,39 @@
                     <div id="updateOrdersCounter"
                         class="badge {{ request()->is('admin/orders*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
                         style="display: inline-flex; justify-content: center; align-items: center; 
-                    min-width: 22px; height: 22px; border-radius: 50%; 
-                    text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                     min-width: 22px; height: 22px; border-radius: 50%; 
+                     text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
                         0
                     </div>
+                </a>
+            </li>
+        @endif
+
+        {{-- Cancel Orders --}}
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Cancel Orders') && $sideMenuPermissions['Cancel Orders']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/cancel-orders*') ? 'active' : '' }}">
+                <a href="{{ route('cancel-order.index') }}" class="nav-link">
+                    <i data-feather="x-circle"></i>
+                    <span>Cancel Orders</span>
+                    <div id="updateCancelOrdersCounter"
+                        class="badge {{ request()->is('admin/cancel-orders*') ? 'bg-white text-dark' : 'bg-primary text-white' }} rounded-circle"
+                        style="display: inline-flex; justify-content: center; align-items: center; 
+                min-width: 22px; height: 22px; border-radius: 50%; 
+                text-align: center; font-size: 12px; margin-left: 5px; padding: 3px;">
+                        0
+                    </div>
+                </a>
+            </li>
+        @endif
+
+         {{-- Sales Reporting --}}
+        @if (Auth::guard('admin')->check() ||
+                ($sideMenuPermissions->has('Sales Report') && $sideMenuPermissions['Sales Report']->contains('view')))
+            <li class="dropdown {{ request()->is('admin/reports*') ? 'active' : '' }}">
+                <a href="{{ route('reports.index') }}" class="nav-link">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Sales Reporting</span>
                 </a>
             </li>
         @endif
