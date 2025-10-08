@@ -14,30 +14,50 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-    public function register(Request $request)
-    {
-        try {
-            if ($request->type == 'customer') {
-                $request->validate([
-                    'email' => 'required|email|unique:users,email',
-                    'password' => 'required|string|min:8',
-                ]);
-            } elseif ($request->type == 'vendor') {
-                $request->validate([
-                    'email' => 'required|email|unique:vendors,email',
-                    'password' => 'required|string|min:8',
-                ]);
-            } else {
-                return response()->json(['message' => 'Invalid user type'], 422);
-            }
-            $user = $this->authService->register($request->all());
-            return ResponseHelper::success($user, 'Registred successfully', null , 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
-        } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred during registration', 'error', 500);
+  public function register(Request $request)
+{
+    try {
+        if ($request->type == 'customer') {
+            $request->validate([
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8',
+            ]);
+        } elseif ($request->type == 'vendor') {
+            $request->validate([
+                'email' => 'required|email|unique:vendors,email',
+                'password' => 'required|string|min:8',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid user type'
+            ], 422);
         }
+
+        $user = $this->authService->register($request->all());
+        return response()->json([
+            'status' => 200,
+            'message' => 'Registered successfully',
+            'data' => $user
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // ✅ sirf pehla validation message nikal lo
+        $errors = $e->errors();
+        $firstError = collect($errors)->flatten()->first();
+
+        return response()->json([
+            'status' => 'error',
+            'message' => $firstError
+        ], 422);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
     public function login(Request $request)
     {
         try {
