@@ -14,50 +14,48 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-  public function register(Request $request)
-{
-    try {
-        if ($request->type == 'customer') {
-            $request->validate([
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|string|min:8',
-            ]);
-        } elseif ($request->type == 'vendor') {
-            $request->validate([
-                'email' => 'required|email|unique:vendors,email',
-                'password' => 'required|string|min:8',
-            ]);
-        } else {
+    public function register(Request $request)
+    {
+        try {
+            if ($request->type == 'customer') {
+                $request->validate([
+                    'email' => 'required|email|unique:users,email',
+                    'password' => 'required|string|min:8',
+                ]);
+            } elseif ($request->type == 'vendor') {
+                $request->validate([
+                    'email' => 'required|email|unique:vendors,email',
+                    'password' => 'required|string|min:8',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid user type'
+                ], 422);
+            }
+
+            $user = $this->authService->register($request->all());
+            return response()->json([
+                'status' => 200,
+                'message' => 'Registered successfully',
+                'data' => $user
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // ✅ sirf pehla validation message nikal lo
+            $errors = $e->errors();
+            $firstError = collect($errors)->flatten()->first();
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid user type'
+                'message' => $firstError
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $user = $this->authService->register($request->all());
-        return response()->json([
-            'status' => 200,
-            'message' => 'Registered successfully',
-            'data' => $user
-        ], 200);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // ✅ sirf pehla validation message nikal lo
-        $errors = $e->errors();
-        $firstError = collect($errors)->flatten()->first();
-
-        return response()->json([
-            'status' => 'error',
-            'message' => $firstError
-        ], 422);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
     }
-}
     public function login(Request $request)
     {
         try {
@@ -68,29 +66,38 @@ class AuthController extends Controller
             ]);
             $result = $this->authService->login($request->all());
             if (isset($result['error'])) {
-               return ResponseHelper::error(null, $result['error'], 'error', 401);
+                return ResponseHelper::error(null, $result['error'], 'error', 401);
             }
-               return ResponseHelper::success($result,'Login successful','success', 200);
+            return ResponseHelper::success($result, 'Login successful', 'success', 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
-               return ResponseHelper::error($e->errors(),'Validation failed','error', 422);
+            return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
         } catch (\Exception $e) {
-               return ResponseHelper::error($e->getMessage(),'Something went wrong','error', 500);
+            return ResponseHelper::error($e->getMessage(), 'Something went wrong', 'error', 500);
         }
     }
 
     public function sendOtp(Request $request)
     {
-       try{
-             $request->validate([
+        try {
+            $request->validate([
                 'email' => 'required|email',
                 'type' => 'required|in:customer,vendor',
             ]);
+
             $data = $this->authService->sendOtp($request->all());
-            return ResponseHelper::success($data, 'OTP send successfully to your email', 'success', 200);
-       }catch (\Exception $e) {
+
+            // ✅ Check if service returned an error
+            if (isset($data['error'])) {
+                return ResponseHelper::error(null, $data['error'], 'error', 404);
+            }
+
+            // ✅ Otherwise, OTP successfully sent
+            return ResponseHelper::success($data, 'OTP sent successfully to your email', 'success', 200);
+        } catch (\Exception $e) {
             return ResponseHelper::error($e->getMessage(), 'An error occurred while sending OTP', 'error', 500);
         }
     }
+
 
     public function verifyOtp(Request $request)
     {
@@ -130,7 +137,8 @@ class AuthController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred during password reset', 'error', 500);
         }
     }
-    public function logout(){
+    public function logout()
+    {
         try {
             $result = $this->authService->logout();
             if (isset($result['error'])) {
@@ -141,7 +149,8 @@ class AuthController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred during logout', 'error', 500);
         }
     }
-    public function getProfile(){
+    public function getProfile()
+    {
         try {
             $user = auth()->user();
             if (!$user) {
@@ -153,9 +162,10 @@ class AuthController extends Controller
         }
     }
 
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
         try {
-            if($request->type == 'customer') {
+            if ($request->type == 'customer') {
                 $request->validate([
                     'name' => 'required|string|max:255',
                     'email' => 'required|email|unique:users,email,' . auth()->id(),
@@ -192,10 +202,8 @@ class AuthController extends Controller
                 return ResponseHelper::error(null, $result['error'], 'error', 401);
             }
             return ResponseHelper::success($result, 'Password changed successfully', 'success', 200);
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             return ResponseHelper::error($e->getMessage(), 'An error occurred during password change', 'error', 500);
         }
     }
-
-
 }
