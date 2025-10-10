@@ -22,15 +22,11 @@ class CreateEmailOtpTable extends Migration
             $table->string('image', 255)->nullable();
             $table->string('cnic_front', 255);
             $table->string('cnic_back', 255);
-            $table->unsignedInteger('brand_id')->nullable();
-            $table->unsignedInteger('model_id')->nullable();
             $table->string('location', 255)->nullable();
-            $table->decimal('latitude', 10, 6)->nullable();
-            $table->decimal('longitude', 10, 6)->nullable();
             $table->tinyInteger('repair_service')->default(0)->nullable();
-            $table->boolean('toggle')->default(0);
             $table->string('otp', 255)->nullable();
-			$table->string('otp_token', 255)->nullable(); 
+			$table->string('otp_token', 255)->nullable();
+			$table->string('type', 255)->nullable(); 
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
         });
