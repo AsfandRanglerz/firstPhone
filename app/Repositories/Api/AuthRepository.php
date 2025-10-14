@@ -6,39 +6,17 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Mail\ForgotOTPMail;
 use App\Models\VendorImage;
+use App\Mail\UserEmailOtp;
 use App\Mail\UserCredentials;
 use App\Mail\VerifyEmailOtp;
 use Illuminate\Support\Facades\Hash;
+use App\Models\EmailOtp;
 use Illuminate\Support\Facades\Mail;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
 
 class AuthRepository implements AuthRepositoryInterface
 {
-    public function register(array $request)
-    {
-        // ✅ Step 1: Generate OTP
-        $otp = rand(1000, 9999);
-
-        // ✅ Store OTP & pending user in session (no user created yet)
-        session([
-            'otp' => $otp,
-            'pending_user' => $request
-        ]);
-
-        // ✅ Send OTP to email
-        Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
-
-        return [
-            'status' => 200,
-            'message' => 'OTP sent to your email. Please verify to complete registration.',
-            'data' => [
-                'email' => $request['email']
-            ]
-        ];
-    }
-
-
     public function login(array $request)
     {
         if ($request['type'] === 'customer') {
@@ -64,12 +42,36 @@ class AuthRepository implements AuthRepositoryInterface
         ];
     }
 
+
+    public function register(array $request)
+    {
+        // Generate OTP
+        $otp = rand(1000, 9999);
+
+        // Store OTP & pending user in session (no user created yet)
+        session([
+            'otp' => $otp,
+            'pending_user' => $request
+        ]);
+
+        // Send OTP to email
+        Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
+
+        return [
+            'status' => 200,
+            'message' => 'OTP sent to your email. Please verify to complete registration.',
+            'data' => [
+                'email' => $request['email']
+            ]
+        ];
+    }
+
     /**
-     * STEP 1: Send OTP (only email + type)
+     * Send OTP
      */
     public function sendOtp(array $request)
     {
-        // ✅ Check if email already exists
+        // Check if email already exists
         if ($request['type'] === 'customer') {
             $existing = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
@@ -82,13 +84,13 @@ class AuthRepository implements AuthRepositoryInterface
             return ['error' => 'Email already registered. Please login instead.'];
         }
 
-        // ✅ Generate OTP
+        // Generate OTP
         $otp = rand(1000, 9999);
 
-        // ✅ Store OTP in cache for 10 minutes
+        // Store OTP in cache for 10 minutes
         Cache::put('otp_' . $request['email'], $otp, now()->addMinutes(10));
 
-        // ✅ Send email
+        // Send email
         Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
 
         return [
@@ -99,7 +101,7 @@ class AuthRepository implements AuthRepositoryInterface
     }
 
     /**
-     * STEP 2: Verify OTP and Create User/Vendor
+     * Verify OTP and Create User/Vendor
      */
     public function verifyOtp(array $request)
     {
@@ -120,7 +122,7 @@ class AuthRepository implements AuthRepositoryInterface
             ];
         }
 
-        // ✅ OTP is correct → create user
+        // OTP is correct → create user
         if ($request['type'] === 'customer') {
             $user = User::create([
                 'name' => $request['name'],
@@ -138,7 +140,7 @@ class AuthRepository implements AuthRepositoryInterface
             ]);
         }
 
-        // ✅ Clear OTP cache
+        // Clear OTP cache
         Cache::forget($cacheKey);
 
         return [
@@ -199,7 +201,7 @@ class AuthRepository implements AuthRepositoryInterface
         $user->save();
 
         // Send OTP mail
-        Mail::to($user->email)->send(new \App\Mail\ForgotOTPMail($otp));
+        Mail::to($user->email)->send(new ForgotOTPMail($otp));
 
         return [
             'status' => 'success',
@@ -226,9 +228,9 @@ class AuthRepository implements AuthRepositoryInterface
         }
 
         $otp = rand(1000, 9999);
-        \Illuminate\Support\Facades\Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
+        Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
 
-        \Illuminate\Support\Facades\Mail::to($request['email'])->send(new \App\Mail\ForgotOTPMail($otp));
+        Mail::to($request['email'])->send(new ForgotOTPMail($otp));
 
         return ['status' => 'success', 'message' => 'OTP sent successfully to your email.', 'data' => ['email' => $request['email']]];
     }

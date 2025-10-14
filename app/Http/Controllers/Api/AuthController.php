@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Services\Api\AuthService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -166,38 +167,104 @@ class AuthController extends Controller
 
     public function forgotPasswordSendOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'type' => 'required|in:customer,vendor',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'type' => 'required|in:customer,vendor',
+            ]);
 
-        $result = $this->authService->forgotPasswordSendOtp($request->all());
-        return ResponseHelper::success($result['data'] ?? null, $result['message'], $result['status']);
+            $result = $this->authService->forgotPasswordSendOtp($request->all());
+
+            return ResponseHelper::success(
+                $result['data'] ?? null,
+                $result['message'] ?? 'OTP sent successfully',
+                $result['status'] ?? 'success'
+            );
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return ResponseHelper::error(
+                $e->errors(),
+                'Validation failed',
+                422
+            );
+        } catch (\Exception $e) {
+            Log::error('Forgot password send OTP error: ' . $e->getMessage());
+
+            return ResponseHelper::error(
+                null,
+                'Something went wrong. Please try again later.',
+                500
+            );
+        }
     }
+
 
     public function forgotPasswordVerifyOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|numeric',
-            'type' => 'required|in:customer,vendor',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|numeric',
+                'type' => 'required|in:customer,vendor',
+            ]);
 
-        $result = $this->authService->forgotPasswordVerifyOtp($request->all());
-        return ResponseHelper::success(null, $result['message'], $result['status']);
+            $result = $this->authService->forgotPasswordVerifyOtp($request->all());
+
+            return ResponseHelper::success(
+                null,
+                $result['message'] ?? 'OTP verified successfully',
+                $result['status'] ?? 'success'
+            );
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return ResponseHelper::error(
+                $e->errors(),
+                'Validation failed',
+                422
+            );
+        } catch (\Exception $e) {
+            Log::error('Forgot password verify OTP error: ' . $e->getMessage());
+
+            return ResponseHelper::error(
+                null,
+                'Something went wrong. Please try again later.',
+                500
+            );
+        }
     }
+
 
     public function forgotPasswordReset(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-            'type' => 'required|in:customer,vendor',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|min:8',
+                'type' => 'required|in:customer,vendor',
+            ]);
 
-        $result = $this->authService->forgotPasswordReset($request->all());
-        return ResponseHelper::success(null, $result['message'], $result['status']);
+            $result = $this->authService->forgotPasswordReset($request->all());
+
+            return ResponseHelper::success(
+                null,
+                $result['message'] ?? 'Password reset successfully',
+                $result['status'] ?? 'success'
+            );
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return ResponseHelper::error(
+                $e->errors(),
+                'Validation failed',
+                422
+            );
+        } catch (\Exception $e) {
+            Log::error('Forgot password reset error: ' . $e->getMessage());
+
+            return ResponseHelper::error(
+                null,
+                'Something went wrong. Please try again later.',
+                500
+            );
+        }
     }
+
 
     public function logout()
     {
