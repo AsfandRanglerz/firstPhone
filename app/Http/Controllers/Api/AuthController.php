@@ -14,54 +14,48 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
+
     public function register(Request $request)
     {
         try {
-            if ($request->type == 'customer') {
-                $request->validate([
-                    'email' => 'required|email|unique:users,email',
-                    'password' => 'required|string|min:8',
-                ]);
-            } elseif ($request->type == 'vendor') {
-                $request->validate([
-                    'email' => 'required|email|unique:vendors,email',
-                    'password' => 'required|string|min:8',
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid user type'
-                ], 422);
+            $request->validate([
+                // 'name' => 'required|string|max:255',
+                'email' => 'required|email',
+                // 'password' => 'required|string|min:8',
+                // 'phone' => 'nullable|string|max:20',
+                // 'location' => 'nullable|string|max:255',
+                'type' => 'required|in:customer,vendor',
+            ]);
+
+            // ✅ Send OTP via repository
+            $otpData = $this->authService->sendOtp($request->all());
+
+            if (isset($otpData['error'])) {
+                return ResponseHelper::error(null, $otpData['error'], 'error', 400);
             }
 
-            $user = $this->authService->register($request->all());
-            return response()->json([
-                'status' => 200,
-                'message' => 'Registered successfully',
-                'data' => $user
-            ], 200);
+            return ResponseHelper::success([
+                'message' => 'OTP sent to your email. Please verify to complete registration.',
+                'email' => $request->email
+            ], 'OTP sent successfully', 'success', 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // ✅ sirf pehla validation message nikal lo
-            $errors = $e->errors();
-            $firstError = collect($errors)->flatten()->first();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => $firstError
-            ], 422);
+            return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return ResponseHelper::error($e->getMessage(), 'Error during registration', 'error', 500);
         }
     }
+
+
+
     public function login(Request $request)
     {
         try {
             $request->validate([
+                'name' => 'required|string|max:255',
                 'email' => 'required|email',
                 'password' => 'required|string',
+                'phone' => 'nullable|string|max:20',
+                'location' => 'nullable|string|max:255',
                 'type' => 'required|in:customer,vendor',
             ]);
             $result = $this->authService->login($request->all());
@@ -86,18 +80,15 @@ class AuthController extends Controller
 
             $data = $this->authService->sendOtp($request->all());
 
-            // ✅ Check if service returned an error
             if (isset($data['error'])) {
-                return ResponseHelper::error(null, $data['error'], 'error', 404);
+                return ResponseHelper::error(null, $data['error'], 'error', 400);
             }
 
-            // ✅ Otherwise, OTP successfully sent
-            return ResponseHelper::success($data, 'OTP sent successfully to your email', 'success', 200);
+            return ResponseHelper::success($data, 'OTP sent successfully', 'success', 200);
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while sending OTP', 'error', 500);
+            return ResponseHelper::error($e->getMessage(), 'Error sending OTP', 'error', 500);
         }
     }
-
 
     public function verifyOtp(Request $request)
     {
@@ -105,38 +96,109 @@ class AuthController extends Controller
             $request->validate([
                 'email' => 'required|email',
                 'otp' => 'required|numeric',
+                'name' => 'required|string|max:255',
+                'password' => 'required|string|min:8',
+                'phone' => 'required|string|max:20',
+                'location' => 'nullable|string|max:255',
                 'type' => 'required|in:customer,vendor',
             ]);
+
             $result = $this->authService->verifyOtp($request->all());
-            if (isset($result['error'])) {
-                return ResponseHelper::error(null, $result['error'], 'error', 401);
+
+            if (isset($result['status']) && $result['status'] === 'error') {
+                return ResponseHelper::error(null, $result['message'], 'error', 401);
             }
-            return ResponseHelper::success($result, 'OTP verified successfully', 'success', 200);
+
+            return ResponseHelper::success($result['data'], $result['message'], 'success', 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred during OTP verification', 'error', 500);
+            return ResponseHelper::error($e->getMessage(), 'Error verifying OTP', 'error', 500);
         }
     }
-    public function resetPassword(Request $request)
+
+    public function resendOtp(Request $request)
     {
         try {
             $request->validate([
                 'email' => 'required|email',
-                'password' => 'required|string|min:8|confirmed',
                 'type' => 'required|in:customer,vendor',
             ]);
-            $result = $this->authService->resetPassword($request->all());
-            if (isset($result['error'])) {
-                return ResponseHelper::error(null, $result['error'], 'error', 401);
+
+            $result = $this->authService->resendOtp($request->all());
+
+            if (isset($result['status']) && $result['status'] === 'error') {
+                return ResponseHelper::error(null, $result['message'], 'error', 400);
             }
-            return ResponseHelper::success($result, 'Password reset successful', 'success', 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
+
+            return ResponseHelper::success(
+                ['email' => $result['data']['email']],
+                $result['message'],
+                'success',
+                200
+            );
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred during password reset', 'error', 500);
+            return ResponseHelper::error($e->getMessage(), 'Error resending OTP', 'error', 500);
         }
     }
+
+
+
+    public function forgotPasswordResendOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'type' => 'required|in:customer,vendor',
+            ]);
+
+            $response = $this->authService->forgotPasswordResendOtp($request->all());
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to resend OTP',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function forgotPasswordSendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'type' => 'required|in:customer,vendor',
+        ]);
+
+        $result = $this->authService->forgotPasswordSendOtp($request->all());
+        return ResponseHelper::success($result['data'] ?? null, $result['message'], $result['status']);
+    }
+
+    public function forgotPasswordVerifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|numeric',
+            'type' => 'required|in:customer,vendor',
+        ]);
+
+        $result = $this->authService->forgotPasswordVerifyOtp($request->all());
+        return ResponseHelper::success(null, $result['message'], $result['status']);
+    }
+
+    public function forgotPasswordReset(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+            'type' => 'required|in:customer,vendor',
+        ]);
+
+        $result = $this->authService->forgotPasswordReset($request->all());
+        return ResponseHelper::success(null, $result['message'], $result['status']);
+    }
+
     public function logout()
     {
         try {

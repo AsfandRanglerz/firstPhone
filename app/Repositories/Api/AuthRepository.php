@@ -7,79 +7,38 @@ use App\Models\Vendor;
 use App\Mail\ForgotOTPMail;
 use App\Models\VendorImage;
 use App\Mail\UserCredentials;
+use App\Mail\VerifyEmailOtp;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
+use Illuminate\Support\Facades\Cache;
 
 class AuthRepository implements AuthRepositoryInterface
 {
     public function register(array $request)
     {
-        if ($request['type'] == 'customer') {
-            $customer = User::create([
-                'name' => $request['name'],
-                'email' => $request['email'],
-                'phone' => $request['phone'],
-                'password' => Hash::make($request['password']),
-            ]);
+        // ✅ Step 1: Generate OTP
+        $otp = rand(1000, 9999);
 
-            // Mail::to($customer->email)->send(new UserCredentials(
-            //     $customer->name ?? 'User',
-            //     $customer->email,
-            //     $customer->phone ?? ''
-            // ));
-            return $customer;
-        } else if ($request['type'] == 'vendor') {
+        // ✅ Store OTP & pending user in session (no user created yet)
+        session([
+            'otp' => $otp,
+            'pending_user' => $request
+        ]);
 
-        $cnicFrontPath = null;
-        if (!empty($request['cnic_front'])) {
-            $cnicFront = $request['cnic_front'];
-            $filename = time() . '_cnic_front_' . uniqid() . '.' . $cnicFront->getClientOriginalExtension();
-            $cnicFront->move(public_path('admin/assets/images/users/'), $filename);
-            $cnicFrontPath = 'public/admin/assets/images/users/' . $filename;
-        }
+        // ✅ Send OTP to email
+        Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
 
-        // ✅ Handle CNIC Back
-        $cnicBackPath = null;
-        if (!empty($request['cnic_back'])) {
-            $cnicBack = $request['cnic_back'];
-            $filename = time() . '_cnic_back_' . uniqid() . '.' . $cnicBack->getClientOriginalExtension();
-            $cnicBack->move(public_path('admin/assets/images/users/'), $filename);
-            $cnicBackPath = 'public/admin/assets/images/users/' . $filename;
-        }
-
-        
-            $vendor = Vendor::create([
-                'name' => $request['name'],
-                'email' => $request['email'],
-                'phone' => $request['phone'],
-                'location'   => $request['location'] ?? null,
-                'password' => Hash::make($request['password']),
-                'cnic_front' => $cnicFrontPath,
-                'cnic_back'  => $cnicBackPath,
-                
-            ]);
-            // Mail::to($vendor->email)->send(new UserCredentials(
-            //     $vendor->name ?? 'Vendor',
-            //     $vendor->email,
-            //     $vendor->phone ?? ''
-            // ));
-           if (!empty($request['image'])) {
-            foreach ($request['image'] as $file) {
-                $filename = time() . '_vendor_img_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('admin/assets/images/users/'), $filename);
-                $imagePath = 'public/admin/assets/images/users/' . $filename;
-
-                VendorImage::create([
-                    'vendor_id' => $vendor->id,
-                    'image'     => $imagePath,
-                ]);
-            }
-        }
-
-        return $vendor->load('images');
-        }
+        return [
+            'status' => 200,
+            'message' => 'OTP sent to your email. Please verify to complete registration.',
+            'data' => [
+                'email' => $request['email']
+            ]
+        ];
     }
+
+
     public function login(array $request)
     {
         if ($request['type'] === 'customer') {
@@ -104,57 +63,223 @@ class AuthRepository implements AuthRepositoryInterface
             'token' => $token
         ];
     }
+
+    /**
+     * STEP 1: Send OTP (only email + type)
+     */
     public function sendOtp(array $request)
     {
+        // ✅ Check if email already exists
         if ($request['type'] === 'customer') {
-            $user = User::where('email', $request['email'])->first();
+            $existing = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
-            $user = Vendor::where('email', $request['email'])->first();
+            $existing = Vendor::where('email', $request['email'])->first();
+        } else {
+            return ['error' => 'Invalid user type'];
         }
+
+        if ($existing) {
+            return ['error' => 'Email already registered. Please login instead.'];
+        }
+
+        // ✅ Generate OTP
+        $otp = rand(1000, 9999);
+
+        // ✅ Store OTP in cache for 10 minutes
+        Cache::put('otp_' . $request['email'], $otp, now()->addMinutes(10));
+
+        // ✅ Send email
+        Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
+
+        return [
+            'status' => 200,
+            'message' => 'OTP sent successfully to your email.',
+            'data' => ['email' => $request['email']]
+        ];
+    }
+
+    /**
+     * STEP 2: Verify OTP and Create User/Vendor
+     */
+    public function verifyOtp(array $request)
+    {
+        $cacheKey = 'otp_' . $request['email'];
+        $cachedOtp = Cache::get($cacheKey);
+
+        if (!$cachedOtp) {
+            return [
+                'status' => 'error',
+                'message' => 'OTP expired or invalid. Please request again.'
+            ];
+        }
+
+        if ($cachedOtp != $request['otp']) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid OTP'
+            ];
+        }
+
+        // ✅ OTP is correct → create user
+        if ($request['type'] === 'customer') {
+            $user = User::create([
+                'name' => $request['name'],
+                'email' => $request['email'],
+                'phone' => $request['phone'] ?? null,
+                'password' => Hash::make($request['password']),
+            ]);
+        } else {
+            $user = Vendor::create([
+                'name' => $request['name'],
+                'email' => $request['email'],
+                'phone' => $request['phone'] ?? null,
+                'location' => $request['location'] ?? null,
+                'password' => Hash::make($request['password']),
+            ]);
+        }
+
+        // ✅ Clear OTP cache
+        Cache::forget($cacheKey);
+
+        return [
+            'status' => 'success',
+            'message' => 'OTP verified and registration completed successfully.',
+            'data' => $user
+        ];
+    }
+
+    public function resendOtp(array $request)
+    {
+        $cacheKey = 'otp_' . $request['email'];
+
+        // Check if user already requested OTP before
+        if (!Cache::has($cacheKey)) {
+            return [
+                'status' => 'error',
+                'message' => 'No OTP session found or expired. Please register again.'
+            ];
+        }
+
+        // Generate new OTP
+        $newOtp = rand(1000, 9999);
+
+        // Store new OTP for another 10 minutes
+        Cache::put($cacheKey, $newOtp, now()->addMinutes(10));
+
+        // Send new OTP
+        Mail::to($request['email'])->send(new \App\Mail\VerifyEmailOtp($newOtp));
+
+        return [
+            'status' => 'success',
+            'message' => 'New OTP sent successfully.',
+            'data' => ['email' => $request['email']]
+        ];
+    }
+
+    public function forgotPasswordResendOtp($data)
+    {
+        $user = null;
+
+        if ($data['type'] === 'customer') {
+            $user = \App\Models\User::where('email', $data['email'])->first();
+        } elseif ($data['type'] === 'vendor') {
+            $user = \App\Models\Vendor::where('email', $data['email'])->first();
+        }
+
         if (!$user) {
-            return ['error' => ucfirst($request['type']) . ' not found'];
+            return [
+                'status' => 'error',
+                'message' => ucfirst($data['type']) . ' not found with this email.',
+            ];
         }
+
+        // Generate new OTP
         $otp = rand(1000, 9999);
         $user->otp = $otp;
         $user->save();
-        Mail::to($user->email)->send(new ForgotOTPMail($otp));
+
+        // Send OTP mail
+        Mail::to($user->email)->send(new \App\Mail\ForgotOTPMail($otp));
+
         return [
-            'otp' => $otp,
-            'email' => $user->email
+            'status' => 'success',
+            'message' => 'OTP resent successfully.',
+            'data' => [
+                'email' => $user->email,
+            ],
         ];
     }
-    public function verifyOtp(array $request)
+
+
+    public function forgotPasswordSendOtp(array $request)
     {
         if ($request['type'] === 'customer') {
-            $user = User::where('email', $request['email'])->first();
+            $user = \App\Models\User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
-            $user = Vendor::where('email', $request['email'])->first();
+            $user = \App\Models\Vendor::where('email', $request['email'])->first();
         } else {
-            return ['error' => 'Invalid user type'];
+            return ['status' => 'error', 'message' => 'Invalid user type'];
         }
-        if (!$user || $user->otp !== $request['otp']) {
-            return ['error' => 'Invalid OTP'];
+
+        if (!$user) {
+            return ['status' => 'error', 'message' => 'Email not found'];
         }
-        $user->otp = null;
-        $user->save();
-        return ['email' => $user->email];
+
+        $otp = rand(1000, 9999);
+        \Illuminate\Support\Facades\Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
+
+        \Illuminate\Support\Facades\Mail::to($request['email'])->send(new \App\Mail\ForgotOTPMail($otp));
+
+        return ['status' => 'success', 'message' => 'OTP sent successfully to your email.', 'data' => ['email' => $request['email']]];
     }
-    public function resetPassword(array $request)
+
+    public function forgotPasswordVerifyOtp(array $request)
     {
-        if ($request['type'] === 'customer') {
-            $user = User::where('email', $request['email'])->first();
-        } elseif ($request['type'] === 'vendor') {
-            $user = Vendor::where('email', $request['email'])->first();
-        } else {
-            return ['error' => 'Invalid user type'];
+        $cacheKey = 'forgot_otp_' . $request['email'];
+        $cachedOtp = \Illuminate\Support\Facades\Cache::get($cacheKey);
+
+        if (!$cachedOtp) {
+            return ['status' => 'error', 'message' => 'OTP expired or invalid.'];
         }
-        if (Hash::check($request['password'], $user->password)) {
-            return ['error' => 'New password cannot be the same as the old password'];
+
+        if ($cachedOtp != $request['otp']) {
+            return ['status' => 'error', 'message' => 'Invalid OTP'];
         }
-        $user->password = Hash::make($request['password']);
-        $user->save();
-        return $user;
+
+        // Clear OTP after verification
+        \Illuminate\Support\Facades\Cache::forget($cacheKey);
+
+        // Mark email verified for password reset
+        \Illuminate\Support\Facades\Cache::put('forgot_verified_' . $request['email'], true, now()->addMinutes(10));
+
+        return ['status' => 'success', 'message' => 'OTP verified successfully.'];
     }
+
+    public function forgotPasswordReset(array $request)
+    {
+        $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request['email']);
+        if (!$verified) {
+            return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
+        }
+
+        if ($request['type'] === 'customer') {
+            $user = \App\Models\User::where('email', $request['email'])->first();
+        } else {
+            $user = \App\Models\Vendor::where('email', $request['email'])->first();
+        }
+
+        if (!$user) {
+            return ['status' => 'error', 'message' => 'User not found.'];
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request['password']);
+        $user->save();
+
+        \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request['email']);
+
+        return ['status' => 'success', 'message' => 'Password reset successfully.'];
+    }
+
 
     public function logout()
     {
@@ -196,12 +321,12 @@ class AuthRepository implements AuthRepositoryInterface
         if (!$user) {
             return ['error' => 'User not authenticated'];
         }
-       if ($request['new_password'] !== $request['confirm_password']) {
-        return ['error' => 'New password and confirm password do not match'];
-    }
-    if (Hash::check($request['new_password'], $user->password)) {
-        return ['error' => 'New password cannot be the same as the old password'];
-    }
+        if ($request['new_password'] !== $request['confirm_password']) {
+            return ['error' => 'New password and confirm password do not match'];
+        }
+        if (Hash::check($request['new_password'], $user->password)) {
+            return ['error' => 'New password cannot be the same as the old password'];
+        }
         $user->password = Hash::make($request['new_password']);
         $user->save();
         return $user;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Password Reset OTP</title>
+    <title>Email Verification OTP</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
      <div style="text-align: center; margin-bottom: 20px;">
@@ -9,11 +9,11 @@
                  alt="{{ config('app.name') }} Logo" 
                  style="height: 80px; margin-bottom: 15px;">
         </div>
-    <h2 style="color: #021642; text-align: center;">Reset Your Password</h2>
+    <h2 style="color: #021642; text-align: center;">Verify Your Email</h2>
 
-   <p style="text-align: center;">
-        We received a request to reset your password for your <strong>{{ config('app.name') }}</strong> account.
-        Please use the OTP below to proceed with resetting your password:
+    <p style="font-size: 16px; color: #333;">
+        Thank you for registering with <strong>{{ config('app.name') }}</strong>!  
+        Please use the OTP below to verify your email address and complete your registration.
     </p>
 
     <div style="text-align: center; margin: 20px 0;">

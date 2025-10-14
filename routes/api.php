@@ -53,7 +53,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/sendOtp', [AuthController::class, 'sendOtp']);
 Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('/resetPassword', [AuthController::class, 'resetPassword']);
-
+Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
+Route::prefix('forgot-password')->group(function () {
+    Route::post('/send-otp', [AuthController::class, 'forgotPasswordSendOtp']);
+    Route::post('/verify-otp', [AuthController::class, 'forgotPasswordVerifyOtp']);
+    Route::post('/reset', [AuthController::class, 'forgotPasswordReset']);
+    Route::post('/resend-otp', [AuthController::class, 'forgotPasswordResendOtp']);
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/getProfile', [AuthController::class, 'getProfile']);

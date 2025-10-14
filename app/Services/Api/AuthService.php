@@ -27,10 +27,31 @@ class AuthService
     {
         return $this->authRepo->verifyOtp($request);
     }
-    public function resetPassword(array $request)
+
+    public function resendOtp(array $request)
     {
-        return $this->authRepo->resetPassword($request);
+        return $this->authRepo->resendOtp($request);
     }
+    public function forgotPasswordResendOtp(array $data)
+    {
+        return $this->authRepo->forgotPasswordResendOtp($data);
+    }
+
+    public function forgotPasswordSendOtp(array $request)
+    {
+        return $this->authRepo->forgotPasswordSendOtp($request);
+    }
+
+    public function forgotPasswordVerifyOtp(array $request)
+    {
+        return $this->authRepo->forgotPasswordVerifyOtp($request);
+    }
+
+    public function forgotPasswordReset(array $request)
+    {
+        return $this->authRepo->forgotPasswordReset($request);
+    }
+
     public function logout()
     {
         return $this->authRepo->logout();
