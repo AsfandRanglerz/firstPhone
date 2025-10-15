@@ -62,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
     Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
+    // Home Screen API
+    Route::get('/homescreen', [HomeController::class, 'homeScreen']);
+
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);

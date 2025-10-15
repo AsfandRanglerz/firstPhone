@@ -139,97 +139,94 @@
 
 @section('js')
     <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            if ($.fn.DataTable.isDataTable('#table_id_events')) {
-                $('#table_id_events').DataTable().destroy();
+         $(document).ready(function() {
+    // Initialize DataTable
+    if ($.fn.DataTable.isDataTable('#table_id_events')) {
+        $('#table_id_events').DataTable().destroy();
+    }
+    $('#table_id_events').DataTable();
+
+    // SweetAlert2 delete confirmation using event delegation
+    $(document).on('click', '.show_confirm', function(event) {
+        event.preventDefault();
+        var formId = $(this).data("form");
+        var form = document.getElementById(formId);
+
+        swal({
+            title: "Are you sure you want to delete this record?",
+            text: "If you delete this, it will be gone forever.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                form.submit();
             }
-            $('#table_id_events').DataTable();
-
-            // SweetAlert2 delete confirmation
-            $('.show_confirm').click(function(event) {
-                event.preventDefault();
-                var formId = $(this).data("form");
-                var form = document.getElementById(formId);
-
-                swal({
-                    title: "Are you sure you want to delete this record?",
-                    text: "If you delete this, it will be gone forever.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        form.submit();
-                    }
-                });
-            });
-
-            // Toggle status
-            let currentToggle = null;
-            let currentUserId = null;
-
-            $('.toggle-status').change(function() {
-                let status = $(this).is(':checked') ? 1 : 0;
-                currentToggle = $(this);
-                currentUserId = $(this).data('id');
-
-                if (status === 0) {
-                    $('#deactivatingUserId').val(currentUserId);
-                    $('#deactivationModal').modal('show');
-                } else {
-                    updateUserStatus(currentUserId, 1);
-                }
-            });
-
-            $('#confirmDeactivation').click(function() {
-                let reason = $('#deactivationReason').val();
-                if (reason.trim() === '') {
-                    toastr.error('Please provide a deactivation reason');
-                    return;
-                }
-
-                $('#deactivationLoader').show();
-                $('#confirmDeactivation').prop('disabled', true);
-
-                // abhi modal mat hide karo
-                updateUserStatus(currentUserId, 0, reason);
-            });
-
-            function updateUserStatus(userId, status, reason = null) {
-                let $descriptionSpan = currentToggle.siblings('.custom-switch-description');
-                $.ajax({
-                    url: "{{ route('user.toggle-status') }}",
-                    type: "POST",
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: userId,
-                        status: status,
-                        reason: reason
-                    },
-                    success: function(res) {
-                        if (res.success) {
-                            $descriptionSpan.text(res.new_status);
-                            toastr.success(res.message);
-                            $('#deactivationModal').modal('hide'); // yahan modal close karo
-                            $('#deactivationReason').val('');
-                        } else {
-                            currentToggle.prop('checked', !status);
-                            toastr.error(res.message);
-                        }
-                    },
-                    error: function() {
-                        currentToggle.prop('checked', !status);
-                        toastr.error('Error updating status');
-                    },
-                    complete: function() {
-                        $('#deactivationLoader').hide();
-                        $('#confirmDeactivation').prop('disabled', false);
-                    }
-                });
-            }
-
-
         });
+    });
+
+    // Toggle status
+    let currentToggle = null;
+    let currentUserId = null;
+
+    $(document).on('change', '.toggle-status', function() {
+        let status = $(this).is(':checked') ? 1 : 0;
+        currentToggle = $(this);
+        currentUserId = $(this).data('id');
+
+        if (status === 0) {
+            $('#deactivatingUserId').val(currentUserId);
+            $('#deactivationModal').modal('show');
+        } else {
+            updateUserStatus(currentUserId, 1);
+        }
+    });
+
+    $('#confirmDeactivation').click(function() {
+        let reason = $('#deactivationReason').val();
+        if (reason.trim() === '') {
+            toastr.error('Please provide a deactivation reason');
+            return;
+        }
+
+        $('#deactivationLoader').show();
+        $('#confirmDeactivation').prop('disabled', true);
+
+        updateUserStatus(currentUserId, 0, reason);
+    });
+
+    function updateUserStatus(userId, status, reason = null) {
+        let $descriptionSpan = currentToggle.siblings('.custom-switch-description');
+        $.ajax({
+            url: "{{ route('user.toggle-status') }}",
+            type: "POST",
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: userId,
+                status: status,
+                reason: reason
+            },
+            success: function(res) {
+                if (res.success) {
+                    $descriptionSpan.text(res.new_status);
+                    toastr.success(res.message);
+                    $('#deactivationModal').modal('hide');
+                    $('#deactivationReason').val('');
+                } else {
+                    currentToggle.prop('checked', !status);
+                    toastr.error(res.message);
+                }
+            },
+            error: function() {
+                currentToggle.prop('checked', !status);
+                toastr.error('Error updating status');
+            },
+            complete: function() {
+                $('#deactivationLoader').hide();
+                $('#confirmDeactivation').prop('disabled', false);
+            }
+        });
+    }
+});
     </script>
 @endsection
