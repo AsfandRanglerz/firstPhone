@@ -88,7 +88,7 @@ class AuthRepository implements AuthRepositoryInterface
         $otp = rand(1000, 9999);
 
         // Store OTP in cache for 10 minutes
-        Cache::put('otp_' . $request['email'], $otp, now()->addMinutes(10));
+        Cache::put('otp_' . $request['email'], $otp, now()->addSeconds(50));
 
         // Send email
         Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
@@ -155,18 +155,18 @@ class AuthRepository implements AuthRepositoryInterface
         $cacheKey = 'otp_' . $request['email'];
 
         // Check if user already requested OTP before
-        if (!Cache::has($cacheKey)) {
-            return [
-                'status' => 'error',
-                'message' => 'No OTP session found or expired. Please register again.'
-            ];
-        }
+        // if (!Cache::has($cacheKey)) {
+        //     return [
+        //         'status' => 'error',
+        //         'message' => 'No OTP session found or expired. Please register again.'
+        //     ];
+        // }
 
         // Generate new OTP
         $newOtp = rand(1000, 9999);
 
         // Store new OTP for another 10 minutes
-        Cache::put($cacheKey, $newOtp, now()->addMinutes(10));
+        Cache::put($cacheKey, $newOtp, now()->addSeconds(50));
 
         // Send new OTP
         Mail::to($request['email'])->send(new \App\Mail\VerifyEmailOtp($newOtp));
@@ -227,6 +227,7 @@ class AuthRepository implements AuthRepositoryInterface
             return ['status' => 'error', 'message' => 'Email not found'];
         }
 
+
         $otp = rand(1000, 9999);
         Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
 
@@ -273,6 +274,14 @@ class AuthRepository implements AuthRepositoryInterface
         if (!$user) {
             return ['status' => 'error', 'message' => 'User not found.'];
         }
+
+		if (Hash::check($request->password, $user->password)) {
+    return response()->json([
+        'status' => 'error',
+        'message' => 'This is your current password. Please enter a different one.'
+    ], 400);
+}
+
 
         $user->password = \Illuminate\Support\Facades\Hash::make($request['password']);
         $user->save();
