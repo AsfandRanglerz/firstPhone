@@ -241,7 +241,7 @@ class AuthController extends Controller
                 'type' => 'required|in:customer,vendor',
             ]);
 
-            $result = $this->authService->forgotPasswordReset($request->all());
+            $result = $this->authService->forgotPasswordReset($request);
 
             return ResponseHelper::success(
                 null,
