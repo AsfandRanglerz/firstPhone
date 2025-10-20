@@ -56,7 +56,7 @@ public function getCart(Request $request)
     });
 
     return response()->json([
-        'message' => 'Cart details have been fetched successfully',
+        'message' => 'Cart details fetched successfully',
         'user_id' => $user->id,
         'data' => $carts,
         'subtotal_price' => $subtotal
@@ -75,8 +75,10 @@ public function getCart(Request $request)
         ], 401);
     }
 
+    $id = $request->query('id');
+
     // Find cart item
-    $cart = MobileCart::where('id', $request->id)
+    $cart = MobileCart::where('id', $id)
         ->where('user_id', $user->id) // ensure item belongs to the logged-in user
         ->first();
 

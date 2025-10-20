@@ -52,7 +52,7 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'nullable|string|max:255',
                 'email' => 'required|email',
                 'password' => 'required|string',
                 'phone' => 'nullable|string|max:20',
@@ -63,7 +63,7 @@ class AuthController extends Controller
             if (isset($result['error'])) {
                 return ResponseHelper::error(null, $result['error'], 'error', 401);
             }
-            return ResponseHelper::success($result, 'Login successful', 'success', 200);
+            return ResponseHelper::success($result, 'Logged in successfully', 'success', 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
         } catch (\Exception $e) {
