@@ -47,10 +47,11 @@ class AuthService
         return $this->authRepo->forgotPasswordVerifyOtp($request);
     }
 
-    public function forgotPasswordReset(array $request)
+    public function forgotPasswordReset($request)
     {
         return $this->authRepo->forgotPasswordReset($request);
     }
+
 
     public function logout()
     {

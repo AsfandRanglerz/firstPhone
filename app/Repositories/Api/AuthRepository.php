@@ -258,18 +258,16 @@ class AuthRepository implements AuthRepositoryInterface
         return ['status' => 'success', 'message' => 'OTP verified successfully.'];
     }
 
-    public function forgotPasswordReset(array $request)
-    {
-        $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request['email']);
-        if (!$verified) {
-            return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
-        }
+public function forgotPasswordReset(\Illuminate\Http\Request $request)
+{
+    $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request->email);
+    if (!$verified) {
+        return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
+    }
 
-        if ($request['type'] === 'customer') {
-            $user = \App\Models\User::where('email', $request['email'])->first();
-        } else {
-            $user = \App\Models\Vendor::where('email', $request['email'])->first();
-        }
+    $user = $request->type === 'customer'
+        ? \App\Models\User::where('email', $request->email)->first()
+        : \App\Models\Vendor::where('email', $request->email)->first();
 
         if (!$user) {
             return ['status' => 'error', 'message' => 'User not found.'];
@@ -283,13 +281,14 @@ class AuthRepository implements AuthRepositoryInterface
 }
 
 
-        $user->password = \Illuminate\Support\Facades\Hash::make($request['password']);
-        $user->save();
+    $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+    $user->save();
 
-        \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request['email']);
+    \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request->email);
 
-        return ['status' => 'success', 'message' => 'Password reset successfully.'];
-    }
+    return ['status' => 'success', 'message' => 'Password reset successfully.'];
+}
+
 
 
     public function logout()

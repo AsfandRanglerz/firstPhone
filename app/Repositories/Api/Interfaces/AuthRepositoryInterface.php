@@ -12,6 +12,6 @@ interface AuthRepositoryInterface
     public function changePassword(array $request);
     public function forgotPasswordSendOtp(array $request);
     public function forgotPasswordVerifyOtp(array $request);
-    public function forgotPasswordReset(array $request);
+    public function forgotPasswordReset(\Illuminate\Http\Request $request);
     public function forgotPasswordResendOtp(array $data);
 }
