@@ -293,7 +293,7 @@ class AuthRepository implements AuthRepositoryInterface
 
 
         $otp = rand(1000, 9999);
-        Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
+        Cache::put('forgot_otp_' . $request['email'], $otp, now()->addSeconds(50));
 
         Mail::to($request['email'])->send(new ForgotOTPMail($otp));
 
