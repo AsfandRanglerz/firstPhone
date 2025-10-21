@@ -52,11 +52,8 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'nullable|string|max:255',
                 'email' => 'required|email',
                 'password' => 'required|string',
-                'phone' => 'nullable|string|max:20',
-                'location' => 'nullable|string|max:255',
                 'type' => 'required|in:customer,vendor',
             ]);
             $result = $this->authService->login($request->all());
@@ -104,7 +101,7 @@ class AuthController extends Controller
                 'type' => 'required|in:customer,vendor',
             ]);
 
-            $result = $this->authService->verifyOtp($request->all());
+            $result = $this->authService->verifyOtp($request);
 
             if (isset($result['status']) && $result['status'] === 'error') {
                 return ResponseHelper::error(null, $result['message'], 'error', 401);

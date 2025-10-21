@@ -37,6 +37,9 @@ class MobileListingService
     $data = [
         'brand_id'   => $request->brand_id,
         'model_id'   => $request->model_id,
+        'location'   => $request->location,
+        'latitude'   => $request->latitude,
+        'longitude'  => $request->longitude,
         'storage'    => $request->storage,
         'ram'        => $request->ram,
         'price'      => $request->price,

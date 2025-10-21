@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
@@ -23,20 +24,23 @@ public function getmobileListing()
 {
     try{
         $vendor = Auth::id();
-        $listings = MobileListing::with('model')
+        $listings = VendorMobile::with('model')
             ->where('vendor_id', $vendor)
             ->get()
             ->map(function ($listing) {
+                $images = json_decode($listing->image, true) ?? [];
+                $firstImage = !empty($images) ? asset($images[0]) : null;
                 return [
                     'model' => $listing->model ? $listing->model->name : null,
                     'price' => $listing->price,
-                    'image' => $listing->image ? array_map(function ($path) {
-                        return asset($path);
-                    }, json_decode($listing->image, true) ?? []) : [],
+                    // 'image' => $listing->image ? array_map(function ($path) {
+                    //     return asset($path);
+                    // }, json_decode($listing->image, true) ?? []) : [],
+                    'image' => $firstImage,
                     'status' => $listing->status,
                 ];
             });
-        $data = $listings->count() === 1 ? $listings->first() : $listings;
+        // $data = $listings->count() === 1 ? $listings->first() : $listings;
         return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
 
     } catch (ValidationException $e) {

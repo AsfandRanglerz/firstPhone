@@ -16,7 +16,8 @@ class OnlinePaymentController extends Controller
 
         try {
             $totalAmount = 0;
-            $products = $request->products;
+            // $products = $request->products;
+            $products = $request->products ?? $request->all();
 
             // Sequential Order Number
             $lastOrder = Order::orderBy('id', 'desc')->first();

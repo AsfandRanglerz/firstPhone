@@ -38,7 +38,6 @@ class VendorMobileListingService
             'storage' => $request->storage,
             'ram' => $request->ram,
             'color' => $request->color,
-            'repairing_service' => $request->repairing_service,
             'price' => $request->price,
             'condition' => $request->condition,
             'about' => $request->about,
@@ -58,7 +57,6 @@ class VendorMobileListingService
             'os_version' => $request->os_version,
             'warranty_start' => $request->warranty_start,
             'warranty_end' => $request->warranty_end,
-            'quantity' => $request->quantity,
             'vendor_id' => $vendorId,
             'image' => json_encode($mediaPaths),
         ];

@@ -2,6 +2,7 @@
 
 namespace App\Services\Api;
 
+use Illuminate\Http\Request;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 
 class AuthService
@@ -23,7 +24,7 @@ class AuthService
     {
         return $this->authRepo->sendOtp($request);
     }
-    public function verifyOtp(array $request)
+    public function verifyOtp(Request $request)
     {
         return $this->authRepo->verifyOtp($request);
     }

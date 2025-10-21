@@ -4,16 +4,17 @@ namespace App\Repositories\Api;
 
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\EmailOtp;
+use App\Mail\UserEmailOtp;
 use App\Mail\ForgotOTPMail;
 use App\Models\VendorImage;
-use App\Mail\UserEmailOtp;
-use App\Mail\UserCredentials;
 use App\Mail\VerifyEmailOtp;
+use Illuminate\Http\Request;
+use App\Mail\UserCredentials;
 use Illuminate\Support\Facades\Hash;
-use App\Models\EmailOtp;
 use Illuminate\Support\Facades\Mail;
-use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
 
 class AuthRepository implements AuthRepositoryInterface
 {
@@ -103,7 +104,7 @@ class AuthRepository implements AuthRepositoryInterface
     /**
      * Verify OTP and Create User/Vendor
      */
-    public function verifyOtp(array $request)
+    public function verifyOtp(Request $request)
     {
         $cacheKey = 'otp_' . $request['email'];
         $cachedOtp = Cache::get($cacheKey);
@@ -130,14 +131,77 @@ class AuthRepository implements AuthRepositoryInterface
                 'phone' => $request['phone'] ?? null,
                 'password' => Hash::make($request['password']),
             ]);
+
+            $data = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ];
         } else {
-            $user = Vendor::create([
+              $cnicPath = public_path('admin/assets/images/cnic/');
+            if (!file_exists($cnicPath)) {
+                mkdir($cnicPath, 0777, true);
+            }
+            
+            $cnicFrontPath = null;
+            $cnicBackPath = null;
+
+            // Save CNIC Front
+            if (isset($request['cnic_front']) && $request['cnic_front']->isValid()) {
+                $frontName = uniqid() . '_cnic_front.' . $request['cnic_front']->getClientOriginalExtension();
+                $request['cnic_front']->move($cnicPath, $frontName);
+                $cnicFrontPath = 'admin/assets/images/cnic/' . $frontName; // store relative path
+            }
+
+            // Save CNIC Back
+            if (isset($request['cnic_back']) && $request['cnic_back']->isValid()) {
+                $backName = uniqid() . '_cnic_back.' . $request['cnic_back']->getClientOriginalExtension();
+                $request['cnic_back']->move($cnicPath, $backName);
+                $cnicBackPath = 'admin/assets/images/cnic/' . $backName;
+            }
+
+            $vendor = Vendor::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
                 'location' => $request['location'] ?? null,
                 'password' => Hash::make($request['password']),
+                'cnic_front' => $cnicFrontPath,
+                'cnic_back' => $cnicBackPath,
             ]);
+           if ($request->hasFile('image')) {
+            $shopPath = public_path('admin/assets/images/shops/');
+            if (!file_exists($shopPath)) {
+                mkdir($shopPath, 0777, true);
+            }
+
+            foreach ($request->file('image') as $index => $image) {
+                if ($image->isValid()) {
+                    $fileName = uniqid() . '_shop_' . $index . '.' . $image->getClientOriginalExtension();
+                    $image->move($shopPath, $fileName);
+
+                    $imagePath = 'admin/assets/images/shops/' . $fileName;
+
+                    // Save to vendor_images table
+                    $vendor->images()->create(['image' => $imagePath]);
+                }
+            }
+        }
+         $shopImages = $vendor->images()->pluck('image')->toArray();
+        $allImages = array_merge($shopImages);
+
+        // Prepare final clean response
+        $data = [
+            'id' => $vendor->id,
+            'name' => $vendor->name,
+            'email' => $vendor->email,
+            'phone' => $vendor->phone,
+            'location' => $vendor->location,
+            'cnic_front' => $vendor->cnic_front,
+            'cnic_back' => $vendor->cnic_back,
+            'images' => $allImages,
+        ];
         }
 
         // Clear OTP cache
@@ -146,7 +210,7 @@ class AuthRepository implements AuthRepositoryInterface
         return [
             'status' => 'success',
             'message' => 'OTP verified and registration completed successfully.',
-            'data' => $user
+            'data' => $data
         ];
     }
 
