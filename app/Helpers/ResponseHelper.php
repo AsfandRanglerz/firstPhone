@@ -20,9 +20,8 @@ class ResponseHelper {
      public static function error($data = '', $message = '', $status = '', $statusCode = 400) {
         $statusCode = (int) $statusCode;
         return response()->json([
-            'status' => $status,
+            'status' => $status ?: 'error',
             'message' => $message,
-            'error' => $data,
         ], $statusCode);
     }
 }
