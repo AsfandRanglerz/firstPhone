@@ -387,6 +387,15 @@ public function forgotPasswordReset(\Illuminate\Http\Request $request)
             $user->image = 'public/admin/assets/images/users/' . $filename;
         }
 
+        if ($request['type'] === 'vendor') {
+        if (isset($request['repair_service'])) {
+            $user->repair_service = $request['repair_service'];
+        }
+        if (isset($request['location'])) {
+            $user->location = $request['location'];
+        }
+     }
+
         $user->save();
     }
     public function changePassword(array $request)
