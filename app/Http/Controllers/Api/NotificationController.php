@@ -35,23 +35,29 @@ class NotificationController extends Controller
     }
 
 
-    public function seenNotification(Request $request)
-    {
-        try {
-            $user = auth()->guard('vendors')->user() ?? auth()->user();
+public function seenNotification(Request $request, $notificationId)
+{
+    try {
+        $user = auth()->guard('vendors')->user() ?? auth()->user();
 
-            if (!$user) {
-                return ResponseHelper::error(null, 'Unauthorized', 'error', 401);
-            }
-            $notificationId = $request->input('notification_id');
-            $result = $this->notificationRepository->markAsSeen($user, $notificationId);
-            if (!$result['status']) {
-                return ResponseHelper::error(null, $result['message'], 'error', 404);
-            }
-            return ResponseHelper::success(['seen' => $result['seen']], 'Notification marked as seen', 'success', 200);
-
-        } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'Failed to mark notification as seen', 'error', 500);
+        if (!$user) {
+            return ResponseHelper::error(null, 'Unauthorized', 'error', 401);
         }
+
+        // now notification id comes from URL param
+        $result = $this->notificationRepository->markAsSeen($user, $notificationId);
+
+        if (!$result['status']) {
+            return ResponseHelper::error(null, $result['message'], 'error', 404);
+        }
+
+        return ResponseHelper::success(['seen' => $result['seen']], 'Notification marked as seen', 'success', 200);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'Failed to mark notification as seen', 'error', 500);
     }
+}
+
+
+
 }

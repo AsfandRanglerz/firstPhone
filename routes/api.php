@@ -74,7 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notification-seen', [NotificationController::class, 'seenNotification']);
+    Route::get('/notifications/{notificationId}/seen', [NotificationController::class, 'seenNotification']);
     // Mobile Request API
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
@@ -105,8 +105,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Nearby Customer Listings
     Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
-    // Delete Account api
-    Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
 
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);

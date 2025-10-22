@@ -18,24 +18,29 @@ class NotificationRepo implements NotificationRepoInterface
             ->get();
     }
 
-    public function markAsSeen($user, $notificationId)
-    {
-        $notification = Notification::find($notificationId);
+public function markAsSeen($user, $notificationId)
+{
+    $notification = Notification::find($notificationId);
 
-        if (!$notification) {
-            return ['status' => false, 'message' => 'Notification not found'];
-        }
-
-        $target = NotificationTarget::where('notification_id', $notificationId)
-            ->where('targetable_id', $user->id)
-            ->where('targetable_type', get_class($user))
-            ->first();
-
-        if ($target) {
-            $target->seen = true;
-            $target->save();
-        }
-
-        return ['status' => true, 'seen' => $target->seen ?? false];
+    if (!$notification) {
+        \Log::warning("Notification not found", [
+            'notification_id' => $notificationId,
+            'user_id' => $user->id,
+        ]);
+        return ['status' => false, 'message' => 'Notification not found'];
     }
+
+    $target = NotificationTarget::where('notification_id', $notificationId)
+        ->where('targetable_id', $user->id)
+        ->where('targetable_type', get_class($user))
+        ->first();
+
+    if ($target) {
+        $target->seen = true;
+        $target->save();
+    }
+
+    return ['status' => true, 'seen' => $target->seen ?? false];
+}
+
 }
