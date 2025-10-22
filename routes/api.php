@@ -78,7 +78,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mobile Request API
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
-
     //place order api
     Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
 
@@ -87,10 +86,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
-    Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
     Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
     Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
+    //vendor side track order
+    Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
     Route::get('/sales-report', [OrderController::class, 'salesReport']);
 
     //device receipt api

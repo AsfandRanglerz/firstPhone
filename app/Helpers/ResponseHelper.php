@@ -17,11 +17,33 @@ class ResponseHelper {
         return response()->json($response, $statusCode);
     }
     
-     public static function error($data = '', $message = '', $status = '', $statusCode = 400) {
-        $statusCode = (int) $statusCode;
+        public static function error($data = '', $message = '', $status = '', $statusCode = null)
+    {
+        $statusCodeMap = [
+            'error' => 400,
+            'bad_request' => 400,
+            'unauthorized' => 401,
+            'forbidden' => 403,
+            'not_found' => 404,
+            'validation_error' => 422,
+            'server_error' => 500,
+        ];
+
+        $resolvedStatusCode = $statusCode
+            ? (int) $statusCode
+            : ($statusCodeMap[strtolower($status)] ?? 400);
+
         return response()->json([
             'status' => $status ?: 'error',
             'message' => $message,
-        ], $statusCode);
+        ], $resolvedStatusCode);
     }
+
+    //  public static function error($data = '', $message = '', $status = '', $statusCode = 400) {
+    //     $statusCode = (int) $statusCode;
+    //     return response()->json([
+    //         'status' => $status ?: 'error',
+    //         'message' => $message,
+    //     ], $statusCode);
+    // }
 }

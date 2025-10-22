@@ -17,8 +17,8 @@ class CreateDeviceReceiptsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
-            $table->string('brand')->nullable();
-            $table->string('model')->nullable();
+            $table->string('brand_id')->nullable();
+            $table->string('model_id')->nullable();
             $table->string('imei_one')->nullable();
             $table->string('imei_two')->nullable();
             $table->timestamps();

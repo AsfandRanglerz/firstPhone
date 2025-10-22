@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use App\Models\DeviceReceipt;
 use App\Models\MobileListing;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Collection; // <-- correct import
+use Illuminate\Support\Collection;
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -74,12 +76,28 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function getOrderStatistics(?string $date = null): Collection
     {
-        return Order::select('id', 'order_status', 'created_at')
-            ->when($date, function ($query) use ($date) {
-                $query->whereDate('created_at', $date);
+        if ($date) {
+            try {
+                $formattedDate = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+            } catch (\Exception $e) {
+                throw new \InvalidArgumentException('Invalid date format, expected DD-MM-YYYY');
+            }
+        }
+
+        $orders = Order::select(
+                'id',
+                'order_status',
+                DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') as formatted_date")
+            )
+            ->when($date, function ($query) use ($formattedDate) {
+                $query->whereDate('created_at', '=', $formattedDate);
             })
             ->get();
+
+        return $orders;
     }
+
+
 
     // Repository
     public function getorderlist($orderId)
@@ -158,8 +176,8 @@ class OrderRepository implements OrderRepositoryInterface
                 'order_id'   => $orderId,
                 'order_item_id' => $item->id,
                 'product_id' => $mobile->id,
-                'brand'      => $mobile->brand->name ?? 'Unknown',
-                'model'      => $mobile->model->name ?? 'Unknown',
+                'brand_id'      => $mobile->brand->name ?? 'Unknown',
+                'model_id'      => $mobile->model->name ?? 'Unknown',
                 'imei_one'      => $device['imei_one'] ?? null,
                 'imei_two'      => $device['imei_two'] ?? null,
                 'payment_id'   => $paymentId,

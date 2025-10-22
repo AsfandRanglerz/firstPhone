@@ -12,6 +12,8 @@ class OnlinePaymentController extends Controller
 {
     public function placeOrder(Request $request)
     {
+        // dd($request->all());
+
         DB::beginTransaction();
 
         try {
@@ -27,9 +29,8 @@ class OnlinePaymentController extends Controller
             $order = Order::create([
                 'customer_id'      => auth()->id(),
                 'order_number'     => $newOrderNumber,
-                'shipping_address' => $request->shipping_address,
-                'payment_status'   => 'pending',
-                'order_status'     => 'pending',
+                'payment_status'   => 'unpaid',
+                'order_status'     => 'inprogress',
                 'delivery_method'  => $request->delivery_method,
             ]);
 

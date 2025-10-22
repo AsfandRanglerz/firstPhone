@@ -24,20 +24,23 @@ class OrderController extends Controller
         try {
             $status = $request->get('status');
             $customerId = auth()->id();
+
             if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Not Permission', 'unauthorized');
             }
             if (!$status) {
-                return ResponseHelper::error(null, 'Status parameter is required', 400);
+                return ResponseHelper::error(null, 'Status parameter is required', 'error');
             }
             $orders = $this->orderRepository->getOrdersByCustomerAndStatus($customerId, $status);
-            return ResponseHelper::success($orders, 'Orders fetched successfully', 200);
+            if ($orders->isEmpty()) {
+                return ResponseHelper::error([], "No orders found for status: {$status}", 'not_found');
+            }
+
+            return ResponseHelper::success($orders, 'Orders fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
-
-
 
 
     public function getOrderStatistics(Request $request)
@@ -50,11 +53,17 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'date'   => $date,
                 'orders' => $orders
-            ], 'Order statistics fetched successfully', 200);
+            ], 'Order statistics fetched successfully', 'success');
+
+        } catch (\InvalidArgumentException $e) {
+            // ✅ Invalid date format (user input issue)
+            return ResponseHelper::error(null, $e->getMessage(), 'bad_request');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            // ❌ All other system errors
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
+
 
 
 
@@ -63,7 +72,7 @@ class OrderController extends Controller
         try {
             $customerId = auth()->id();
             if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Not Permission', 'unauthorized');
             }
 
             $order = $this->orderRepository->getOrderByIdAndCustomer($id, $customerId);
@@ -71,9 +80,9 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
-            ], 'Order status fetched successfully', 200);
+            ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -82,7 +91,7 @@ class OrderController extends Controller
         try {
             $vendorId = auth()->id();
             if (!$vendorId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
 
             $order = $this->orderRepository->getOrderByIdAndVendor($id, $vendorId);
@@ -90,9 +99,9 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
-            ], 'Order status fetched successfully', 200);
+            ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -111,15 +120,15 @@ class OrderController extends Controller
         try {
             $customerId = auth()->id();
             if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
             $address = ShippingAddress::where('customer_id', $customerId)->latest()->first();
             if (!$address) {
-                return ResponseHelper::error(null, 'No shipping address found', 404);
+                return ResponseHelper::error(null, 'No shipping address found', 'not_found');
             }
-            return ResponseHelper::success($address, 'Shipping address fetched successfully', 200);
+            return ResponseHelper::success($address, 'Shipping address fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -128,16 +137,16 @@ class OrderController extends Controller
         try {
             $customerId = auth()->id();
             if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
             $address = ShippingAddress::where('id', $id)->where('customer_id', $customerId)->first();
             if (!$address) {
-                return ResponseHelper::error(null, 'Shipping address not found', 404);
+                return ResponseHelper::error(null, 'Shipping address not found', 'not_found');
             }
             $address->delete();
-            return ResponseHelper::success(null, 'Shipping address deleted successfully', 200);
+            return ResponseHelper::success(null, 'Shipping address deleted successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -146,14 +155,14 @@ class OrderController extends Controller
         try {
             $vendorId = auth()->id();
             if (!$vendorId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
             $type = $request->get('type', 'overall');
             $report = $this->orderRepository->getSalesReport($vendorId, $type);
 
-            return ResponseHelper::success($report, 'Sales report fetched successfully', 200);
+            return ResponseHelper::success($report, 'Sales report fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -163,15 +172,15 @@ class OrderController extends Controller
         try {
             $customerId = auth()->id();
             if (!$customerId) {
-                return ResponseHelper::error(null, 'Unauthorized', 401);
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
             $order = $this->orderRepository->getOrderByIdAndCustomer($id, $customerId);
             if (!$order) {
-                return ResponseHelper::error(null, 'Order not found', 404);
+                return ResponseHelper::error(null, 'Order not found', 'not_found');
             }
-            return ResponseHelper::success($order, 'Order details fetched successfully', 200);
+            return ResponseHelper::success($order, 'Order details fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -179,9 +188,9 @@ class OrderController extends Controller
     {
         try {
             $orders = $this->orderRepository->getorderlist($orderId);
-            return ResponseHelper::success($orders, 'Orders list fetched successfully', 200);
+            return ResponseHelper::success($orders, 'Orders list fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -192,9 +201,9 @@ class OrderController extends Controller
 
             $receipts = $this->orderRepository->createDeviceReceipts($orderId, $devices);
 
-            return ResponseHelper::success($receipts, 'Device receipt created successfully', 200);
+            return ResponseHelper::success($receipts, 'Device receipt created successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
@@ -203,9 +212,9 @@ class OrderController extends Controller
         try {
             $receipt = $this->orderRepository->getReceiptById($deviceReceiptId);
 
-            return ResponseHelper::success($receipt, 'Receipt fetched successfully', 200);
+            return ResponseHelper::success($receipt, 'Receipt fetched successfully', 'success');
         } catch (\Exception $e) {
-            return ResponseHelper::error(null, $e->getMessage(), 500);
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 }
