@@ -54,6 +54,7 @@ class AuthController extends Controller
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|string',
+                'location' => 'nullable|string|max:255',
                 'type' => 'required|in:customer,vendor',
             ]);
             $result = $this->authService->login($request->all());
@@ -195,38 +196,47 @@ class AuthController extends Controller
     }
 
 
-    public function forgotPasswordVerifyOtp(Request $request)
-    {
-        try {
-            $request->validate([
-                'email' => 'required|email',
-                'otp' => 'required|numeric',
-                'type' => 'required|in:customer,vendor',
-            ]);
+public function forgotPasswordVerifyOtp(Request $request)
+{
+    try {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|numeric',
+            'type'  => 'required|in:customer,vendor',
+        ]);
 
-            $result = $this->authService->forgotPasswordVerifyOtp($request->all());
+        $result = $this->authService->forgotPasswordVerifyOtp($request->all());
 
-            return ResponseHelper::success(
-                null,
-                $result['message'] ?? 'OTP verified successfully',
-                $result['status'] ?? 'success'
-            );
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return ResponseHelper::error(
-                $e->errors(),
-                'Validation failed',
-                422
-            );
-        } catch (\Exception $e) {
-            Log::error('Forgot password verify OTP error: ' . $e->getMessage());
+        // 🧩 Handle error responses explicitly
+        if ($result['status'] === 'error') {
+            $message = $result['message'] ?? 'Invalid request';
 
-            return ResponseHelper::error(
-                null,
-                'Something went wrong. Please try again later.',
-                500
-            );
+            // ✅ Show "status": "error" even if expired
+            if (str_contains(strtolower($message), 'expired')) {
+                return ResponseHelper::error('', $message, 'error', 400);
+            }
+
+            return ResponseHelper::error('', $message, 'error', 400);
         }
+
+        // ✅ If success
+        return ResponseHelper::success(
+            null,
+            $result['message'] ?? 'OTP verified successfully',
+            'success',
+            200
+        );
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return ResponseHelper::error('', 'Validation failed', 'error', 200);
+    } catch (\Exception $e) {
+        \Log::error('Forgot password verify OTP error: ' . $e->getMessage());
+        return ResponseHelper::error('', 'Something went wrong. Please try again later.', 'error', 200);
     }
+}
+
+
+
 
 
     public function forgotPasswordReset(Request $request)
