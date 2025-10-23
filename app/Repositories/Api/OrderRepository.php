@@ -2,17 +2,18 @@
 
 namespace App\Repositories\Api;
 
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Models\DeviceReceipt;
 use App\Models\MobileListing;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
-use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -158,7 +159,7 @@ class OrderRepository implements OrderRepositoryInterface
             }
 
             // ✅ Fetch product details from mobile listing
-            $mobile = MobileListing::with(['brand', 'model'])->find($item->product_id);
+            $mobile = VendorMobile::with(['brand', 'model'])->find($item->product_id);
 
             if (!$mobile) {
                 throw new \Exception("Mobile listing not found for product_id: " . $item->product_id);
@@ -176,8 +177,8 @@ class OrderRepository implements OrderRepositoryInterface
                 'order_id'   => $orderId,
                 'order_item_id' => $item->id,
                 'product_id' => $mobile->id,
-                'brand_id'      => $mobile->brand->name ?? 'Unknown',
-                'model_id'      => $mobile->model->name ?? 'Unknown',
+                'brand_id'      => $mobile->brand_id ?? 'Unknown',
+                'model_id'      => $mobile->model_id ?? 'Unknown',
                 'imei_one'      => $device['imei_one'] ?? null,
                 'imei_two'      => $device['imei_two'] ?? null,
                 'payment_id'   => $paymentId,

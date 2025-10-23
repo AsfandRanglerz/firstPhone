@@ -27,6 +27,7 @@ class ResponseHelper {
             'not_found' => 404,
             'validation_error' => 422,
             'server_error' => 500,
+            'already_exists' => 409
         ];
 
         $resolvedStatusCode = $statusCode

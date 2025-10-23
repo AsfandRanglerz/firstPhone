@@ -93,15 +93,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
     Route::get('/sales-report', [OrderController::class, 'salesReport']);
 
-    //device receipt api
+    //vendor create device receipt
     Route::post('/devicereceipts/{orderId}', [OrderController::class, 'deviceReceipt']);
+    //customer to show the receipt
     Route::get('/receipt/{deviceReceiptId}', [OrderController::class, 'getReceipt']);
 
-    // Mobile Listing API
+    // vendor side Mobile Listing
     Route::post('/mobilelisting', [VendorMobileListingController::class, 'mobileListing']);
-    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
-    Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
     Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
+
+    // customer side mobile listing
+    Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
+    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
 
     //Nearby Customer Listings
     Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
@@ -109,10 +112,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //faq
     Route::get('/faqs', [FaqController::class, 'index']);
 
-    //cart api
+    //customer add to cart
     Route::post('/mobile-cart-store', [MobileCartController::class, 'store']);
-    Route::get('/mobile-get-cart', [MobileCartController::class, 'getCart']);
-    Route::delete('/mobile-delete-cart', [MobileCartController::class, 'deleteCart']);
+    Route::get('/mobile-cart-get', [MobileCartController::class, 'getCart']);
+    Route::delete('/mobile-cart-delete', [MobileCartController::class, 'deleteCart']);
     //get requested mobile api
     Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
 

@@ -19,9 +19,23 @@ class MobileListingService
 
     
 
-    public function createCustomerListing($request)
+public function createCustomerListing($request)
 {
     $customerId = Auth::id();
+
+    // 🔍 Pehle check karo ke ye mobile pehle se listed to nahi
+    $alreadyExists = MobileListing::where('customer_id', $customerId)
+        ->where('brand_id', $request->brand_id)
+        ->where('model_id', $request->model_id)
+        ->exists();
+
+if ($alreadyExists) {
+        // Instead of throwing exception, bas error message return kar do
+        return [
+            'error' => true,
+            'message' => 'You have already listed this mobile model.'
+        ];
+    }
 
     // ✅ Handle media upload
     $mediaPaths = [];
@@ -35,18 +49,18 @@ class MobileListingService
     }
 
     $data = [
-        'brand_id'   => $request->brand_id,
-        'model_id'   => $request->model_id,
-        'location'   => $request->location,
-        'latitude'   => $request->latitude,
-        'longitude'  => $request->longitude,
-        'storage'    => $request->storage,
-        'ram'        => $request->ram,
-        'price'      => $request->price,
-        'condition'  => $request->condition,
-        'about'      => $request->about,
-        'customer_id'=> $customerId,
-        'image'      => json_encode($mediaPaths),
+        'brand_id'    => $request->brand_id,
+        'model_id'    => $request->model_id,
+        'location'    => $request->location,
+        'latitude'    => $request->latitude,
+        'longitude'   => $request->longitude,
+        'storage'     => $request->storage,
+        'ram'         => $request->ram,
+        'price'       => $request->price,
+        'condition'   => $request->condition,
+        'about'       => $request->about,
+        'customer_id' => $customerId,
+        'image'       => json_encode($mediaPaths),
     ];
 
     $listing = $this->mobileListingRepo->create($data);
@@ -56,6 +70,7 @@ class MobileListingService
 
     return $data;
 }
+
 
 public function previewCustomerListing($id)
 {

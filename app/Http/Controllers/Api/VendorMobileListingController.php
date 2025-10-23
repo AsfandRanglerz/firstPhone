@@ -22,7 +22,8 @@ class VendorMobileListingController extends Controller
             $data = $this->vendormobileListingService->createListing($request);
             return ResponseHelper::success($data, 'Listing added successfully', null, 200);
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while creating the listing', 'error', 500);
+            dd($e->getMessage());
+            return ResponseHelper::error($e->getMessage(), 'An error occurred while creating the listing', 'server_error', 500);
         }
     }
 

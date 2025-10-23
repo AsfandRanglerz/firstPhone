@@ -198,6 +198,7 @@ class OrderController extends Controller
     {
         try {
             $devices = $request->input('devices', []);
+            // dd($devices);
 
             $receipts = $this->orderRepository->createDeviceReceipts($orderId, $devices);
 

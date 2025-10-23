@@ -16,7 +16,7 @@ class MobileCart extends Model
 
     public function mobileListing()
 {
-    return $this->belongsTo(MobileListing::class, 'mobile_listing_id');
+    return $this->belongsTo(VendorMobile::class, 'mobile_listing_id');
 }
 
 }
