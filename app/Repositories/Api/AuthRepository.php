@@ -230,7 +230,7 @@ class AuthRepository implements AuthRepositoryInterface
         $newOtp = rand(1000, 9999);
 
         // Store new OTP for another 10 minutes
-        Cache::put($cacheKey, $newOtp, now()->addSeconds(50));
+        Cache::put($cacheKey, $newOtp, now()->addSeconds(120));
 
         // Send new OTP
         Mail::to($request['email'])->send(new \App\Mail\VerifyEmailOtp($newOtp));
@@ -322,38 +322,36 @@ class AuthRepository implements AuthRepositoryInterface
         return ['status' => 'success', 'message' => 'OTP verified successfully.'];
     }
 
-public function forgotPasswordReset(\Illuminate\Http\Request $request)
-{
-    $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request->email);
-    if (!$verified) {
-        return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
-    }
-
-    $user = $request->type === 'customer'
-        ? \App\Models\User::where('email', $request->email)->first()
-        : \App\Models\Vendor::where('email', $request->email)->first();
-
-        if (!$user) {
-            return ['status' => 'error', 'message' => 'User not found.'];
+    public function forgotPasswordReset(\Illuminate\Http\Request $request)
+    {
+        $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request->email);
+        if (!$verified) {
+            return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
         }
 
-		if (Hash::check($request->password, $user->password)) {
-    return response()->json([
-        'status' => 'error',
-        'message' => 'This is your current password. Please enter a different one.'
-    ], 400);
-}
+        $user = $request->type === 'customer'
+            ? \App\Models\User::where('email', $request->email)->first()
+            : \App\Models\Vendor::where('email', $request->email)->first();
+
+            if (!$user) {
+                return ['status' => 'error', 'message' => 'User not found.'];
+            }
+
+            if (Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This is your current password. Please enter a different one.'
+            ], 400);
+        }
 
 
-    $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-    $user->save();
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
 
-    \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request->email);
+        \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request->email);
 
-    return ['status' => 'success', 'message' => 'Password reset successfully.'];
-}
-
-
+        return ['status' => 'success', 'message' => 'Password reset successfully.'];
+    }
 
     public function logout()
     {

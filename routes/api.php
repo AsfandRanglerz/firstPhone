@@ -76,9 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/{notificationId}/seen', [NotificationController::class, 'seenNotification']);
     // Mobile Request API
+    Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
-    //place order api
+    //place order 
     Route::post('/place-order', [OnlinePaymentController::class, 'placeOrder']);
 
     //order and tracking
@@ -116,8 +117,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/mobile-cart-store', [MobileCartController::class, 'store']);
     Route::get('/mobile-cart-get', [MobileCartController::class, 'getCart']);
     Route::delete('/mobile-cart-delete', [MobileCartController::class, 'deleteCart']);
-    //get requested mobile api
-    Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
 
     //vendor subscription
     Route::post('/vendor-subscription/subscribe', [VendorSubscriptionController::class, 'subscribe']);
@@ -125,19 +124,15 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 //filter searchers api
-
-Route::get('/models', [MobileFilterController::class, 'getModels']);
-
 Route::get('/models/{brand_id}', [MobileFilterController::class, 'getModels']);
-
 Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
 //Mobile listing preview api
 Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
-Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
 
-// Device details api
+Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
+// Device details
 Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 
 // Customer device details api

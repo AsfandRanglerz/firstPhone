@@ -196,73 +196,85 @@ class AuthController extends Controller
     }
 
 
-public function forgotPasswordVerifyOtp(Request $request)
-{
-    try {
-        $request->validate([
-            'email' => 'required|email',
-            'otp'   => 'required|numeric',
-            'type'  => 'required|in:customer,vendor',
-        ]);
+    public function forgotPasswordVerifyOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp'   => 'required|numeric',
+                'type'  => 'required|in:customer,vendor',
+            ]);
 
-        $result = $this->authService->forgotPasswordVerifyOtp($request->all());
+            $result = $this->authService->forgotPasswordVerifyOtp($request->all());
 
-        // 🧩 Handle error responses explicitly
-        if ($result['status'] === 'error') {
-            $message = $result['message'] ?? 'Invalid request';
+            // 🧩 Handle error responses explicitly
+            if ($result['status'] === 'error') {
+                $message = $result['message'] ?? 'Invalid request';
 
-            // ✅ Show "status": "error" even if expired
-            if (str_contains(strtolower($message), 'expired')) {
+                // ✅ Show "status": "error" even if expired
+                if (str_contains(strtolower($message), 'expired')) {
+                    return ResponseHelper::error('', $message, 'error', 400);
+                }
+
                 return ResponseHelper::error('', $message, 'error', 400);
             }
 
-            return ResponseHelper::error('', $message, 'error', 400);
+            // ✅ If success
+            return ResponseHelper::success(
+                null,
+                $result['message'] ?? 'OTP verified successfully',
+                'success',
+                200
+            );
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return ResponseHelper::error('', 'Validation failed', 'error', 200);
+        } catch (\Exception $e) {
+            \Log::error('Forgot password verify OTP error: ' . $e->getMessage());
+            return ResponseHelper::error('', 'Something went wrong. Please try again later.', 'error', 200);
         }
-
-        // ✅ If success
-        return ResponseHelper::success(
-            null,
-            $result['message'] ?? 'OTP verified successfully',
-            'success',
-            200
-        );
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return ResponseHelper::error('', 'Validation failed', 'error', 200);
-    } catch (\Exception $e) {
-        \Log::error('Forgot password verify OTP error: ' . $e->getMessage());
-        return ResponseHelper::error('', 'Something went wrong. Please try again later.', 'error', 200);
     }
-}
-
-
-
 
 
     public function forgotPasswordReset(Request $request)
     {
         try {
+            // ✅ Validate request inputs
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|min:8',
                 'type' => 'required|in:customer,vendor',
             ]);
 
+            // ✅ Pass to service layer
             $result = $this->authService->forgotPasswordReset($request);
 
+            // ✅ Handle custom error messages from service/repository
+            if (isset($result['status']) && $result['status'] === 'error') {
+                return ResponseHelper::error(
+                    null,
+                    $result['message'] ?? 'Failed to reset password',
+                    400
+                );
+            }
+
+            // ✅ Success response
             return ResponseHelper::success(
                 null,
                 $result['message'] ?? 'Password reset successfully',
                 $result['status'] ?? 'success'
             );
+
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // 🧩 Handle validation errors
             return ResponseHelper::error(
                 $e->errors(),
                 'Validation failed',
                 422
             );
         } catch (\Exception $e) {
-            Log::error('Forgot password reset error: ' . $e->getMessage());
+            // 🧩 Log unexpected exceptions for debugging
+            \Log::error('Forgot password reset error: ' . $e->getMessage());
 
             return ResponseHelper::error(
                 null,
