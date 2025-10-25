@@ -89,7 +89,7 @@ class AuthRepository implements AuthRepositoryInterface
         $otp = rand(1000, 9999);
 
         // Store OTP in cache for 10 minutes
-        Cache::put('otp_' . $request['email'], $otp, now()->addSeconds(50));
+        Cache::put('otp_' . $request['email'], $otp, now()->addMinutes(10));
 
         // Send email
         Mail::to($request['email'])->send(new VerifyEmailOtp($otp));
@@ -169,6 +169,7 @@ class AuthRepository implements AuthRepositoryInterface
                 'password' => Hash::make($request['password']),
                 'cnic_front' => $cnicFrontPath,
                 'cnic_back' => $cnicBackPath,
+                'repair_service' => $request['repair_service'] ?? 0, 
             ]);
            if ($request->hasFile('image')) {
             $shopPath = public_path('admin/assets/images/shops/');
@@ -230,7 +231,7 @@ class AuthRepository implements AuthRepositoryInterface
         $newOtp = rand(1000, 9999);
 
         // Store new OTP for another 10 minutes
-        Cache::put($cacheKey, $newOtp, now()->addSeconds(120));
+        Cache::put($cacheKey, $newOtp, now()->addMinutes(10));
 
         // Send new OTP
         Mail::to($request['email'])->send(new \App\Mail\VerifyEmailOtp($newOtp));
@@ -293,7 +294,7 @@ class AuthRepository implements AuthRepositoryInterface
 
 
         $otp = rand(1000, 9999);
-        Cache::put('forgot_otp_' . $request['email'], $otp, now()->addSeconds(50));
+        Cache::put('forgot_otp_' . $request['email'], $otp, now()->addMinutes(10));
 
         Mail::to($request['email'])->send(new ForgotOTPMail($otp));
 
@@ -326,32 +327,43 @@ class AuthRepository implements AuthRepositoryInterface
     {
         $verified = \Illuminate\Support\Facades\Cache::get('forgot_verified_' . $request->email);
         if (!$verified) {
-            return ['status' => 'error', 'message' => 'OTP verification required before resetting password.'];
+            return [
+                'status' => 'error',
+                'message' => 'OTP verification required before resetting password.'
+            ];
         }
 
         $user = $request->type === 'customer'
             ? \App\Models\User::where('email', $request->email)->first()
             : \App\Models\Vendor::where('email', $request->email)->first();
 
-            if (!$user) {
-                return ['status' => 'error', 'message' => 'User not found.'];
-            }
-
-            if (Hash::check($request->password, $user->password)) {
-            return response()->json([
+        if (!$user) {
+            return [
                 'status' => 'error',
-                'message' => 'This is your current password. Please enter a different one.'
-            ], 400);
+                'message' => 'User not found.'
+            ];
         }
 
+        // ❌ Do NOT return JsonResponse here
+        if (\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return [
+                'status' => 'error',
+                'message' => 'This is your current password. Please enter a different one.'
+            ];
+        }
 
+        // ✅ Reset password
         $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         $user->save();
 
         \Illuminate\Support\Facades\Cache::forget('forgot_verified_' . $request->email);
 
-        return ['status' => 'success', 'message' => 'Password reset successfully.'];
+        return [
+            'status' => 'success',
+            'message' => 'Password reset successfully.'
+        ];
     }
+
 
     public function logout()
     {

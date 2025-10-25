@@ -101,11 +101,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // vendor side Mobile Listing
     Route::post('/mobilelisting', [VendorMobileListingController::class, 'mobileListing']);
-    Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
+    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
 
     // customer side mobile listing
     Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
-    Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
 
     //Nearby Customer Listings
     Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
@@ -129,7 +129,7 @@ Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::get('/data', [MobileFilterController::class, 'getData']);
 
 //Mobile listing preview api
-Route::get('/mobilelistingpreview/{id}', [MobileListingController::class, 'previewListing']);
+Route::get('/mobilelistingpreview/{id}', [VendorMobileListingController::class, 'previewListing']);
 
 Route::get('/customermobilelistingpreview/{id}', [CustomerMobileListingController::class, 'previewCustomerListing']);
 // Device details

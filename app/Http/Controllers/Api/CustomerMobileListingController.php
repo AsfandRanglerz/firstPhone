@@ -58,7 +58,7 @@ class CustomerMobileListingController extends Controller
             $data = $this->mobileListingService->previewCustomerListing($id);
             return ResponseHelper::success($data, 'Preview generated successfully', null, 200);
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while generating preview', 'error', 500);
+            return ResponseHelper::error($e->getMessage(), 'An error occurred while generating preview', 'server_error', 500);
         }
     }
 
@@ -69,7 +69,7 @@ class CustomerMobileListingController extends Controller
         return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
 
     }  catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'server_error', 500);
     }
 }
 

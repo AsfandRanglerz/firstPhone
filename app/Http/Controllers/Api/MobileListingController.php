@@ -44,9 +44,9 @@ public function getmobileListing()
         return ResponseHelper::success($listings, 'Mobile listings retrieved successfully', null, 200);
 
     } catch (ValidationException $e) {
-        return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
+        return ResponseHelper::error($e->errors(), 'Validation failed', 'validation_error', 422);
     } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'error', 500);
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving the listing', 'server_error', 500);
     }
 }
 
@@ -66,7 +66,7 @@ public function getNearbyCustomerListings(Request $request)
         return ResponseHelper::success($listings, 'Nearby customer listings fetched successfully', null, 200);
 
     } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching nearby listings', 'error', 500);
+        return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching nearby listings', 'server_error', 500);
     }
 }
 
@@ -76,7 +76,7 @@ public function getCustomerDeviceDetail($id)
     $device = $this->mobileListingService->getCustomerDeviceDetail($id);
    return ResponseHelper::success($device, 'Device details fetched successfully', null, 200);
 } catch (\Exception $e) {
-    return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching device details', 'error', 500);
+    return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching device details', 'server_error', 500);
 }
 
 }
