@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Mail\CustomerRegister;
 use Illuminate\Support\Facades\File;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use Illuminate\Support\Facades\Mail;
 
 class UserService
 {
@@ -21,19 +23,29 @@ class UserService
 
     public function createUser($request)
     {
-         $data = $request->only(['name', 'email', 'phone', 'password']);
-         $data['password'] = bcrypt($data['password']);
-         if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $extension = $file->getClientOriginalExtension();
-        $filename = time() . '.' . $extension;
-        $file->move(public_path('admin/assets/images/users/'), $filename);
-        $data['image'] = 'public/admin/assets/images/users/' . $filename;
-    } else {
-        $data['image'] = 'public/admin/assets/images/default.png';
+        $data = $request->only(['name', 'email', 'phone', 'password']);
+        $data['password'] = bcrypt($data['password']);
+
+        // Handle image
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '.' . $extension;
+            $file->move(public_path('admin/assets/images/users/'), $filename);
+            $data['image'] = 'public/admin/assets/images/users/' . $filename;
+        } else {
+            $data['image'] = 'public/admin/assets/images/default.png';
+        }
+
+        // Create user
+        $user = $this->userRepo->create($data);
+
+        // Send email
+        Mail::to($user->email)->send(new CustomerRegister($user));
+
+        return $user;
     }
-        return $this->userRepo->create($data);
-    }
+
 
     public function updateUser($id, $data)
     {

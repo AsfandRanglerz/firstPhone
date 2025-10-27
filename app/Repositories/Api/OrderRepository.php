@@ -26,6 +26,18 @@ class OrderRepository implements OrderRepositoryInterface
             ->get();
     }
 
+    public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
+    {
+        return Order::with(['items.product', 'items.vendor'])
+            ->whereHas('items', function($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId);
+            })
+            ->where('order_status', $status)
+            ->latest()
+            ->get();
+    }
+
+
     public function getOrderWithRelations(int $orderId, int $customerId): Order
     {
         return Order::with(['items.product', 'items.vendor'])
@@ -48,55 +60,77 @@ class OrderRepository implements OrderRepositoryInterface
             ->firstOrFail();
     }
 
-    public function getSalesReport(int $vendorId, string $type = 'overall'): array
+    public function getSalesReport(int $vendorId): array
     {
-        $query = OrderItem::where('vendor_id', $vendorId)
-            ->whereHas('order', function ($q) {
-                $q->where('payment_status', 'paid');
-            })
-            ->join('orders', 'orders.id', '=', 'order_items.order_id');
+        // Helper function to calculate totals
+        $calculateTotals = function ($type = 'overall') use ($vendorId) {
+            $query = OrderItem::where('vendor_id', $vendorId)
+                ->whereHas('order', function ($q) {
+                    $q->where('payment_status', 'paid');
+                })
+                ->join('orders', 'orders.id', '=', 'order_items.order_id');
 
+            if ($type === 'today') {
+                $query->whereDate('orders.created_at', now()->toDateString());
+            }
 
-        if ($type === 'today') {
-            $query->whereDate('orders.created_at', now()->toDateString());
-        }
+            $totals = $query->selectRaw('orders.delivery_method, SUM(order_items.price * order_items.quantity) as total')
+                ->groupBy('orders.delivery_method')
+                ->pluck('total', 'orders.delivery_method')
+                ->toArray();
 
-        $totals = $query->selectRaw('orders.delivery_method, SUM(order_items.price * order_items.quantity) as total')
-            ->groupBy('orders.delivery_method')
-            ->pluck('total', 'orders.delivery_method')
-            ->toArray();
+            return [
+                'cod_orders_total'    => $totals['cod']    ?? 0,
+                'online_orders_total' => $totals['online'] ?? 0,
+                'pickup_orders_total' => $totals['pickup'] ?? 0,
+                'grand_total'         => array_sum($totals),
+            ];
+        };
 
         return [
-            'cod_orders_total'    => $totals['cod']    ?? 0,
-            'online_orders_total' => $totals['online'] ?? 0,
-            'pickup_orders_total' => $totals['pickup'] ?? 0,
-            'grand_total'         => array_sum($totals),
+            'today'   => $calculateTotals('today'),
+            'overall' => $calculateTotals('overall'),
         ];
     }
 
 
-    public function getOrderStatistics(?string $date = null): Collection
+    public function getOrderStatistics(int $vendorId): array
     {
-        if ($date) {
-            try {
-                $formattedDate = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-            } catch (\Exception $e) {
-                throw new \InvalidArgumentException('Invalid date format, expected DD-MM-YYYY');
-            }
-        }
+        $todayDate = now()->format('Y-m-d');
 
-        $orders = Order::select(
+        // Aaj ke orders (vendor ke products)
+        $todayOrders = Order::whereHas('items', function ($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId);
+            })
+            ->whereDate('created_at', $todayDate)
+            ->select(
                 'id',
+                'order_number',
+                'payment_status',
                 'order_status',
                 DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') as formatted_date")
             )
-            ->when($date, function ($query) use ($formattedDate) {
-                $query->whereDate('created_at', '=', $formattedDate);
-            })
             ->get();
 
-        return $orders;
+        // Overall orders (vendor ke sab)
+        $overallOrders = Order::whereHas('items', function ($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId);
+            })
+            ->select(
+                'id',
+                'order_number',
+                'payment_status',
+                'order_status',
+                DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') as formatted_date")
+            )
+            ->get();
+
+        return [
+            'today_orders'   => $todayOrders,
+            'overall_orders' => $overallOrders,
+        ];
     }
+
 
 
 

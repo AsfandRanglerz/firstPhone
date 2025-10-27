@@ -88,15 +88,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //order and tracking
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
     Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
     Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
     //vendor side track order
+    Route::get('/vendor-orders', [OrderController::class, 'vendorOrders']);
     Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
     Route::get('/sales-report', [OrderController::class, 'salesReport']);
+    Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
 
     //vendor create device receipt
     Route::post('/devicereceipts/{orderId}', [OrderController::class, 'deviceReceipt']);

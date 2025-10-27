@@ -42,29 +42,45 @@ class OrderController extends Controller
         }
     }
 
-
-    public function getOrderStatistics(Request $request)
+    public function vendorOrders(Request $request)
     {
         try {
-            $date = $request->query('date');
+            $status = $request->get('status');
+            $vendorId = auth()->id();
 
-            $orders = $this->orderRepository->getOrderStatistics($date);
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Not Permission', 'unauthorized');
+            }
+            if (!$status) {
+                return ResponseHelper::error(null, 'Status parameter is required', 'error');
+            }
 
-            return ResponseHelper::success([
-                'date'   => $date,
-                'orders' => $orders
-            ], 'Order statistics fetched successfully', 'success');
+            $orders = $this->orderRepository->getOrdersByVendorAndStatus($vendorId, $status);
 
-        } catch (\InvalidArgumentException $e) {
-            // ✅ Invalid date format (user input issue)
-            return ResponseHelper::error(null, $e->getMessage(), 'bad_request');
+            if ($orders->isEmpty()) {
+                return ResponseHelper::error([], "No orders found for status: {$status}", 'not_found');
+            }
+
+            return ResponseHelper::success($orders, 'Vendor orders fetched successfully', 'success');
+
         } catch (\Exception $e) {
-            // ❌ All other system errors
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
 
 
+    public function getOrderStatistics(Request $request)
+    {
+        try {
+            $vendorId = auth()->id();
+
+            $stats = $this->orderRepository->getOrderStatistics($vendorId);
+
+            return ResponseHelper::success($stats, 'Vendor order statistics fetched successfully', 'success');
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
+        }
+    }
 
 
     public function track($id)

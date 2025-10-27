@@ -37,12 +37,14 @@ interface OrderRepositoryInterface
     public function getOrderByIdAndVendor(int $orderId, int $customerId): Order;
 
 
-    public function getSalesReport(int $vendorId, string $type = 'overall'): array;
+    public function getSalesReport(int $vendorId): array;
 
-    public function getOrderStatistics(?string $date = null): Collection;
+    public function getOrderStatistics(int $vendorId): array;
 
     public function createDeviceReceipts(int $orderId, array $devices): array;
 
     public function getReceiptById(int $deviceReceiptId): array;
+
+    public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection;
 
 }
