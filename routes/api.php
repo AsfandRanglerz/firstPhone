@@ -69,8 +69,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
     Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
-    // Home Screen API
-    Route::get('/homescreen', [HomeController::class, 'homeScreen']);
+    // customer side Home Screen API
+    Route::get('/listings/nearby', [HomeController::class, 'getNearbyListings']);
+    Route::get('/listings/top-selling', [HomeController::class, 'getTopSellingListings']);
+
+    // mark as sold in mobile listing 
+    Route::post('/listings/{id}/mark-as-sold', [MobileListingController::class, 'markAsSold']);
 
     //notifications
     Route::get('/notifications', [NotificationController::class, 'index']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\VendorMobile;
 use Illuminate\Http\Request;
+use App\Models\MobileListing;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -75,11 +76,37 @@ public function getCustomerDeviceDetail($id)
     try {
     $device = $this->mobileListingService->getCustomerDeviceDetail($id);
    return ResponseHelper::success($device, 'Device details fetched successfully', null, 200);
-} catch (\Exception $e) {
+    } catch (\Exception $e) {
     return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching device details', 'server_error', 500);
-}
+        }
 
 }
+
+public function markAsSold($id)
+{
+    try {
+        $customerId = Auth::id();
+        $listing = MobileListing::where('id', $id)
+            ->where('customer_id', $customerId)
+            ->first();
+            
+        if (!$listing) {
+            return ResponseHelper::error(null, 'Listing not found', 'not_found', 404);
+        }
+
+        if ($listing->is_sold) {
+            return ResponseHelper::error(null, 'This listing is already marked as sold', 'already_sold', 400);
+        }
+
+        $listing->is_sold = true;
+        $listing->save();
+
+        return ResponseHelper::success($listing, 'Listing marked as sold successfully');
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'Failed to mark listing as sold', 'server_error', 500);
+    }
+}
+
 
 
 }

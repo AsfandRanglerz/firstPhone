@@ -3,6 +3,7 @@
 namespace App\Repositories\Api;
 
 use App\Models\OrderItem;
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
 use Illuminate\Support\Facades\Auth;
@@ -10,105 +11,126 @@ use App\Repositories\Api\Interfaces\HomeRepositoryInterface;
 
 class HomeRepository implements HomeRepositoryInterface
 {
-    public function getHomeScreenData(Request $request)
+    public function getNearbyListings($request)
     {
-        $customer = Auth::id();
+        $customerLat = $request->query('latitude');
+        $customerLng = $request->query('longitude');
+
+        if (!$customerLat || !$customerLng) {
+            throw new \Exception('Latitude and Longitude are required to fetch nearby listings');
+        }
+
+        $radius = $request->query('radius', 30);
         $search = $request->query('search');
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
 
-        /**
-         * NEARBY LISTINGS
-         */
-        $nearbyListingsQuery = MobileListing::with('model')
-            ->where('status', 0)
-            ->select('id', 'model_id', 'price', 'image', 'location')
-            ->orderBy('created_at', 'desc');
+        $query = VendorMobile::with(['model', 'vendor'])
+            ->join('vendors', 'vendor_mobiles.vendor_id', '=', 'vendors.id')
+            ->select(
+                'vendor_mobiles.id',
+                'vendor_mobiles.vendor_id',
+                'vendor_mobiles.model_id',
+                'vendor_mobiles.price',
+                'vendor_mobiles.image',
+                'vendor_mobiles.location',
+                'vendors.latitude',
+                'vendors.longitude',
+            )
+            ->selectRaw("
+                (6371 * acos(
+                    cos(radians(?)) * cos(radians(vendors.latitude)) *
+                    cos(radians(vendors.longitude) - radians(?)) +
+                    sin(radians(?)) * sin(radians(vendors.latitude))
+                )) AS distance
+            ", [$customerLat, $customerLng, $customerLat])
+            ->having('distance', '<=', $radius)
+            ->orderBy('distance', 'asc');
 
         // Search filter
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('vendor_mobiles.price', 'LIKE', "%{$search}%")
+                ->orWhere('vendor_mobiles.location', 'LIKE', "%{$search}%")
+                ->orWhere('vendor_mobiles.storage', 'LIKE', "%{$search}%")
+                ->orWhere('vendor_mobiles.ram', 'LIKE', "%{$search}%")
+                ->orWhereHas('model', fn($m) => $m->where('name', 'LIKE', "%{$search}%"));
+            });
+        }
+
+        // Date filter (optional)
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('vendor_mobiles.created_at', [$startDate, $endDate]);
+        }
+
+        // Fetch + map
+        $listings = $query->take(6)->get()->map(function ($listing) {
+            $images = json_decode($listing->image, true) ?? [];
+            return [
+                'id'       => $listing->id,
+                'vendor'   => $listing->vendor?->name,
+                'model'    => $listing->model?->name,
+                'price'    => $listing->price,
+                'distance' => round($listing->distance, 1) . ' km',
+                'image'    => isset($images[0]) ? asset($images[0]) : null,
+            ];
+        });
+
+        return $listings;
+    }
+
+    public function getTopSellingListings($request)
+    {
+        $search = $request->query('search');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        // Base query - sirf delivered orders ka data
+        $query = OrderItem::with(['product.model', 'order'])
+            ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'));
+
+        // Search filter (model name, price, etc.)
         if ($search) {
-            $nearbyListingsQuery->where(function ($query) use ($search) {
-                $query->whereHas('model', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%{$search}%");
-                })
-                ->orWhere('price', 'LIKE', "%{$search}%")
+            $query->whereHas('product', function ($q) use ($search) {
+                $q->where('price', 'LIKE', "%{$search}%")
                 ->orWhere('location', 'LIKE', "%{$search}%")
                 ->orWhere('storage', 'LIKE', "%{$search}%")
-                ->orWhere('ram', 'LIKE', "%{$search}%");
+                ->orWhere('ram', 'LIKE', "%{$search}%")
+                ->orWhereHas('model', fn($m) => $m->where('name', 'LIKE', "%{$search}%"));
             });
         }
 
-        // Date filter
+        // Date filter (product creation date)
         if (!empty($startDate) && !empty($endDate)) {
-            $nearbyListingsQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $query->whereHas('product', fn($q) =>
+                $q->whereBetween('created_at', [$startDate, $endDate])
+            );
         }
 
-        $nearbyListings = $nearbyListingsQuery
-            ->take(6)
-            ->get()
-            ->map(function ($listing) {
-                $images = json_decode($listing->image, true) ?? [];
-                return [
-                    'id'       => $listing->id,
-                    'model'    => $listing->model ? $listing->model->name : null,
-                    'price'    => $listing->price,
-                    'location' => $listing->location,
-                    'image'    => $images[0] ?? null,
-                ];
-            });
-
-        /**
-         * TOP SELLING LISTINGS
-         */
-        $topSellingQuery = OrderItem::with(['product.model', 'order'])
-            ->whereHas('order', function ($query) {
-                $query->where('order_status', 'delivered');
-            });
-
-        // Search filter
-        if ($search) {
-            $topSellingQuery->whereHas('product', function ($query) use ($search) {
-                $query->whereHas('model', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%{$search}%");
-                })
-                ->orWhere('price', 'LIKE', "%{$search}%")
-                ->orWhere('location', 'LIKE', "%{$search}%")
-                ->orWhere('storage', 'LIKE', "%{$search}%")
-                ->orWhere('ram', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Date filter
-        if (!empty($startDate) && !empty($endDate)) {
-            $topSellingQuery->whereHas('product', function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('created_at', [$startDate, $endDate]);
-            });
-        }
-
-        $topSelling = $topSellingQuery
-            ->get()
+        // Group by product & sort by number of sales
+        $topSelling = $query->get()
             ->groupBy('product_id')
-            ->sortByDesc(function ($items) {
-                return $items->count();
-            })
+            ->sortByDesc(fn($items) => $items->count())
             ->take(6)
             ->map(function ($items) {
                 $product = $items->first()->product;
+
+                if (!$product) return null; 
+
                 $images = json_decode($product->image, true) ?? [];
+
                 return [
                     'id'       => $product->id,
-                    'model'    => $product->model ? $product->model->name : null,
+                    'model'    => $product->model?->name,
                     'price'    => $product->price,
-                    'location' => $product->location,
-                    'image'    => $images[0] ?? null,
+                    'image'    => isset($images[0]) ? asset($images[0]) : null,
+                    'total_sales' => $items->count(), // optional: sales count
                 ];
             })
+            ->filter()
             ->values();
 
-        return [
-            'nearby_listings' => $nearbyListings,
-            'top_selling'     => $topSelling
-        ];
+        return $topSelling;
     }
 
     public function getDeviceDetails($id)

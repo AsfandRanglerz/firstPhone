@@ -16,13 +16,34 @@ class HomeController extends Controller
         $this->homeRepository = $homeRepository;
     }
 
-    public function homeScreen(Request $request)
+    // public function homeScreen(Request $request)
+    // {
+    //     try {
+    //         $data = $this->homeRepository->getHomeScreenData($request);
+    //         return ResponseHelper::success($data, 'Home screen data retrieved successfully', null, 200);
+    //     } catch (\Exception $e) {
+    //         return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving home screen data', 'error', 500);
+    //     }
+    // }
+
+    public function getNearbyListings(Request $request)
     {
         try {
-            $data = $this->homeRepository->getHomeScreenData($request);
-            return ResponseHelper::success($data, 'Home screen data retrieved successfully', null, 200);
+            $data = $this->homeRepository->getNearbyListings($request);
+            return ResponseHelper::success($data, 'Nearby listings fetched successfully', null, 200);
         } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving home screen data', 'error', 500);
+            // dd($e->getMessage());
+            return ResponseHelper::error($e->getMessage(), 'Failed to fetch nearby listings', 'error', 500);
+        }
+    }
+
+    public function getTopSellingListings(Request $request)
+    {
+        try {
+            $data = $this->homeRepository->getTopSellingListings($request);
+            return ResponseHelper::success($data, 'Top selling listings fetched successfully', null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::error($e->getMessage(), 'Failed to fetch top selling listings', 'error', 500);
         }
     }
 
