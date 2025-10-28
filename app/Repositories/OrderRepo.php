@@ -3,8 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Order;
-use App\Repositories\Interfaces\OrderRepoInterface;
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
+use App\Repositories\Interfaces\OrderRepoInterface;
 
 class OrderRepo implements OrderRepoInterface
 {
@@ -23,17 +24,36 @@ class OrderRepo implements OrderRepoInterface
     }
 
     public function updateOrderStatus(Request $request, $id)
-    {
-        $request->validate([
-            'order_status' => 'required|string|in:pending,confirmed,in_progress,shipped,delivered,cancelled'
-        ]);
+{
+    $request->validate([
+        'order_status' => 'required|string|in:pending,confirmed,in_progress,shipped,delivered,cancelled'
+    ]);
 
-        $order = Order::findOrFail($id);
-        $order->order_status = $request->order_status;
-        $order->save();
+    // ✅ Load order with items
+    $order = Order::with('items')->findOrFail($id);
 
-        return $order;
+    // ✅ Save previous status before updating
+    $previousStatus = $order->order_status;
+
+    $order->order_status = $request->order_status;
+    $order->save();
+
+    // ✅ If delivered and not previously delivered → subtract stock
+    if ($request->order_status === 'delivered' && $previousStatus !== 'delivered') {
+        foreach ($order->items as $item) {
+            // product_id in order_items corresponds to id in vendor_mobiles
+            $vendorMobile = VendorMobile::find($item->product_id);
+
+            if ($vendorMobile) {
+                $vendorMobile->stock = max(0, $vendorMobile->stock - $item->quantity);
+                $vendorMobile->save();
+            }
+        }
     }
+
+    return $order;
+}
+
 
     public function updatePaymentStatus(Request $request, $id)
     {

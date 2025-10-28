@@ -39,9 +39,9 @@ class AuthRepository implements AuthRepositoryInterface
             return ['error' => 'Invalid credentials'];
         }
         $token = $user->createToken($request['type'] . '_token')->plainTextToken;
+        $user->token = $token;
         return [
             'user' => $user,
-            'token' => $token
         ];
     }
 

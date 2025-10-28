@@ -33,6 +33,7 @@ class HomeRepository implements HomeRepositoryInterface
                 'vendor_mobiles.model_id',
                 'vendor_mobiles.price',
                 'vendor_mobiles.image',
+                'vendor_mobiles.stock',
                 'vendor_mobiles.location',
                 'vendors.latitude',
                 'vendors.longitude',
@@ -45,7 +46,8 @@ class HomeRepository implements HomeRepositoryInterface
                 )) AS distance
             ", [$customerLat, $customerLng, $customerLat])
             ->having('distance', '<=', $radius)
-            ->orderBy('distance', 'asc');
+            ->orderBy('distance', 'asc')
+            ->where('vendor_mobiles.stock', '>', 0);
 
         // Search filter
         if (!empty($search)) {
@@ -87,7 +89,8 @@ class HomeRepository implements HomeRepositoryInterface
 
         // Base query - sirf delivered orders ka data
         $query = OrderItem::with(['product.model', 'order'])
-            ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'));
+            ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'))
+            ->whereHas('product', fn($q) => $q->where('stock', '>', 0)); // exclude out-of-stock listings
 
         // Search filter (model name, price, etc.)
         if ($search) {
@@ -115,6 +118,7 @@ class HomeRepository implements HomeRepositoryInterface
             ->map(function ($items) {
                 $product = $items->first()->product;
 
+
                 if (!$product) return null; 
 
                 $images = json_decode($product->image, true) ?? [];
@@ -135,7 +139,7 @@ class HomeRepository implements HomeRepositoryInterface
 
     public function getDeviceDetails($id)
     {
-        $listing = MobileListing::with(['brand', 'model'])
+        $listing = VendorMobile::with(['brand', 'model'])
             ->where('id', $id)
             ->firstOrFail();
 

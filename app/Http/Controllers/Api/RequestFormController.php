@@ -42,6 +42,8 @@ class RequestFormController extends Controller
                 'color'       => $request->color,
                 'condition'   => $request->condition,
                 'description' => $request->description,
+                'latitude'    => $request->latitude,
+                'longitude'   => $request->longitude,
             ]);
 
             // Customer location + radius

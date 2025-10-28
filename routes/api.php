@@ -80,7 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/{notificationId}/seen', [NotificationController::class, 'seenNotification']);
     // Mobile Request API
-    Route::get('/getrequestedmobile', [MobileCartController::class, 'getRequestedMobile']);
+    Route::get('/getrequestedmobile', [RequestFormController::class, 'getRequestedMobile']);
     Route::post('/mobilerequestform', [RequestFormController::class, 'mobilerequestform']);
 
     //place order 

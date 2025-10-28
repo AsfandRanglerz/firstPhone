@@ -24,7 +24,6 @@ class ShippingAddressRequest extends FormRequest
     public function rules()
     {
         return [
-            'customer_id'     => 'required|exists:users,id',
             'name'            => 'required|string|max:255',
             'email'           => 'nullable|email|max:255',
             'phone'           => 'nullable|string|max:20',

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\ShippingAddressRequest;
 use App\Models\ShippingAddress;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ShippingAddressRequest;
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class OrderController extends Controller
@@ -124,7 +125,9 @@ class OrderController extends Controller
     public function shippingAddress(ShippingAddressRequest $request)
     {
         try {
-            $shippingAddress = ShippingAddress::create($request->validated());
+            $data = $request->validated();
+            $data['customer_id'] = Auth::id();
+            $shippingAddress = ShippingAddress::create($data);
             return ResponseHelper::success($shippingAddress, 'Shipping address saved successfully', 200);
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 500);
@@ -138,7 +141,7 @@ class OrderController extends Controller
             if (!$customerId) {
                 return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
-            $address = ShippingAddress::where('customer_id', $customerId)->latest()->first();
+            $address = ShippingAddress::where('customer_id', $customerId)->latest()->get();
             if (!$address) {
                 return ResponseHelper::error(null, 'No shipping address found', 'not_found');
             }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Brand;
 use App\Models\MobileModel;
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
 use App\Helpers\ResponseHelper;
@@ -76,7 +77,7 @@ class MobileFilterController extends Controller
     public function getData(Request $request)
     {
         try {
-            $query = MobileListing::query();
+            $query = VendorMobile::query();
 
             // ✅ Optional brand filter
             if ($request->filled('brand_id')) {
@@ -132,8 +133,8 @@ class MobileFilterController extends Controller
                 $query->where('price', '<=', $request->max_price);
             }
 
-            // ✅ Only approved listings
-            $listings = $query->where('status', 0)->get();
+            
+            $listings = $query->get();
 
             // ✅ Check if no data found
             if ($listings->isEmpty()) {
