@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CustomerRegister extends Mailable
+class AccountDeletion extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -29,8 +29,8 @@ class CustomerRegister extends Mailable
      */
     public function build()
     {
-                return $this->subject('Welcome to First Phone')
-                    ->view('emails.customerRegistered')
-                    ->with(['user' => $this->user]);    
+                return $this->subject('Your Account Has Been Deleted')
+                    ->view('emails.accountDeletion')
+                    ->with(['user' => $this->user]);     
     }
 }
