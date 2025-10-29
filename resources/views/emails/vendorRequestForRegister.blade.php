@@ -11,16 +11,20 @@
         <h3><strong>Vendor Registration Request Received</strong></h3>
     </div>
 
-    <p>Dear {{ $vendor->name ?? 'Vendor' }},</p>
+        <p>Dear <strong>{{ $vendor->name ?? 'Vendor' }}</strong>,</p>
 
-    <p>Thank you for showing interest in joining <strong>First Phone</strong> as a vendor.</p>
+        <p>We’ve received your registration request and our team is currently reviewing your details.</p>
 
-    <p>Your registration request has been received and is currently under review by our admin team.</p>
+        <p>You’ll receive another email once your account has been approved and activated.</p>
 
-    <p>Once your account is approved, you will receive another email with further instructions.</p>
+        <div style="background-color:#f3f6ff; border-left:4px solid #021642; padding:12px 15px; margin:20px 0; border-radius:6px;">
+            <p style="margin:0; font-size:14px; color:#333;">
+                Please keep an eye on your inbox for updates from the First Phone team.
+            </p>
+        </div>
 
-    <p>We appreciate your patience and look forward to working with you.</p>
+        <p>We appreciate your patience and look forward to partnering with you.</p>
 
-    <p>Thanks,<br><strong>First Phone Team</strong></p>
+        <p style="margin-top:25px;"><strong>First Phone Team</strong></p>
 </body>
 </html>

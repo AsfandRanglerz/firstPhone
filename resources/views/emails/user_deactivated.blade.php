@@ -12,30 +12,37 @@
             <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}"
                 alt="{{ config('app.name') }} Logo"
                 style="height: 80px; margin-bottom: 15px;">
-            <h2>Account Deactivation Notice</h2>
+            <h2>Account Deactivation</h2>
         </div>
 
-        <!-- Body Content -->
-        <p style="font-size: 14px; color: #333;">Dear {{ $name ?? 'User' }},</p>
+ <p style="font-size: 15px; color: #333;">Hi <strong>{{ $name ?? 'User' }}</strong>,</p>
 
-        <p style="font-size: 14px; color: #333;">
-            We regret to inform you that your account has been <strong>deactivated</strong> by the administrator.
+        <!-- Message -->
+        <p style="font-size: 15px; color: #333; line-height: 1.6;">
+            We’re regret to inform you that your account has been <strong>deactivated</strong> by our administrator.  
+            This means you currently won’t be able to log in or access your First Phone account.
         </p>
 
+        <!-- Reason -->
         @if (!empty($reason))
-            <p style="font-size: 14px; color: #333;">
+        <div style="background-color: #fff4f4; border-left: 4px solid #c0392b; padding: 12px 15px; margin: 20px 0; border-radius: 6px;">
+            <p style="margin: 0; font-size: 15px; color: #333;">
                 <strong>Reason:</strong> {{ $reason }}
             </p>
+        </div>
         @endif
 
-        <p>
-            If you believe this is a mistake or would like further clarification, please contact our support team.
+        <!-- Support -->
+        <p style="font-size: 14px; color: #555; line-height: 1.6;">
+            If you believe this action was a mistake or need further clarification,  
+            please contact our support team at 
+            <a href="mailto:support@firstphone.pk" style="color: #021642; text-decoration: none; font-weight: bold;">support@firstphone.pk</a>.
         </p>
 
         <!-- Footer -->
-        <p>
-            Thanks,<br>
-            <strong>First Phone Team</strong>
+        <p style="font-size: 14px; color: #666; margin-top: 30px;">
+            Regards,<br>
+            <strong style="color: #021642;">The First Phone Team</strong>
         </p>
 </body>
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vendor Account Deleted - First Phone</title>
+    <title>Account Deleted - First Phone</title>
 </head>
 <body style="font-family: Arial, sans-serif;">
     <div style="text-align:center; margin-bottom: 20px;">
@@ -11,15 +11,16 @@
         <h3><strong>Vendor Account Deleted</strong></h3>
     </div>
 
-    <p>Dear {{ $vendor->name ?? 'Vendor' }},</p>
+    <p>Dear {{ $user->name ?? 'Vendor' }},</p>
 
-    <p>We would like to inform you that your <strong>First Phone</strong> vendor account has been permanently deleted from our system.</p>
+    <p>Your <strong>First Phone</strong> account has been permanently deleted from our system.</p>
 
-    <p>If this action was unintentional or you believe this was a mistake, please contact our support team at 
-    <a href="mailto:support@firstphone.pk">support@firstphone.pk</a> within 7 days for assistance.</p>
+    <p>If this was done by mistake, please reach out to us at 
+        <a href="mailto:support@firstphone.pk">support@firstphone.pk</a>.
+    </p>
 
-    <p>We appreciate the time and effort you invested with us and wish you the best in your future endeavors.</p>
+    <p>We appreciate your time and contribution to the First Phone platform.</p>
 
-    <p>Thanks,<br><strong>First Phone Team</strong></p>
+    <p><strong>First Phone Team</strong></p>
 </body>
 </html>
