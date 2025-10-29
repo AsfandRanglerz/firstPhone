@@ -26,6 +26,9 @@ class AuthRepository implements AuthRepositoryInterface
             $user = User::where('email', $request['email'])->first();
         } elseif ($request['type'] === 'vendor') {
             $user = Vendor::where('email', $request['email'])->first();
+            if ($user && isset($user->toggle) && $user->toggle == 0) {
+            return ['error' => 'Your account has been deactivated.'];
+        }
         } else {
             return ['error' => 'Invalid user type'];
         }

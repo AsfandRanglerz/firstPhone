@@ -99,6 +99,9 @@ class RequestFormController extends Controller
     {
         try {
             $mobileRequests = $this->requestedMobileRepository->getRequestedMobile();
+            if ($mobileRequests->isEmpty()) {
+                return ResponseHelper::error(null, 'No requested mobiles found within 10 km radius', 'not_found', 404);
+            }
             return ResponseHelper::success($mobileRequests, 'Requests fetched successfully', null, 200);
         } catch (\Exception $e) {
             return ResponseHelper::error($e->getMessage(), 'An error occurred while fetching requests', 'error', 500);

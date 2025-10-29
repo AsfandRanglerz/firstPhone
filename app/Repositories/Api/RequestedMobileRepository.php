@@ -4,6 +4,7 @@ namespace App\Repositories\Api;
 
 use App\Models\MobileRequest;
 use App\Helpers\ResponseHelper;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
 
@@ -13,16 +14,26 @@ class RequestedMobileRepository implements RequestedMobileRepositoryInterface
     {
         $user = Auth::user();
 
-        $vendorLocation = $user->location;
+        $vendorLat = $user->latitude;
+        $vendorLng = $user->longitude;
+        $radius = 10; // Default: 10 km radius
 
-        if (!$vendorLocation) {
-            return ResponseHelper::error(null, 'Vendor location not found', 'error', 400);
-        }
-
-        // Fetch requests that match vendor location
-        $mobileRequests = MobileRequest::where('location', $vendorLocation)
-            ->with(['brand:id,name', 'model:id,name']) 
-            ->get()
+        
+        // Fetch mobile requests within the vendor's radius
+        $mobileRequests = MobileRequest::with(['brand:id,name', 'model:id,name'])
+            ->select(
+                'mobile_requests.*',
+                DB::raw("
+                    (6371 * acos(
+                        cos(radians($vendorLat)) * cos(radians(latitude)) *
+                        cos(radians(longitude) - radians($vendorLng)) +
+                        sin(radians($vendorLat)) * sin(radians(latitude))
+                    )) AS distance
+                ")
+            )
+        ->having('distance', '<=', $radius)
+        ->orderBy('distance', 'asc')
+        ->get()
             ->map(function ($item) {
         return [
             'id' => $item->id,
