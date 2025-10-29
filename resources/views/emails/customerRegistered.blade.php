@@ -8,23 +8,25 @@
         <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" 
              alt="{{ config('app.name') }} Logo" 
              style="height: 100px; margin-bottom: 20px;">
-        <h3><strong>Welcome to <span style="color: #021642;">First Phone</span></strong></h3>
+      <h2 style="color: #021642; margin: 0;">Welcome to <span style="color: #007bff;">First Phone</span></h2>
     </div>
 
-    <p>Dear {{ $user->name ?? 'User' }},</p>
+    <p style="font-size: 15px; color: #333;">Dear <strong>{{ $user->name ?? 'User' }}</strong>,</p>
 
-    <p>Your account has been successfully created.</p>
+    <p style="font-size: 15px; color: #333;">Your account has been successfully created. Below are your account details:</p>
 
-    <h3>Your Account Details:</h3>
-    <ul>
-        <li><strong>Email:</strong> {{ $user->email ?? 'N/A' }}</li>
-        <li><strong>Phone:</strong> {{ $user->phone ?? 'N/A' }}</li>
-    </ul>
+    <div style="background: #f4f7ff; border-left: 4px solid #007bff; padding: 15px 20px; border-radius: 6px; margin: 20px 0;">
+      <p style="margin: 5px 0;"><strong>Email:</strong> {{ $user->email ?? 'N/A' }}</p>
+      <p style="margin: 5px 0;"><strong>Password:</strong> {{ $user->plain_password  ?? 'N/A' }}</p>
+    </div>
 
-    <p>Please keep this information safe and secure. Do not share your login credentials with anyone.</p>
+    <p style="font-size: 14px; color: #555;">
+      Please keep this information safe and secure.  
+      If you have any questions or need assistance, contact us anytime at 
+      <a href="mailto:support@firstphone.pk" style="color: #007bff; text-decoration: none;">support@firstphone.pk</a>.
+    </p>
 
-    <p>If you have any questions or need assistance, feel free to contact our support team anytime.</p>
-
-    <p>Thanks,<br><strong>First Phone Team</strong></p>
+    <!-- Footer -->
+    <p style="margin-top: 35px; font-size: 14px; color: #555;">Thanks,<br><strong>First Phone Team</strong></p>
 </body>
 </html>

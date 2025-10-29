@@ -24,9 +24,14 @@ class UserService
     public function createUser($request)
     {
         $data = $request->only(['name', 'email', 'phone', 'password']);
-        $data['password'] = bcrypt($data['password']);
 
-        // Handle image
+        // 🔹 Save plain password before hashing
+        $plainPassword = $data['password'];
+
+        // 🔹 Encrypt for database
+        $data['password'] = bcrypt($plainPassword);
+
+        // 🔹 Handle image
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $extension = $file->getClientOriginalExtension();
@@ -37,14 +42,18 @@ class UserService
             $data['image'] = 'public/admin/assets/images/default.png';
         }
 
-        // Create user
+        // 🔹 Create user
         $user = $this->userRepo->create($data);
 
-        // Send email
+        // 🔹 Add plain password for email (but not saved in DB)
+        $user->plain_password = $plainPassword;
+
+        // 🔹 Send welcome email
         Mail::to($user->email)->send(new CustomerRegister($user));
 
         return $user;
     }
+
 
 
     public function updateUser($id, $data)

@@ -30,7 +30,7 @@ class VendorAccountDeletion extends Mailable
     public function build()
     {
                 return $this->subject('Your Account Has Been Deleted')
-                    ->view('emails.accountDeletion')
+                    ->view('emails.vendorAccountDeletion')
                     ->with(['user' => $this->user]);
     }
 }

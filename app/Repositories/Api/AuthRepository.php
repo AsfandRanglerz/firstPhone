@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\Api\Interfaces\AuthRepositoryInterface;
-use App\Mail\CustomerRegistered;
+use App\Mail\CustomerRegister;
 use App\Mail\VendorRequestForRegister;
 
 class AuthRepository implements AuthRepositoryInterface
@@ -109,8 +109,6 @@ class AuthRepository implements AuthRepositoryInterface
     /**
      * Verify OTP and Create User/Vendor
      */
-
-
     public function verifyOtp(Request $request)
     {
         $cacheKey = 'otp_' . $request['email'];
@@ -130,17 +128,23 @@ class AuthRepository implements AuthRepositoryInterface
             ];
         }
 
+        // ✅ Plain password before hashing (for email)
+        $plainPassword = $request['password'];
+
         // ✅ OTP is correct → create user/vendor
         if ($request['type'] === 'customer') {
             $user = User::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
-                'password' => Hash::make($request['password']),
+                'password' => Hash::make($plainPassword), // store hashed password
             ]);
 
+            // ✅ Attach plain password for email
+            $user->plain_password = $plainPassword;
+
             // ✅ Send welcome email to customer
-            Mail::to($user->email)->send(new CustomerRegistered($user));
+            Mail::to($user->email)->send(new CustomerRegister($user));
 
             $data = [
                 'id' => $user->id,
@@ -179,11 +183,14 @@ class AuthRepository implements AuthRepositoryInterface
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
                 'location' => $request['location'] ?? null,
-                'password' => Hash::make($request['password']),
+                'password' => Hash::make($plainPassword),
                 'cnic_front' => $cnicFrontPath,
                 'cnic_back' => $cnicBackPath,
                 'repair_service' => $request['repair_service'] ?? 0,
             ]);
+
+            // ✅ Attach plain password for email
+            $vendor->plain_password = $plainPassword;
 
             // ✅ Save shop images
             if ($request->hasFile('image')) {
@@ -214,7 +221,7 @@ class AuthRepository implements AuthRepositoryInterface
                 'images' => $shopImages,
             ];
 
-            // ✅ Send vendor registration request mail
+            // ✅ Send vendor registration email
             Mail::to($vendor->email)->send(new VendorRequestForRegister($vendor));
         }
 

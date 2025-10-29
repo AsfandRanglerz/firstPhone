@@ -69,7 +69,7 @@ class VendorRepository implements VendorRepositoryInterface
         try {
             Mail::send('emails.user_deactivated', $data, function($message) use ($user) {
                 $message->to($user->email, $user->name)
-                    ->subject('Account Deactivation Notification');
+                    ->subject('Vendor Account Deactivated');
             });
         } catch (\Exception $e) {
             \Log::error("Failed to send email: " . $e->getMessage());
@@ -86,7 +86,7 @@ class VendorRepository implements VendorRepositoryInterface
     try {
         Mail::send('emails.user_activated', $data, function($message) use ($user) {
             $message->to($user->email, $user->name)
-                ->subject('Account Activation Notification');
+                ->subject('Vendor Account Activated');
         });
     } catch (\Exception $e) {
         \Log::error("Failed to send activation email: " . $e->getMessage());
