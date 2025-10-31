@@ -99,8 +99,7 @@
                                     <!-- Submit Button -->
                                     <div class="card-footer text-center row">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary mr-1 btn-bg" id="submit">Save
-                                                Changes</button>
+                                            <button type="submit" class="btn btn-primary mr-1 btn-bg" id="submit">Update</button>
                                         </div>
                                     </div>
 

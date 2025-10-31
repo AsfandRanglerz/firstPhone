@@ -21,6 +21,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>Date & Time</th>
                                             <th>Customer Name</th>
                                             <th>Location</th>
                                             <th>Brand</th>
@@ -41,6 +42,7 @@
                                         @foreach ($mobilerequests as $mobilerequest)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $mobilerequest->created_at->format('d M Y, h:i A') }}</td>
                                                 <td>
                                                     {{ $mobilerequest->customer->name ?? '' }} <br>
                                                     <a href="mailto:{{ $mobilerequest->customer->email ?? '' }}" class="mail-to">
@@ -168,8 +170,6 @@
                     }
                 });
             });
-
-
         });
     </script>
 @endsection

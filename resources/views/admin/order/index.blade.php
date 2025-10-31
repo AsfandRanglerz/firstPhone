@@ -56,6 +56,7 @@
                                         <tr>
                                             <th>Sr.</th>
                                             <th>Order ID</th>
+                                            <th>Date & Time</th>
                                             <th>Customer</th>
                                             {{-- <th>Shipping Address</th> --}}
                                             <th>Buy From</th>
@@ -72,6 +73,7 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>{{ $order->order_number }}</td>
+                                                <td>{{ $order->created_at->format('d M Y, h:i A') }}</td>
                                                 <td>
                                                     {{ $order->customer->name ?? 'N/A' }}<br>
                                                     <small><a

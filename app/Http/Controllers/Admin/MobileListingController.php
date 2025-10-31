@@ -49,7 +49,7 @@ class MobileListingController extends Controller
     {
         $mobile = MobileListing::findOrFail($id); 
         $mobile->delete();
-        return redirect()->route('mobile.index')->with('success', 'Mobile Listing Deleted Successfully');
+        return redirect()->route('mobile.index')->with('success', 'Customer Mobile Deleted Successfully');
     }
 
     

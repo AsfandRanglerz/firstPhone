@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\VendorImage;
 use Illuminate\Support\Facades\File;
 use App\Repositories\Interfaces\VendorRepositoryInterface;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VendorRequestForRegister;
 
 class VendorService
 {
@@ -22,8 +24,9 @@ class VendorService
 
     public function createUser($request)
     {
+        $plainPassword = $request->password; 
         $data = $request->only(['name', 'email', 'phone', 'password', 'location']);
-        $data['password'] = bcrypt($data['password']);
+        $data['password'] = bcrypt($data['password']); // store hashed password
 
         $data['repair_service'] = $request->has('has_repairing') ? 1 : 0;
 
@@ -53,10 +56,10 @@ class VendorService
             $data['cnic_back'] = 'public/admin/assets/images/cnic/' . $filename;
         }
 
-        // Vendor create
+        // Create Vendor
         $vendor = $this->vendorRepo->create($data);
 
-        // Shop Images (max 5)
+        // Save up to 5 shop images
         if ($request->hasFile('shop_images')) {
             $files = array_slice($request->file('shop_images'), 0, 5);
             foreach ($files as $index => $file) {
@@ -70,8 +73,15 @@ class VendorService
             }
         }
 
+        // Attach plain password for email template
+        $vendor->plain_password = $plainPassword;
+
+        // Send email to vendor (with plain password)
+        Mail::to($vendor->email)->send(new VendorRequestForRegister($vendor));
+
         return $vendor;
     }
+
 
 
     public function updateUser($id, $data)

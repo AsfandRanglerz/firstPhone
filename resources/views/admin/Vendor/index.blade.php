@@ -177,7 +177,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cnicModalLabel">CNIC Images</h5>
+                    <h5 class="modal-title" id="cnicModalLabel">CNIC Image</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">

@@ -250,7 +250,7 @@
                                                             @if (Auth::guard('admin')->check() ||
                                                                     ($sideMenuPermissions->has('VendorMobile') && $sideMenuPermissions['VendorMobile']->contains('delete')))
                                                                 <form id="delete-form-{{ $mobile->id }}"
-                                                                    action="{{ route('mobile.delete', $mobile->id) }}"
+                                                                    action="{{ route('vendormobile.delete', $mobile->id) }}"
                                                                     method="POST">
                                                                     @csrf
                                                                     @method('DELETE')
@@ -292,7 +292,7 @@
             $('#table_id_events').DataTable();
 
             // SweetAlert2 delete confirmation
-            $('.show_confirm').click(function(event) {
+            $(document).on('click', '.show_confirm', function(event) {
                 event.preventDefault();
                 var formId = $(this).data("form");
                 var form = document.getElementById(formId);
@@ -309,8 +309,6 @@
                     }
                 });
             });
-
-
         });
     </script>
 @endsection
