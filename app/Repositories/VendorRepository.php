@@ -41,22 +41,24 @@ class VendorRepository implements VendorRepositoryInterface
         return false;
     }
 
-    public function toggleStatus($id, $status, $reason = null)
+    public function updateStatus($id, $status, $reason = null)
     {
-        $user = Vendor::find($id);
-        if (!$user) return null;
+        $vendor = Vendor::find($id);
+        if (!$vendor) return null;
 
-        $user->toggle = $status;
-        $user->save();
+        $vendor->status = $status;
+        $vendor->save();
 
-        if ($status == 0 && $reason) {
-            $this->sendDeactivationEmail($user, $reason);
-        }elseif ($status == 1) {
-        $this->sendActivationEmail($user);
+        // Optional email notifications
+        if ($status === 'deactivated' && $reason) {
+            $this->sendDeactivationEmail($vendor, $reason);
+        } elseif ($status === 'activated') {
+            $this->sendActivationEmail($vendor);
+        }
+
+        return $vendor;
     }
 
-        return $user;
-    }
 
     protected function sendDeactivationEmail($user, $reason)
     {

@@ -9,5 +9,5 @@ interface VendorRepositoryInterface
     public function create(array $data);
     public function update($id, array $data);
     public function delete($id);
-    public function toggleStatus($id, $status, $reason = null);
+    public function updateStatus($id, $status, $reason = null);
 }

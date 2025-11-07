@@ -97,7 +97,7 @@ Route::prefix('admin')->middleware(['admin', 'check.subadmin.status'])->group(fu
         Route::get('/vendor-edit/{id}', 'edit')->name('vendor.edit')->middleware('check.permission:Vendors,edit');
         Route::post('/vendor-update/{id}', 'update')->name('vendor.update')->middleware('check.permission:Vendors,edit');
         Route::delete('/vendor-destroy/{id}', 'delete')->name('vendor.delete')->middleware('check.permission:Vendors,delete');
-        Route::post('/vendor/toggle-status', 'toggleStatus')->name('vendor.toggle-status');
+        Route::post('/vendor/update-status', 'updateStatus')->name('vendor.update-status');
     });
 
     // ############ Brands #################

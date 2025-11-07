@@ -34,7 +34,7 @@
                                             <th>CNIC Back</th>
                                             <th>Shop Images</th>
                                             <th>Profile Image</th>
-                                            <th>Toggle</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -89,16 +89,36 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <label class="custom-switch">
-                                                        <input type="checkbox" class="custom-switch-input toggle-status"
-                                                            data-id="{{ $user->id }}"
-                                                            {{ $user->toggle ? 'checked' : '' }}>
-                                                        <span class="custom-switch-indicator"></span>
-                                                        <span class="custom-switch-description">
-                                                            {{ $user->toggle ? 'Activated' : 'Deactivated' }}
-                                                        </span>
-                                                    </label>
+                                                    @php
+                                                        $statusColors = [
+                                                            'pending' => 'btn-warning',
+                                                            'activated' => 'btn-primary',
+                                                            'deactivated' => 'btn-danger',
+                                                        ];
+                                                    @endphp
+
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm dropdown-toggle {{ $statusColors[$user->status] ?? 'btn-light' }}"
+                                                                type="button"
+                                                                data-toggle="dropdown"
+                                                                id="statusBtn-{{ $user->id }}">
+                                                            {{ ucfirst($user->status) }}
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            @foreach (['pending', 'activated', 'deactivated'] as $status)
+                                                                @if ($status !== $user->status)
+                                                                    <button type="button"
+                                                                            class="dropdown-item change-vendor-status"
+                                                                            data-user-id="{{ $user->id }}"
+                                                                            data-new-status="{{ $status }}">
+                                                                        {{ ucfirst($status) }}
+                                                                    </button>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
                                                 </td>
+
                                                 <td>
                                                     <div class="d-flex gap-0">
                                                         @if (Auth::guard('admin')->check() ||
@@ -216,19 +236,26 @@
 @endsection
 
 @section('js')
-    <script>
-        $(document).ready(function() {
-            // ===== DataTable Initialization =====
-            if ($.fn.DataTable.isDataTable('#table_id_events')) {
-                $('#table_id_events').DataTable().destroy();
-            }
-            $('#table_id_events').DataTable();
+<script>
+    $(document).ready(function() {
 
-            // ===== SweetAlert2 Delete Confirmation =====
-            $(document).on('click', '.show_confirm', function(event) {
-            event.preventDefault();
-            var formId = $(this).data("form");
-            var form = document.getElementById(formId);
+        // ===== Initialize DataTable with Responsiveness =====
+        const table = $('#table_id_events').DataTable({
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            destroy: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search vendors..."
+            }
+        });
+
+        // ===== SweetAlert2 Delete Confirmation =====
+        $(document).on('click', '.show_confirm', function(e) {
+            e.preventDefault();
+            const formId = $(this).data("form");
+            const form = document.getElementById(formId);
 
             swal({
                 title: "Are you sure?",
@@ -237,109 +264,111 @@
                 buttons: true,
                 dangerMode: true,
             }).then(function(willDelete) {
-                if (willDelete) {
-                    form.submit();
-                }
+                if (willDelete) form.submit();
             });
         });
 
+        // ===== Toggle Vendor Status =====
+        let currentUserId = null;
 
-            // ===== Toggle Status =====
-            let currentToggle = null;
-            let currentUserId = null;
+        $(document).on('click', '.change-vendor-status', function() {
+            const userId = $(this).data('user-id');
+            const newStatus = $(this).data('new-status');
 
-            $('.toggle-status').change(function() {
-                let status = $(this).is(':checked') ? 1 : 0;
-                currentToggle = $(this);
-                currentUserId = $(this).data('id');
+            if (newStatus === 'deactivated') {
+                $('#deactivatingUserId').val(userId);
+                $('#deactivationModal').modal('show');
+            } else {
+                updateVendorStatus(userId, newStatus);
+            }
+        });
 
-                if (status === 0) {
-                    $('#deactivatingUserId').val(currentUserId);
-                    $('#deactivationModal').modal('show');
-                } else {
-                    updateUserStatus(currentUserId, 1);
-                }
-            });
-
-            $('#confirmDeactivation').click(function() {
-                let reason = $('#deactivationReason').val();
-                if (reason.trim() === '') {
-                    toastr.error('Please provide a deactivation reason');
-                    return;
-                }
-
-                $('#deactivationLoader').show();
-                $('#confirmDeactivation').prop('disabled', true);
-
-                // abhi modal mat hide karo
-                updateUserStatus(currentUserId, 0, reason);
-            });
-
-            function updateUserStatus(userId, status, reason = null) {
-                let $descriptionSpan = currentToggle.siblings('.custom-switch-description');
-                $.ajax({
-                    url: "{{ route('vendor.toggle-status') }}",
-                    type: "POST",
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: userId,
-                        status: status,
-                        reason: reason
-                    },
-                    success: function(res) {
-                        if (res.success) {
-                            $descriptionSpan.text(res.new_status);
-                            toastr.success(res.message);
-                            $('#deactivationModal').modal('hide');
-                            $('#deactivationReason').val('');
-                        } else {
-                            currentToggle.prop('checked', !status);
-                            toastr.error(res.message);
-                        }
-                    },
-                    error: function() {
-                        currentToggle.prop('checked', !status);
-                        toastr.error('Error updating status');
-                    },
-                    complete: function() {
-                        $('#deactivationLoader').hide();
-                        $('#confirmDeactivation').prop('disabled', false);
-                    }
-                });
+        $('#confirmDeactivation').on('click', function() {
+            const reason = $('#deactivationReason').val().trim();
+            if (reason === '') {
+                toastr.error('Please provide a deactivation reason');
+                return;
             }
 
-            // ===== CNIC Front Modal =====
-            $('.view-cnic').on('click', function() {
-                let front = $(this).data('front');
-                $('#cnicBack').hide();
-                $('#cnicFront').attr('src', front).show();
-                $('#cnicModal').modal('show');
+            $('#deactivationLoader').show();
+            $('#confirmDeactivation').prop('disabled', true);
+
+            const userId = $('#deactivatingUserId').val();
+            updateVendorStatus(userId, 'deactivated', reason);
+        });
+
+        function updateVendorStatus(userId, status, reason = null) {
+            $.ajax({
+                url: "{{ route('vendor.update-status') }}",
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                data: { id: userId, status: status, reason: reason },
+                success: function(res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        $('#deactivationModal').modal('hide');
+                        $('#deactivationReason').val('');
+
+                        // Update button color + text instantly
+                        const colorClasses = {
+                            'pending': 'btn-warning',
+                            'activated': 'btn-primary',
+                            'deactivated': 'btn-danger',
+                        };
+
+                        const btn = $(`#statusBtn-${userId}`);
+                        btn.text(status.charAt(0).toUpperCase() + status.slice(1))
+                        .removeClass()
+                        .addClass(`btn btn-sm dropdown-toggle ${colorClasses[status]}`);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.status, xhr.responseText);
+                    toastr.error('Error updating status');
+                },
+                complete: function() {
+                    $('#deactivationLoader').hide();
+                    $('#confirmDeactivation').prop('disabled', false);
+                }
             });
+        }
 
-            // ===== CNIC Back Modal =====
-            $('.view-cnic-back').on('click', function() {
-                let back = $(this).data('back');
-                $('#cnicFront').hide();
-                $('#cnicBack').attr('src', back).show();
-                $('#cnicModal').modal('show');
-            });
 
-            // ===== Shop Images Modal =====
-            $('.view-shop-images').on('click', function() {
-                let images = $(this).data('images');
-                let container = $('#shopImagesContainer');
-                container.empty();
+        // ===== CNIC Front Modal =====
+        $(document).on('click', '.view-cnic', function() {
+            const front = $(this).data('front');
+            $('#cnicBack').hide();
+            $('#cnicFront').attr('src', front).show();
+            $('#cnicModal').modal('show');
+        });
 
-                images.forEach((img, i) => {
-                    container.append(`
-                    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+        // ===== CNIC Back Modal =====
+        $(document).on('click', '.view-cnic-back', function() {
+            const back = $(this).data('back');
+            $('#cnicFront').hide();
+            $('#cnicBack').attr('src', back).show();
+            $('#cnicModal').modal('show');
+        });
+
+        // ===== Shop Images Modal =====
+        $(document).on('click', '.view-shop-images', function() {
+            const images = $(this).data('images');
+            const container = $('#shopImagesContainer');
+            container.empty();
+
+            images.forEach((img, i) => {
+                container.append(`
+                    <div class="carousel-item ${i === 0 ? 'activated' : ''}">
                         <img src="{{ asset('') }}${img}" class="d-block w-100" style="max-height:500px; object-fit:contain;">
                     </div>
                 `);
-                });
-
-                $('#shopImagesModal').modal('show');
             });
+
+            $('#shopImagesModal').modal('show');
         });
-    </script>
+    });
+</script>
+
 @endsection

@@ -39,19 +39,31 @@ class VendorController extends Controller
         return view('admin.vendor.index', compact('users', 'sideMenuPermissions'));
     }
 
-    public function toggleStatus(Request $request)
+    public function updateStatus(Request $request)
     {
-        $user = $this->vendorService->toggleUserStatus($request->id, $request->status, $request->reason);
-        if ($user) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Status Updated Successfully',
-                'new_status' => $user->toggle ? 'Activated' : 'Deactivated'
-            ]);
+        $request->validate([
+            'id' => 'required|exists:vendors,id',
+            'status' => 'required|in:pending,activated,deactivated',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $vendor = $this->vendorService->updateStatus(
+            $request->id,
+            $request->status,
+            $request->reason
+        );
+
+        if (!$vendor) {
+            return response()->json(['success' => false, 'message' => 'Vendor not found']);
         }
 
-        return response()->json(['success' => false, 'message' => 'Vendor not found'], 404);
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'new_status' => ucfirst($vendor->status),
+        ]);
     }
+
 
     public function createView()
     {

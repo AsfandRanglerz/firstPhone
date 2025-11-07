@@ -5,13 +5,13 @@
 </head>
 <body style="font-family: Arial, sans-serif;">
     <div style="text-align:center; margin-bottom: 20px;">
-        <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" 
+        <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
              alt="{{ config('app.name') }} Logo" 
              style="height: 100px; margin-bottom: 20px;">
-      <h2 style="color: #021642; margin: 0;">Welcome to <span style="color: #007bff;">First Phone</span></h2>
+      {{-- <h2 style="color: #021642; margin: 0;">Welcome to <span style="color: #007bff;">First Phone</span></h2> --}}
     </div>
 
-    <p style="font-size: 15px; color: #333;">Dear <strong>{{ $user->name ?? 'User' }}</strong>,</p>
+    <p style="font-size: 15px; color: #333;">Hi <strong>{{ $user->name ?? 'User' }}</strong>,</p>
 
     <p style="font-size: 15px; color: #333;">Your account has been successfully created. Below are your account details:</p>
 

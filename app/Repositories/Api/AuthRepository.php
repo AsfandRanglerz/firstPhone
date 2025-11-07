@@ -20,34 +20,45 @@ use App\Mail\VendorRequestForRegister;
 
 class AuthRepository implements AuthRepositoryInterface
 {
+
     public function login(array $request)
     {
         if ($request['type'] === 'customer') {
             $user = User::where('email', $request['email'])->first();
+
+            if ($user && isset($user->toggle) && $user->toggle == 0) {
+                return ['error' => 'Your account has been deactivated.'];
+            }
         } elseif ($request['type'] === 'vendor') {
             $user = Vendor::where('email', $request['email'])->first();
-            if ($user && isset($user->toggle) && $user->toggle == 0) {
-            return ['error' => 'Your account has been deactivated.'];
-        }
+
+            if ($user) {
+                if ($user->status === 'pending') {
+                    return ['error' => 'Your account is under review. Please wait for admin approval.'];
+                }
+                if ($user->status === 'deactivated') {
+                    return ['error' => 'Your account has been deactivated.'];
+                }
+            }
         } else {
             return ['error' => 'Invalid user type'];
         }
+
         if (!$user) {
             return ['error' => ucfirst($request['type']) . ' not found'];
         }
-        if ((isset($user->status) && $user->status == 0)) {
-            return ['error' => 'Your account has been deactivated.'];
-        }
+
         if (!Hash::check($request['password'], $user->password)) {
             return ['error' => 'Invalid credentials'];
         }
+
         $token = $user->createToken($request['type'] . '_token')->plainTextToken;
         $user->token = $token;
+
         return [
             'user' => $user,
         ];
     }
-
 
     public function register(array $request)
     {

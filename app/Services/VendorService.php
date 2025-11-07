@@ -175,8 +175,8 @@ class VendorService
         return $this->vendorRepo->find($id);
     }
 
-    public function toggleUserStatus($id, $status, $reason = null)
+    public function updateStatus($id, $status, $reason = null)
     {
-        return $this->vendorRepo->toggleStatus($id, $status, $reason);
+        return $this->vendorRepo->updateStatus($id, $status, $reason);
     }
 }

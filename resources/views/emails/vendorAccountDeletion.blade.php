@@ -5,13 +5,13 @@
 </head>
 <body style="font-family: Arial, sans-serif;">
     <div style="text-align:center; margin-bottom: 20px;">
-        <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" 
+        <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
              alt="First Phone Logo" 
              style="height: 100px; margin-bottom: 20px;">
         <h3><strong>Vendor Account Deleted</strong></h3>
     </div>
 
-    <p>Dear {{ $user->name ?? 'Vendor' }},</p>
+    <p>Hi {{ $user->name ?? 'Vendor' }},</p>
 
     <p>Your <strong>First Phone</strong> account has been permanently deleted from our system.</p>
 

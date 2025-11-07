@@ -5,7 +5,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
      <div style="text-align: center; margin-bottom: 20px;">
-            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.png') }}" 
+            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
                  alt="{{ config('app.name') }} Logo" 
                  style="height: 80px; margin-bottom: 15px;">
         </div>

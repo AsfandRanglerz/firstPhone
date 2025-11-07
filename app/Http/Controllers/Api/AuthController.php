@@ -103,6 +103,7 @@ class AuthController extends Controller
                 'cnic_back' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'image.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'type' => 'required|in:customer,vendor',
+                'toggle' => 1,
             ]);
 
             $result = $this->authService->verifyOtp($request);

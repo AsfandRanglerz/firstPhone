@@ -164,7 +164,7 @@
 
 
                                                 @php
-                                                    // ✅ Order Status Colors (new statuses only)
+                                                    // Order Status Colors (new statuses only)
                                                     $statusColors = [
                                                         'inprogress' => 'btn-warning',
                                                         'shipped' => 'btn-secondary',
@@ -195,7 +195,6 @@
                                                         </div>
                                                     </div>
                                                 </td>
-
 
                                                 <td>
                                                     @if (Auth::guard('admin')->check() ||
