@@ -139,22 +139,34 @@ class AuthRepository implements AuthRepositoryInterface
             ];
         }
 
-        // ✅ Plain password before hashing (for email)
         $plainPassword = $request['password'];
 
         // ✅ OTP is correct → create user/vendor
         if ($request['type'] === 'customer') {
+
+            // ✅ Handle image upload or default
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $extension = $file->getClientOriginalExtension();
+                $filename = time() . '.' . $extension;
+                $file->move(public_path('admin/assets/images/users/'), $filename);
+                $imagePath = 'public/admin/assets/images/users/' . $filename;
+            } else {
+                $imagePath = 'public/admin/assets/images/default.png';
+            }
+
             $user = User::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
-                'password' => Hash::make($plainPassword), // store hashed password
+                'password' => Hash::make($plainPassword),
+                'toggle' => 1, // ✅ Active by default
+                'image' => $imagePath, // ✅ Default or uploaded image
             ]);
 
-            // ✅ Attach plain password for email
             $user->plain_password = $plainPassword;
 
-            // ✅ Send welcome email to customer
+            // ✅ Send welcome email
             Mail::to($user->email)->send(new CustomerRegister($user));
 
             $data = [
@@ -162,10 +174,11 @@ class AuthRepository implements AuthRepositoryInterface
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
+                'image' => $user->image,
             ];
         } 
         else {
-            // ✅ Create vendor folder paths
+            // ✅ Vendor logic same as before...
             $cnicPath = public_path('admin/assets/images/cnic/');
             if (!file_exists($cnicPath)) {
                 mkdir($cnicPath, 0777, true);
@@ -174,21 +187,18 @@ class AuthRepository implements AuthRepositoryInterface
             $cnicFrontPath = null;
             $cnicBackPath = null;
 
-            // ✅ Save CNIC Front
             if ($request->hasFile('cnic_front')) {
                 $frontName = uniqid() . '_cnic_front.' . $request->file('cnic_front')->getClientOriginalExtension();
                 $request->file('cnic_front')->move($cnicPath, $frontName);
                 $cnicFrontPath = 'admin/assets/images/cnic/' . $frontName;
             }
 
-            // ✅ Save CNIC Back
             if ($request->hasFile('cnic_back')) {
                 $backName = uniqid() . '_cnic_back.' . $request->file('cnic_back')->getClientOriginalExtension();
                 $request->file('cnic_back')->move($cnicPath, $backName);
                 $cnicBackPath = 'admin/assets/images/cnic/' . $backName;
             }
 
-            // ✅ Create vendor
             $vendor = Vendor::create([
                 'name' => $request['name'],
                 'email' => $request['email'],
@@ -198,12 +208,12 @@ class AuthRepository implements AuthRepositoryInterface
                 'cnic_front' => $cnicFrontPath,
                 'cnic_back' => $cnicBackPath,
                 'repair_service' => $request['repair_service'] ?? 0,
+                'toggle' => 1, // ✅ Vendor also active
             ]);
 
-            // ✅ Attach plain password for email
             $vendor->plain_password = $plainPassword;
 
-            // ✅ Save shop images
+            // ✅ Save shop images (as before)
             if ($request->hasFile('image')) {
                 $shopPath = public_path('admin/assets/images/shops/');
                 if (!file_exists($shopPath)) {
@@ -232,11 +242,9 @@ class AuthRepository implements AuthRepositoryInterface
                 'images' => $shopImages,
             ];
 
-            // ✅ Send vendor registration email
             Mail::to($vendor->email)->send(new VendorRequestForRegister($vendor));
         }
 
-        // ✅ Clear OTP
         Cache::forget($cacheKey);
 
         return [
@@ -245,6 +253,7 @@ class AuthRepository implements AuthRepositoryInterface
             'data' => $data
         ];
     }
+
 
 
     public function resendOtp(array $request)

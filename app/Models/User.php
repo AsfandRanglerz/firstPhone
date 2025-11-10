@@ -20,5 +20,6 @@ class User extends Authenticatable
         'phone',
         'password',
         'image',
+        'toggle',
     ];
 }

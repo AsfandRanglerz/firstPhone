@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'type' => 'required|in:customer,vendor',
             ]);
 
-            // ✅ Send OTP via repository
+            // Send OTP via repository
             $otpData = $this->authService->sendOtp($request->all());
 
             if (isset($otpData['error'])) {
@@ -103,7 +103,6 @@ class AuthController extends Controller
                 'cnic_back' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'image.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'type' => 'required|in:customer,vendor',
-                'toggle' => 1,
             ]);
 
             $result = $this->authService->verifyOtp($request);
