@@ -160,7 +160,7 @@ class AuthRepository implements AuthRepositoryInterface
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
                 'password' => Hash::make($plainPassword),
-                'toggle' => 1, // ✅ Active by default
+                'status' => 'pending', // ✅ Active by default
                 'image' => $imagePath, // ✅ Default or uploaded image
             ]);
 
@@ -208,7 +208,7 @@ class AuthRepository implements AuthRepositoryInterface
                 'cnic_front' => $cnicFrontPath,
                 'cnic_back' => $cnicBackPath,
                 'repair_service' => $request['repair_service'] ?? 0,
-                'toggle' => 1, // ✅ Vendor also active
+                'status' => 'pending', // ✅ Vendor also active
             ]);
 
             $vendor->plain_password = $plainPassword;
