@@ -360,7 +360,7 @@
 
             images.forEach((img, i) => {
                 container.append(`
-                    <div class="carousel-item ${i === 0 ? 'activated' : ''}">
+                    <div class="carousel-item ${i === 0 ? 'active' : ''}">
                         <img src="{{ asset('') }}${img}" class="d-block w-100" style="max-height:500px; object-fit:contain;">
                     </div>
                 `);

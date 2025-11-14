@@ -24,6 +24,7 @@ class VendorController extends Controller
     public function index()
     {
         $users = $this->vendorService->getAllUsers();
+        
         $sideMenuPermissions = collect();
 
         if (!Auth::guard('admin')->check()) {
