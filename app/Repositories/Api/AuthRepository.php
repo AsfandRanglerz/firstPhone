@@ -160,7 +160,7 @@ class AuthRepository implements AuthRepositoryInterface
                 'email' => $request['email'],
                 'phone' => $request['phone'] ?? null,
                 'password' => Hash::make($plainPassword),
-                'status' => 'pending', // ✅ Active by default
+                'toggle' => 1, // ✅ Active by default
                 'image' => $imagePath, // ✅ Default or uploaded image
             ]);
 
