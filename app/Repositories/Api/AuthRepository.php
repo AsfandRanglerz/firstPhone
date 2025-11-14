@@ -224,7 +224,7 @@ class AuthRepository implements AuthRepositoryInterface
                     if ($image->isValid()) {
                         $fileName = uniqid() . '_shop_' . $index . '.' . $image->getClientOriginalExtension();
                         $image->move($shopPath, $fileName);
-                        $vendor->images()->create(['image' => 'admin/assets/images/shops/' . $fileName]);
+                        $vendor->images()->create(['image' => 'public/admin/assets/images/shops/' . $fileName]);
                     }
                 }
             }
