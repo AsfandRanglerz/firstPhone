@@ -258,7 +258,7 @@
             const form = document.getElementById(formId);
 
             swal({
-                title: "Are you sure?",
+                title: "Are you sure you want to delete this record?",
                 text: "If you delete this, it will be gone forever.",
                 icon: "warning",
                 buttons: true,

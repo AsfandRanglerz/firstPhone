@@ -5,9 +5,9 @@
 </head>
 <body style="font-family: Arial, sans-serif;">
     <div style="text-align:center; margin-bottom: 20px;">
-        <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
-             alt="{{ config('app.name') }} Logo" 
-             style="height: 100px; margin-bottom: 20px;">
+<img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
+     alt="First Phone Logo"
+     style="max-width: 320px; width: 100%; height: auto; display: block; margin: 0 auto 20px;">
       {{-- <h2 style="color: #021642; margin: 0;">Welcome to <span style="color: #007bff;">First Phone</span></h2> --}}
     </div>
 

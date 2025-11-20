@@ -9,9 +9,10 @@
     
         <!-- Logo and Header -->
         <div style="text-align:center; margin-bottom: 20px;">
-            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}"
-                alt="{{ config('app.name') }} Logo"
-                style="height: 80px; margin-bottom: 15px;">
+<img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
+     alt="First Phone Logo"
+     style="max-width: 320px; width: 100%; height: auto; display: block; margin: 0 auto 20px;">
+
             <h2>Account Deactivation</h2>
         </div>
 

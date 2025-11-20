@@ -5,9 +5,10 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
      <div style="text-align: center; margin-bottom: 20px;">
-            <img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
-                 alt="{{ config('app.name') }} Logo" 
-                 style="height: 80px; margin-bottom: 15px;">
+<img src="{{ asset('public/admin/assets/images/FirstPhone-Logo.jpg') }}" 
+     alt="First Phone Logo"
+     style="max-width: 320px; width: 100%; height: auto; display: block; margin: 0 auto 20px;">
+
         </div>
     <h2 style="color: #021642; text-align: center;">Reset Your Password</h2>
 
