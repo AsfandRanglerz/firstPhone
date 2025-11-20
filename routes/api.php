@@ -12,6 +12,7 @@ use App\Http\Controllers\SideMenueController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\Api\MobileCartController;
 use App\Http\Controllers\Api\RequestFormController;
+use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\Api\FilterMobileController;
 use App\Http\Controllers\Api\MobileFilterController;
 use App\Http\Controllers\Api\NotificationController;
@@ -61,6 +62,8 @@ Route::prefix('forgot-password')->group(function () {
     Route::post('/reset', [AuthController::class, 'forgotPasswordReset']);
     Route::post('/resend-otp', [AuthController::class, 'forgotPasswordResendOtp']);
 });
+//social login
+Route::post('/social-login', [SocialLoginController::class, 'socialLogin']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/getProfile', [AuthController::class, 'getProfile']);
