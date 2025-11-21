@@ -99,6 +99,8 @@ class AuthController extends Controller
                 'password' => 'required|string|min:8',
                 'phone' => 'required|string|max:20',
                 'location' => 'nullable|string|max:255',
+                'latitude'  => 'nullable|numeric',
+                'longitude'  => 'nullable|numeric',
                 'cnic_front' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'cnic_back' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'image.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
