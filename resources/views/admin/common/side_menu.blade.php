@@ -239,8 +239,7 @@
         @if (Auth::guard('admin')->check() ||
                 ($sideMenuPermissions->has('Privacy & Policy') && $sideMenuPermissions['Privacy & Policy']->contains('view')))
             <li class="dropdown {{ request()->is('admin/privacy-policy*') ? 'active' : '' }}">
-                <a href="{{ url('admin/privacy-policy') }}" class="nav-link"><i data-feather="shield"></i><span>Privacy
-                        & Policy</span></a>
+                <a href="{{ url('admin/privacy-policy') }}" class="nav-link"><i data-feather="shield"></i><span>Privacy Policy</span></a>
             </li>
         @endif
 

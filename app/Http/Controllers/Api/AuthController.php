@@ -302,18 +302,39 @@ class AuthController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred during logout', 'error', 500);
         }
     }
-    public function getProfile()
-    {
-        try {
-            $user = auth()->user();
-            if (!$user) {
-                return ResponseHelper::error(null, 'User not authenticated', 'error', 401);
-            }
-            return ResponseHelper::success($user, 'Profile retrieved successfully', 'success', 200);
-        } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while retrieving profile', 'error', 500);
+
+public function getProfile()
+{
+    try {
+        $user = auth()->user();
+        if (!$user) {
+            return ResponseHelper::error(null, 'User not authenticated', 'error', 401);
         }
+
+        // Only for vendor, load vendor images
+        if ($user instanceof \App\Models\Vendor) {
+            $user->load('images'); // use the images() relation
+            $userArray = $user->toArray();
+
+            // Map images to shop_images
+            $userArray['shop_images'] = isset($userArray['images'])
+                ? array_map(function ($img) {
+                    return $img['image'];
+                }, $userArray['images'])
+                : [];
+
+            unset($userArray['images']); // remove old key
+            $user = $userArray;
+        }
+
+        return ResponseHelper::success($user, 'Profile retrieved successfully', 'success', 200);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error(null, 'An error occurred while retrieving profile', 'error', 500);
     }
+}
+
+
 
     public function updateProfile(Request $request)
     {

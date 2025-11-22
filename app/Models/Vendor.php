@@ -22,4 +22,5 @@ class Vendor extends Authenticatable
     {
         return $this->hasMany(MobileListing::class);
     }
+
 }

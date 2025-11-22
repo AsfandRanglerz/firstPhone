@@ -94,14 +94,14 @@
 <body>
 
     <div class="banner">
-        <h1>Privacy & Policy</h1>
+        <h1>Privacy Policy</h1>
     </div>
 
     <div class="container">
     @if($data && $data->description)
         {!! $data->description !!}
     @else
-        <p>No Privacy & Policy available.</p>
+        <p>No Privacy Policy available.</p>
     @endif
 </div>
 
