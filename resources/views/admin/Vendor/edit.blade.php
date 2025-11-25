@@ -86,6 +86,15 @@
                                         </div>
                                     </div>
 
+                                    <!-- Hidden Latitude & Longitude -->
+                                    <input type="hidden" id="latitude" 
+                                        name="latitude" 
+                                        value="{{ old('latitude', $vendor->latitude ?? '') }}">
+
+                                    <input type="hidden" id="longitude" 
+                                        name="longitude" 
+                                        value="{{ old('longitude', $vendor->longitude ?? '') }}">
+
                                     <!-- CNIC Front -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
@@ -285,25 +294,56 @@
 @endsection
 
 @section('js')
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBuqZO_NrSp3c7lSpGdI3tpVV8h7UdLMFM&libraries=places"></script>
+
     @if (session('message'))
         <script>
             toastr.success('{{ session('message') }}');
         </script>
     @endif
 
-    <script>
-        $(document).ready(function() {
-            // Password toggle
-            $('.toggle-password').on('click', function() {
-                const $password = $('#password');
-                if ($password.attr('type') === 'password') {
-                    $password.attr('type', 'text');
-                    $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    $password.attr('type', 'password');
-                    $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-                }
-            });
+<script>
+    $(document).ready(function () {
+
+        // 🔐 Password toggle
+        $('.toggle-password').on('click', function () {
+            const $password = $('#password');
+            if ($password.attr('type') === 'password') {
+                $password.attr('type', 'text');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $password.attr('type', 'password');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            }
         });
-    </script>
+
+        // 📍 Google Maps Autocomplete
+        function initAutocomplete() {
+            let input = document.getElementById('location');
+            if (!input) return;
+
+            let autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['geocode'],
+                componentRestrictions: { country: "pk" }
+            });
+
+            autocomplete.addListener('place_changed', function () {
+                let place = autocomplete.getPlace();
+
+                if (!place.geometry) {
+                    alert("No details found for selected location");
+                    return;
+                }
+
+                // Set Latitude & Longitude
+                $('#latitude').val(place.geometry.location.lat());
+                $('#longitude').val(place.geometry.location.lng());
+            });
+        }
+
+        initAutocomplete();
+    });
+</script>
+
+
 @endsection

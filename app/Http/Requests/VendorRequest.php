@@ -34,6 +34,8 @@ class VendorRequest extends FormRequest
             'phone' => 'required|regex:/^[0-9]+$/|max:15',
             'password' => 'required|min:6',
             'location' => 'required|string|max:255',
+            'latitude' => 'nullable',
+            'longitude' => 'nullable',
             'cnic_front' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'cnic_back'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'shop_images'   => 'required|array|max:5',

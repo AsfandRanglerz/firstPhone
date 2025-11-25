@@ -80,6 +80,9 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    <!-- Hidden Latitude & Longitude -->
+                                    <input type="hidden" id="latitude" name="latitude">
+                                    <input type="hidden" id="longitude" name="longitude">
 
                                     <!-- CNIC Front -->
                                     <div class="col-sm-6 pl-sm-0 pr-sm-3">
@@ -168,38 +171,67 @@
 @endsection
 
 @section('js')
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBuqZO_NrSp3c7lSpGdI3tpVV8h7UdLMFM&libraries=places"></script>
+
     @if (session('success'))
         <script>
             toastr.success('{{ session('success') }}');
         </script>
     @endif
 
-    <script>
-        $(document).ready(function() {
+<script>
+    $(document).ready(function () {
 
-            // 🔐 Password toggle
-            $('.toggle-password').on('click', function() {
-                const $passwordInput = $('#password');
-                const $icon = $(this);
+        // 📍 Google Maps Autocomplete
+        function initAutocomplete() {
+            let input = document.getElementById('location');
 
-                if ($passwordInput.attr('type') === 'password') {
-                    $passwordInput.attr('type', 'text');
-                    $icon.removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    $passwordInput.attr('type', 'password');
-                    $icon.removeClass('fa-eye-slash').addClass('fa-eye');
-                }
+            if (!input) return;
+
+            let autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['geocode'],
+                componentRestrictions: { country: "pk" }
             });
 
-            // ✅ Auto hide validation error on focus
-            $('input, select, textarea').on('focus', function() {
-                const $feedback = $(this).parent().find('.invalid-feedback');
-                if ($feedback.length) {
-                    $feedback.hide();
-                    $(this).removeClass('is-invalid');
-                }
-            });
+            autocomplete.addListener('place_changed', function () {
+                let place = autocomplete.getPlace();
 
+                if (!place.geometry) {
+                    alert("No details found for this location. Try again.");
+                    return;
+                }
+
+                document.getElementById('latitude').value = place.geometry.location.lat();
+                document.getElementById('longitude').value = place.geometry.location.lng();
+            });
+        }
+
+        initAutocomplete();
+
+        // 🔐 Password toggle
+        $('.toggle-password').on('click', function () {
+            const $passwordInput = $('#password');
+            const $icon = $(this);
+
+            if ($passwordInput.attr('type') === 'password') {
+                $passwordInput.attr('type', 'text');
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $passwordInput.attr('type', 'password');
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
         });
-    </script>
+
+        // ✅ Auto hide validation error on focus
+        $('input, select, textarea').on('focus', function () {
+            const $feedback = $(this).parent().find('.invalid-feedback');
+            if ($feedback.length) {
+                $feedback.hide();
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+    });
+</script>
+
 @endsection

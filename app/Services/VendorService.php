@@ -25,7 +25,7 @@ class VendorService
     public function createUser($request)
     {
         $plainPassword = $request->password; 
-        $data = $request->only(['name', 'email', 'phone', 'password', 'location']);
+        $data = $request->only(['name', 'email', 'phone', 'password', 'location', 'latitude', 'longitude']);
         $data['password'] = bcrypt($data['password']); // store hashed password
 
         $data['repair_service'] = $request->has('has_repairing') ? 1 : 0;
