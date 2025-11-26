@@ -37,6 +37,7 @@ class HomeRepository implements HomeRepositoryInterface
                 'vendor_mobiles.location',
                 'vendors.latitude',
                 'vendors.longitude',
+                'vendors.repair_service',
             )
             ->selectRaw("
                 (6371 * acos(
@@ -49,7 +50,6 @@ class HomeRepository implements HomeRepositoryInterface
             ->orderBy('distance', 'asc')
             ->where('vendor_mobiles.stock', '>', 0);
 
-        // Search filter
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('vendor_mobiles.price', 'LIKE', "%{$search}%")
@@ -60,25 +60,23 @@ class HomeRepository implements HomeRepositoryInterface
             });
         }
 
-        // Date filter (optional)
         if (!empty($startDate) && !empty($endDate)) {
             $query->whereBetween('vendor_mobiles.created_at', [$startDate, $endDate]);
         }
 
-        // Fetch + map
-        $listings = $query->take(6)->get()->map(function ($listing) {
+        return $query->take(6)->get()->map(function ($listing) {
             $images = json_decode($listing->image, true) ?? [];
+
             return [
-                'id'       => $listing->id,
-                'vendor'   => $listing->vendor?->name,
-                'model'    => $listing->model?->name,
-                'price'    => $listing->price,
-                'distance' => round($listing->distance, 1) . ' km',
-                'image'    => isset($images[0]) ? asset($images[0]) : null,
+                'id'             => $listing->id,
+                'vendor'         => $listing->vendor?->name,
+                'model'          => $listing->model?->name,
+                'price'          => $listing->price,
+                'distance'       => round($listing->distance, 1) . ' km',
+                'repair_service' => $listing->vendor?->repair_service,
+                'image'          => isset($images[0]) ? asset($images[0]) : null,
             ];
         });
-
-        return $listings;
     }
 
     public function getTopSellingListings($request)
@@ -87,12 +85,18 @@ class HomeRepository implements HomeRepositoryInterface
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
 
-        // Base query - sirf delivered orders ka data
-        $query = OrderItem::with(['product.model', 'order'])
-            ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'))
-            ->whereHas('product', fn($q) => $q->where('stock', '>', 0)); // exclude out-of-stock listings
+        // User location
+        $customerLat = $request->query('latitude');
+        $customerLng = $request->query('longitude');
 
-        // Search filter (model name, price, etc.)
+        // Radius default 30
+        $radius = $request->query('radius', 30);
+
+        $query = OrderItem::with(['product.model', 'product.vendor', 'order'])
+            ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'))
+            ->whereHas('product', fn($q) => $q->where('stock', '>', 0));
+
+        // Search filter
         if ($search) {
             $query->whereHas('product', function ($q) use ($search) {
                 $q->where('price', 'LIKE', "%{$search}%")
@@ -103,39 +107,69 @@ class HomeRepository implements HomeRepositoryInterface
             });
         }
 
-        // Date filter (product creation date)
+        // Date filter
         if (!empty($startDate) && !empty($endDate)) {
             $query->whereHas('product', fn($q) =>
                 $q->whereBetween('created_at', [$startDate, $endDate])
             );
         }
 
-        // Group by product & sort by number of sales
         $topSelling = $query->get()
             ->groupBy('product_id')
-            ->sortByDesc(fn($items) => $items->count())
-            ->take(6)
-            ->map(function ($items) {
+            ->map(function ($items) use ($customerLat, $customerLng, $radius) {
                 $product = $items->first()->product;
 
+                if (!$product) return null;
 
-                if (!$product) return null; 
+                $distance = null;
 
+                // If user sent location, calculate distance
+                if ($customerLat && $customerLng && $product->vendor) {
+                    $vLat = $product->vendor->latitude;
+                    $vLng = $product->vendor->longitude;
+
+                    if ($vLat && $vLng) {
+                        $distance = 6371 * acos(
+                            cos(deg2rad($customerLat)) *
+                            cos(deg2rad($vLat)) *
+                            cos(deg2rad($vLng) - deg2rad($customerLng)) +
+                            sin(deg2rad($customerLat)) *
+                            sin(deg2rad($vLat))
+                        );
+                        $distance = round($distance, 1); // KM
+                    }
+                }
+
+                // ❗ If radius check is required but no location = skip
+                if ($customerLat && $customerLng && $distance !== null) {
+                    if ($distance > $radius) {
+                        return null; // skip items outside radius
+                    }
+                }
+
+                // Images
                 $images = json_decode($product->image, true) ?? [];
 
                 return [
-                    'id'       => $product->id,
-                    'model'    => $product->model?->name,
-                    'price'    => $product->price,
-                    'image'    => isset($images[0]) ? asset($images[0]) : null,
-                    'total_sales' => $items->count(), // optional: sales count
+                    'id'            => $product->id,
+                    'vendor'        => $product->vendor?->name, 
+                    'model'         => $product->model?->name,
+                    'price'         => $product->price,
+                    'image'         => isset($images[0]) ? asset($images[0]) : null,
+                    'total_sales'   => $items->count(),
+                    'distance'      => $distance ? $distance . ' km' : null,
+                    'repair_service'=> $product->vendor?->repair_service, 
                 ];
+
             })
             ->filter()
+            ->sortByDesc('total_sales')
+            ->take(6)
             ->values();
 
         return $topSelling;
     }
+
 
     public function getDeviceDetails($id)
     {

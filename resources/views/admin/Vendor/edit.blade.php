@@ -329,7 +329,7 @@
 
             autocomplete.addListener('place_changed', function () {
                 let place = autocomplete.getPlace();
-
+ 
                 if (!place.geometry) {
                     alert("No details found for selected location");
                     return;

@@ -231,7 +231,7 @@
                                                 <td>
                                                     <a class="btn btn-primary ml-3"
                                                         href="
-                                                    {{ route('mobile.show', $mobile->id) }}
+                                                    {{ route('vendormobile.show', $mobile->id) }}
                                                      ">View</a>
                                                 </td>
                                                 <td>

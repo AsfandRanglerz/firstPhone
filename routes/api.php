@@ -72,9 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
     Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
-    // customer side Home Screen API
-    Route::get('/listings/nearby', [HomeController::class, 'getNearbyListings']);
-    Route::get('/listings/top-selling', [HomeController::class, 'getTopSellingListings']);
+
 
     // mark as sold in mobile listing 
     Route::post('/listings/{id}/mark-as-sold', [MobileListingController::class, 'markAsSold']);
@@ -130,6 +128,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/vendor-subscription/subscribe', [VendorSubscriptionController::class, 'subscribe']);
     Route::get('/vendor-subscription/current', [VendorSubscriptionController::class, 'current']);
 });
+
+// customer side Home Screen API
+Route::get('/listings/top-selling', [HomeController::class, 'getTopSellingListings']);
+Route::get('/listings/nearby', [HomeController::class, 'getNearbyListings']);
 
 //filter searchers api
 Route::get('/models/{brand_id}', [MobileFilterController::class, 'getModels']);
