@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserRolePermission;
 
-
-
 class FaqController extends Controller
 {
     //
@@ -75,7 +73,7 @@ class FaqController extends Controller
         // Save data
         Faq::create([
             'question' => $request->question,
-            'description' => $request->description,
+            'description' => strip_tags($request->description),
         ]);
         return redirect('/admin/faq')->with('success', 'FAQ Created Successfully');
     }

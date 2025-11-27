@@ -15,25 +15,62 @@ class MobileSearchController extends Controller
     //
     public function search(Request $request)
     {
-
         try {
             $user = Auth::user();
             $query = trim($request->input('name'));
 
-            $mobiles = MobileListing::whereRaw('LOWER(model) LIKE ?', ['%' . strtolower($query) . '%'])
-                ->where('status', 0)
-                ->select('id', 'model', 'price', 'image')
-                ->get();
+            if (!$query) {
+                return response()->json([
+                    'message' => 'Search query required'
+                ], 400);
+            }
 
+            $words = explode(' ', strtolower($query)); // Split query into words
+
+            // Search vendor_mobiles with model & brand
+            $mobiles = \App\Models\VendorMobile::with(['model', 'brand'])
+                ->where('stock', '>', 0)
+                ->where(function ($q) use ($words) {
+                    foreach ($words as $word) {
+                        $q->where(function ($q2) use ($word) {
+                            $q2->whereHas('model', function ($q3) use ($word) {
+                                $q3->whereRaw('LOWER(name) LIKE ?', ["%$word%"]);
+                            })
+                            ->orWhereHas('brand', function ($q3) use ($word) {
+                                $q3->whereRaw('LOWER(name) LIKE ?', ["%$word%"]);
+                            });
+                        });
+                    }
+                })
+                ->select('id', 'model_id', 'brand_id', 'price', 'image')
+                ->get();
 
             if ($mobiles->isEmpty()) {
                 return response()->json(['message' => 'No matching mobile found'], 404);
             }
 
-            // Add to recent searches if we got results
-            $this->addToRecentSearch($query, $user->id);
+            // Add recent search only if user is authenticated
+            if ($user) {
+                $this->addToRecentSearch($query, $user->id, $mobiles);
+            }
 
-            return response()->json($mobiles);
+            // Format response
+            $response = $mobiles->map(function ($m) {
+                $images = json_decode($m->image, true) ?? [];
+
+                return [
+                    'id'       => $m->id,
+                    'model_id' => $m->model_id,
+                    'model'    => $m->model?->name,
+                    'brand_id' => $m->brand_id,
+                    'brand'    => $m->brand?->name,
+                    'price'    => $m->price,
+                    'image'    => isset($images[0]) ? asset($images[0]) : null,
+                ];
+            });
+
+            return response()->json($response);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Something went wrong while searching',
@@ -42,15 +79,25 @@ class MobileSearchController extends Controller
         }
     }
 
-    private function addToRecentSearch($query, $userId)
+    /**
+     * Add recent search (with model_id & brand_id)
+     */
+    private function addToRecentSearch($query, $userId, $mobiles)
     {
         try {
-            Recentsearch::create([
-                'model' => $query,
-                'user_id' => $userId,
-            ]);
+            // Take first matching mobile for storing model_id & brand_id
+            $firstMobile = $mobiles->first();
+
+            if ($firstMobile) {
+                \App\Models\Recentsearch::create([
+                    'user_id'   => $userId,
+                    'model'     => $query,
+                    'model_id'  => $firstMobile->model_id,
+                    'brand_id'  => $firstMobile->brand_id,
+                ]);
+            }
         } catch (\Exception $e) {
-            Log::error('Something went wrong: ' . $e->getMessage());
+            Log::error('Something went wrong while adding recent search: ' . $e->getMessage());
         }
     }
 

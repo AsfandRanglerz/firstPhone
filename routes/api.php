@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\RequestFormController;
 use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\Api\FilterMobileController;
 use App\Http\Controllers\Api\MobileFilterController;
+use App\Http\Controllers\Api\MobileSearchController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DeleteAccountController;
 use App\Http\Controllers\Api\MobileListingController;
@@ -127,6 +128,13 @@ Route::middleware('auth:sanctum')->group(function () {
     //vendor subscription
     Route::post('/vendor-subscription/subscribe', [VendorSubscriptionController::class, 'subscribe']);
     Route::get('/vendor-subscription/current', [VendorSubscriptionController::class, 'current']);
+
+    //search home screen
+    Route::get('/mobile/search', [MobileSearchController::class, 'search']);
+    Route::get('/mobile/recent-searches', [MobileSearchController::class, 'getRecentSearches']);
+    Route::delete('/mobile/recent-search/delete', [MobileSearchController::class, 'delete']);
+    Route::delete('/mobile/recent-search/delete-all', [MobileSearchController::class, 'deleteAll']);
+
 });
 
 // customer side Home Screen API
@@ -150,3 +158,4 @@ Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getC
 
 // Order list api
 Route::get('/orderlist/{id}', [OrderController::class, 'getorderlist']);
+
