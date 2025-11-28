@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Log;
 
 class MobileSearchController extends Controller
 {
-    //
     public function search(Request $request)
     {
         try {
@@ -21,14 +20,15 @@ class MobileSearchController extends Controller
 
             if (!$query) {
                 return response()->json([
-                    'message' => 'Search query required'
+                    'message' => 'Search query required',
+                    'data' => []
                 ], 400);
             }
 
             $words = explode(' ', strtolower($query)); // Split query into words
 
-            // Search vendor_mobiles with model & brand
-            $mobiles = \App\Models\VendorMobile::with(['model', 'brand'])
+            // Search vendor_mobiles with model, brand, vendor
+            $mobiles = \App\Models\VendorMobile::with(['model', 'brand', 'vendor'])
                 ->where('stock', '>', 0)
                 ->where(function ($q) use ($words) {
                     foreach ($words as $word) {
@@ -42,14 +42,18 @@ class MobileSearchController extends Controller
                         });
                     }
                 })
-                ->select('id', 'model_id', 'brand_id', 'price', 'image')
+                ->select('id', 'vendor_id', 'model_id', 'brand_id', 'price', 'image')
                 ->get();
 
+            // If no result found → send empty array instead of 404
             if ($mobiles->isEmpty()) {
-                return response()->json(['message' => 'No matching mobile found'], 404);
+                return response()->json([
+                    'message' => 'No matching mobile found',
+                    'data'    => []
+                ], 200);
             }
 
-            // Add recent search only if user is authenticated
+            // Add to recent search only if user is authenticated
             if ($user) {
                 $this->addToRecentSearch($query, $user->id, $mobiles);
             }
@@ -59,21 +63,27 @@ class MobileSearchController extends Controller
                 $images = json_decode($m->image, true) ?? [];
 
                 return [
-                    'id'       => $m->id,
-                    'model_id' => $m->model_id,
-                    'model'    => $m->model?->name,
-                    'brand_id' => $m->brand_id,
-                    'brand'    => $m->brand?->name,
-                    'price'    => $m->price,
-                    'image'    => isset($images[0]) ? asset($images[0]) : null,
+                    'id'            => $m->id,
+                    'model_id'      => $m->model_id,
+                    'model'         => $m->model?->name,
+                    'brand_id'      => $m->brand_id,
+                    'brand'         => $m->brand?->name,
+                    'price'         => $m->price,
+                    'image'         => isset($images[0]) ? asset($images[0]) : null,
+
+                    'vendor '       => $m->vendor?->name,
+                    'repair_service'    => $m->vendor?->repair_service,
                 ];
             });
 
-            return response()->json($response);
+            return response()->json([
+                'message' => 'Search results',
+                'data' => $response
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Something went wrong while searching',
+                'error'   => 'Something went wrong while searching',
                 'message' => $e->getMessage()
             ], 500);
         }
@@ -101,7 +111,118 @@ class MobileSearchController extends Controller
         }
     }
 
+    public function searchHistory(Request $request)
+    {
+        try {
+            $user = Auth::user();
 
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not authenticated',
+                    'data'    => []
+                ], 401);
+            }
+
+            $query = trim($request->input('name'));
+
+            if (!$query) {
+                return response()->json([
+                    'message' => 'Search query required',
+                    'data'    => []
+                ], 400);
+            }
+
+            $words = explode(' ', strtolower($query));
+
+            // SEARCH MAIN DATA
+            $mobiles = \App\Models\VendorMobile::with(['model', 'brand', 'vendor'])
+                ->where('stock', '>', 0)
+                ->where(function ($q) use ($words) {
+                    foreach ($words as $word) {
+                        $q->where(function ($q2) use ($word) {
+                            $q2->whereHas('model', function ($q3) use ($word) {
+                                $q3->whereRaw('LOWER(name) LIKE ?', ["%$word%"]);
+                            })
+                            ->orWhereHas('brand', function ($q3) use ($word) {
+                                $q3->whereRaw('LOWER(name) LIKE ?', ["%$word%"]);
+                            });
+                        });
+                    }
+                })
+                ->select('id', 'vendor_id', 'model_id', 'brand_id', 'price', 'image')
+                ->get();
+
+            // SAVE Current search to history table
+            $historyEntry = $this->addToSearchHistory($query, $user->id, $mobiles);
+
+            // GET FULL SEARCH HISTORY LIST
+            $fullHistory = \App\Models\SearchHistory::with(['model', 'brand'])
+                ->where('user_id', $user->id)
+                ->orderBy('id', 'DESC')
+                ->get()
+                ->map(function ($h) {
+                    return [
+                        'query' => $h->query,
+                        'model' => $h->model?->name,
+                        'brand' => $h->brand?->name
+                    ];
+                });
+
+            // FORMAT SEARCHED MOBILES
+            $responseMobiles = $mobiles->map(function ($m) {
+                $images = json_decode($m->image, true) ?? [];
+
+                return [
+                    'id'              => $m->id,
+                    'model_id'        => $m->model_id,
+                    'model'           => $m->model?->name,
+                    'brand_id'        => $m->brand_id,
+                    'brand'           => $m->brand?->name,
+                    'price'           => $m->price,
+                    'image'           => isset($images[0]) ? asset($images[0]) : null,
+                    'vendor'          => $m->vendor?->name,
+                    'repair_service'  => $m->vendor?->repair_service,
+                ];
+            });
+
+            return response()->json([
+                'message'           => 'Search results',
+
+                // USER INPUT SEARCH
+                'searched_input'    => $query,
+
+                // FULL HISTORY FROM TABLE
+                'searched_history'  => $fullHistory,
+
+                // ACTUAL CURRENT SEARCH RESULT
+                'search_results'    => $responseMobiles
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Something went wrong while searching history',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function addToSearchHistory($query, $userId, $mobiles)
+    {
+        try {
+            $first = $mobiles->first();
+
+            return \App\Models\SearchHistory::create([
+                'user_id'  => $userId,
+                'query'    => $query,
+                'model_id' => $first?->model_id,
+                'brand_id' => $first?->brand_id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving search history: ' . $e->getMessage());
+            return null;
+        }
+    }
 
     public function getRecentSearches()
     {

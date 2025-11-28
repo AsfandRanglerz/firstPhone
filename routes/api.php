@@ -73,8 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteaccount', [DeleteAccountController::class, 'deleteAccount']);
     Route::delete('/vendordeleteaccount', [DeleteAccountController::class, 'vendordeleteAccount']);
 
-
-
     // mark as sold in mobile listing 
     Route::post('/listings/{id}/mark-as-sold', [MobileListingController::class, 'markAsSold']);
 
@@ -131,6 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //search home screen
     Route::get('/mobile/search', [MobileSearchController::class, 'search']);
+    Route::get('/mobile/search-history', [MobileSearchController::class, 'searchHistory']);
     Route::get('/mobile/recent-searches', [MobileSearchController::class, 'getRecentSearches']);
     Route::delete('/mobile/recent-search/delete', [MobileSearchController::class, 'delete']);
     Route::delete('/mobile/recent-search/delete-all', [MobileSearchController::class, 'deleteAll']);
