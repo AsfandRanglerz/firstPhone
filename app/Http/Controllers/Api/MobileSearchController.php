@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Models\Recentsearch;
 use Illuminate\Http\Request;
 use App\Models\MobileListing;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\SearchHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class MobileSearchController extends Controller
 {
@@ -258,6 +259,46 @@ class MobileSearchController extends Controller
         }
     }
 
+    public function getSearchHistory()
+    {
+        try {
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            // Get search history with model & brand names
+            $history = \App\Models\SearchHistory::with(['model', 'brand'])
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($h) {
+                    return [
+                        'id'         => $h->id,
+                        'name'      => $h->query,
+                        'model_name' => $h->model?->name,
+                        'brand_name' => $h->brand?->name,
+                        'created_at' => $h->created_at,
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'data'   => $history
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function delete(Request $request)
     {
@@ -270,7 +311,7 @@ class MobileSearchController extends Controller
                 ], 400);
             }
 
-            $find = Recentsearch::find($id);
+            $find = SearchHistory::find($id);
 
             if (!$find) {
                 return response()->json([
@@ -296,7 +337,7 @@ class MobileSearchController extends Controller
     {
         try {
             // Table truncate karna (poora data remove)
-            Recentsearch::truncate();
+            SearchHistory::truncate();
 
             return response()->json([
                 'message' => 'All history deleted successfully',

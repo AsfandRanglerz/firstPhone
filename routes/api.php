@@ -130,6 +130,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //search home screen
     Route::get('/mobile/search', [MobileSearchController::class, 'search']);
     Route::get('/mobile/search-history', [MobileSearchController::class, 'searchHistory']);
+    Route::get('/mobile/search/history', [MobileSearchController::class, 'getSearchHistory']);
     Route::get('/mobile/recent-searches', [MobileSearchController::class, 'getRecentSearches']);
     Route::delete('/mobile/recent-search/delete', [MobileSearchController::class, 'delete']);
     Route::delete('/mobile/recent-search/delete-all', [MobileSearchController::class, 'deleteAll']);
