@@ -66,4 +66,8 @@ class AuthService
     {
         return $this->authRepo->changePassword($request);
     }
+    public function checkEmail($request)
+    {
+        return $this->authRepo->checkEmail($request->email);
+    }
 }

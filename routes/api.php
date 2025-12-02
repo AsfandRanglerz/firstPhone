@@ -63,6 +63,9 @@ Route::prefix('forgot-password')->group(function () {
     Route::post('/reset', [AuthController::class, 'forgotPasswordReset']);
     Route::post('/resend-otp', [AuthController::class, 'forgotPasswordResendOtp']);
 });
+//check email api
+Route::post('/check-email', [AuthController::class, 'checkEmail']);
+
 //social login
 Route::post('/social-login', [SocialLoginController::class, 'socialLogin']);
 Route::middleware('auth:sanctum')->group(function () {

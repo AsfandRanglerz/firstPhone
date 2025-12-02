@@ -380,4 +380,15 @@ class AuthController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred during password change', 'error', 500);
         }
     }
+
+    public function checkEmail(Request $request)
+{
+    try {
+        $data = $this->authService->checkEmail($request);
+        return ResponseHelper::success($data, 'Email checked successfully', null, 200);
+    } catch (\Exception $e) {
+        return ResponseHelper::error($e->getMessage(), 'Error while checking email', 'error', 500);
+    }
+}
+
 }
