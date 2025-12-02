@@ -50,7 +50,7 @@ class MobileFilterController extends Controller
                     null,
                     'No Models Found For This Brand',
                     'not_found',
-                    404
+                    200
                 );
             }
 
