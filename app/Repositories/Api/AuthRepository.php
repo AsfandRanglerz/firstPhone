@@ -490,4 +490,33 @@ class AuthRepository implements AuthRepositoryInterface
         $user->save();
         return $user;
     }
+
+    public function checkEmail($email)
+{
+    $customer = User::where('email', $email)->exists();
+    $vendor   = Vendor::where('email', $email)->exists();
+
+    if (!$customer && !$vendor) {
+        return [
+            'status' => 'not_found',
+            'message' => 'No account found with this email',
+            'exists_as' => [
+                'customer' => false,
+                'vendor' => false
+            ]
+        ];
+    }
+
+    return [
+        'status' => 'success',
+        'exists_as' => [
+            'customer' => $customer,
+            'vendor' => $vendor
+        ],
+        'message' => $customer && $vendor
+            ? 'Email exists as both customer and vendor'
+            : ($customer ? 'This email belongs to a customer' : 'This email belongs to a vendor')
+    ];
+}
+
 }
