@@ -491,31 +491,95 @@ class AuthRepository implements AuthRepositoryInterface
         return $user;
     }
 
-    public function checkEmail($email)
+   public function checkEmail($email)
 {
-    $customer = User::where('email', $email)->exists();
-    $vendor   = Vendor::where('email', $email)->exists();
+    $customer = User::where('email', $email)->first();
+    $vendor   = Vendor::where('email', $email)->with('images')->first();
 
     if (!$customer && !$vendor) {
         return [
             'status' => 'not_found',
             'message' => 'No account found with this email',
-            'exists_as' => [
-                'customer' => false,
-                'vendor' => false
-            ]
         ];
     }
 
+    // Get latest tokens
+    $customerToken = $customer
+        ? optional($customer->tokens()->latest()->first())->token
+        : null;
+
+    $vendorToken = $vendor
+        ? optional($vendor->tokens()->latest()->first())->token
+        : null;
+
+    // ⭐ CASE 1: CUSTOMER ONLY
+    if ($customer && !$vendor) {
+        return [
+            'status' => 'success',
+            'message' => 'This email belongs to a customer',
+            'customer' => [
+                'data' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'image' => $customer->image,
+                ],
+                'token' => $customerToken,
+            ],
+        ];
+    }
+
+    // ⭐ CASE 2: VENDOR ONLY
+    if ($vendor && !$customer) {
+        return [
+            'status' => 'success',
+            'message' => 'This email belongs to a vendor',
+            'vendor' => [
+                'data' => [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name,
+                    'email' => $vendor->email,
+                    'phone' => $vendor->phone,
+                    'location' => $vendor->location,
+                    'cnic_front' => $vendor->cnic_front,
+                    'cnic_back' => $vendor->cnic_back,
+                    'images' => $vendor->images->pluck('image')->toArray(),
+                ],
+                'token' => $vendorToken,
+            ],
+        ];
+    }
+
+    // ⭐ CASE 3: BOTH CUSTOMER & VENDOR
     return [
         'status' => 'success',
-        'exists_as' => [
-            'customer' => $customer,
-            'vendor' => $vendor
+        'message' => 'Email exists as both customer and vendor',
+
+        'customer' => [
+            'data' => [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'image' => $customer->image,
+            ],
+            'token' => $customerToken,
         ],
-        'message' => $customer && $vendor
-            ? 'Email exists as both customer and vendor'
-            : ($customer ? 'This email belongs to a customer' : 'This email belongs to a vendor')
+
+        'vendor' => [
+            'data' => [
+                'id' => $vendor->id,
+                'name' => $vendor->name,
+                'email' => $vendor->email,
+                'phone' => $vendor->phone,
+                'location' => $vendor->location,
+                'cnic_front' => $vendor->cnic_front,
+                'cnic_back' => $vendor->cnic_back,
+                'images' => $vendor->images->pluck('image')->toArray(),
+            ],
+            'token' => $vendorToken,
+        ],
     ];
 }
 
