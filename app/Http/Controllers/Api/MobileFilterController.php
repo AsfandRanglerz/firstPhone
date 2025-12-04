@@ -155,10 +155,96 @@ class MobileFilterController extends Controller
     //     }
     // }
 
-	public function getData(Request $request)
+// 	public function getData(Request $request)
+// {
+//     try {
+//         // Brand and model required
+//         if (!$request->filled('brand_id') || !$request->filled('model_id')) {
+//             return response()->json([
+//                 'status' => 'error',
+//                 'message' => 'Please enter required details first'
+//             ], 400);
+//         }
+
+//         $query = VendorMobile::query();
+
+//         // Mandatory filters
+//         $query->where('brand_id', $request->brand_id)
+//               ->where('model_id', $request->model_id);
+
+//         // Optional filters
+//         if ($request->filled('storage')) $query->where('storage', $request->storage);
+//         if ($request->filled('ram')) $query->where('ram', $request->ram);
+//         if ($request->filled('condition')) $query->where('condition', $request->condition);
+//         if ($request->filled('color')) $query->where('color', $request->color);
+//         if ($request->filled('latitude')) $query->where('latitude', $request->latitude);
+//         if ($request->filled('longitude')) $query->where('longitude', $request->longitude);
+//         if ($request->filled('city')) $query->where('location', $request->city);
+
+//         // Price filters
+//         if ($request->filled('min_price') && $request->filled('max_price')) {
+//             $query->whereBetween('price', [$request->min_price, $request->max_price]);
+//         } elseif ($request->filled('min_price')) {
+//             $query->where('price', '>=', $request->min_price);
+//         } elseif ($request->filled('max_price')) {
+//             $query->where('price', '<=', $request->max_price);
+//         }
+
+//         // Fetch Data
+//         $listings = $query->get();
+
+//         // If model & brand exist but filters mismatch
+//         if ($listings->isEmpty()) {
+            
+//             // Check if brand & model exist without extra filters
+//             $checkOnlyBrandModel = VendorMobile::where('brand_id', $request->brand_id)
+//                 ->where('model_id', $request->model_id)
+//                 ->exists();
+
+//             if ($checkOnlyBrandModel) {
+//                 return response()->json([
+//                     'status' => 'not_found',
+//                     'message' => 'Mobile not found'
+//                 ], 404);
+//             }
+
+//             return response()->json([
+//                 'status' => 'not_found',
+//                 'message' => 'No Mobile Found'
+//             ], 404);
+//         }
+
+
+//         // Return only selected fields
+//         $response = $listings->map(function ($item) {
+//             return [
+//                 'image'     => $item->image,
+//                 'title'     => $item->title,
+//                 'price'     => $item->price,
+//                 'shop_name' => $item->shop_name,
+//                 'location'  => $item->location,
+//                 'condition' => $item->condition,
+//             ];
+//         });
+
+//         return response()->json([
+//             'status' => 'success',
+//             'data' => $response
+//         ], 200);
+
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'message' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
+public function getData(Request $request)
 {
     try {
-        // Brand and model required
+        // ---------------------------
+        // BRAND & MODEL REQUIRED
+        // ---------------------------
         if (!$request->filled('brand_id') || !$request->filled('model_id')) {
             return response()->json([
                 'status' => 'error',
@@ -166,70 +252,116 @@ class MobileFilterController extends Controller
             ], 400);
         }
 
-        $query = VendorMobile::query();
+        // ---------------------------
+        // BASE QUERY
+        // ---------------------------
+        $query = VendorMobile::with(['vendor', 'model'])
+            ->join('vendors', 'vendors.id', '=', 'vendor_mobiles.vendor_id');
 
-        // Mandatory filters
-        $query->where('brand_id', $request->brand_id)
-              ->where('model_id', $request->model_id);
+        // Mandatory filters (vendor_mobiles)
+        $query->where('vendor_mobiles.brand_id', $request->brand_id)
+              ->where('vendor_mobiles.model_id', $request->model_id);
 
-        // Optional filters
-        if ($request->filled('storage')) $query->where('storage', $request->storage);
-        if ($request->filled('ram')) $query->where('ram', $request->ram);
-        if ($request->filled('condition')) $query->where('condition', $request->condition);
-        if ($request->filled('color')) $query->where('color', $request->color);
-        if ($request->filled('latitude')) $query->where('latitude', $request->latitude);
-        if ($request->filled('longitude')) $query->where('longitude', $request->longitude);
-        if ($request->filled('city')) $query->where('location', $request->city);
+        // ---------------------------
+        // REPAIR SERVICE FILTER (vendor table)
+        // ---------------------------
+        
+         $query->where('vendors.repair_service', $request->repair_service); // checkbox selected
+        
 
-        // Price filters
-        if ($request->filled('min_price') && $request->filled('max_price')) {
-            $query->whereBetween('price', [$request->min_price, $request->max_price]);
-        } elseif ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        } elseif ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+        // ---------------------------
+        // LOCATION FILTER LOGIC
+        // ---------------------------
+        $userLat = $request->latitude;
+        $userLng = $request->longitude;
+        $radius  = $request->radius;
+        $city    = $request->city;
+
+        $isRadiusMode = $request->filled('radius') && $request->filled('latitude') && $request->filled('longitude');
+        $isCityMode   = $request->filled('city');
+
+        if ($isRadiusMode) {
+            // RADIUS MODE → CITY IGNORE
+            $query->select('vendor_mobiles.*', 'vendors.latitude', 'vendors.longitude', 'vendors.location')
+                  ->selectRaw("
+                    (6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(vendors.latitude)) *
+                        cos(radians(vendors.longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(vendors.latitude))
+                    )) AS distance
+                  ", [$userLat, $userLng, $userLat])
+                  ->having('distance', '<=', $radius)
+                  ->orderBy('distance');
+        } elseif ($isCityMode) {
+            // CITY MODE → RADIUS IGNORE
+            $query->where('vendors.location', $city);
         }
 
-        // Fetch Data
+        // ---------------------------
+        // OPTIONAL FILTERS (vendor_mobiles)
+        // ---------------------------
+        if ($request->filled('storage'))   $query->where('vendor_mobiles.storage', $request->storage);
+        if ($request->filled('ram'))       $query->where('vendor_mobiles.ram', $request->ram);
+        if ($request->filled('condition')) $query->where('vendor_mobiles.condition', $request->condition);
+        if ($request->filled('color'))     $query->where('vendor_mobiles.color', $request->color);
+
+        // ---------------------------
+        // PRICE FILTERS
+        // ---------------------------
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $query->whereBetween('vendor_mobiles.price', [$request->min_price, $request->max_price]);
+        } elseif ($request->filled('min_price')) {
+            $query->where('vendor_mobiles.price', '>=', $request->min_price);
+        } elseif ($request->filled('max_price')) {
+            $query->where('vendor_mobiles.price', '<=', $request->max_price);
+        }
+
+        // ---------------------------
+        // FETCH DATA
+        // ---------------------------
         $listings = $query->get();
 
-        // If model & brand exist but filters mismatch
-        if ($listings->isEmpty()) {
-            
-            // Check if brand & model exist without extra filters
-            $checkOnlyBrandModel = VendorMobile::where('brand_id', $request->brand_id)
+        // EMPTY CHECK FOR RADIUS MODE
+        if ($isRadiusMode && $listings->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'data'   => []
+            ], 200);
+        }
+
+        // CITY MODE EMPTY CHECK
+        if (!$isRadiusMode && $listings->isEmpty()) {
+            $checkBase = VendorMobile::where('brand_id', $request->brand_id)
                 ->where('model_id', $request->model_id)
                 ->exists();
 
-            if ($checkOnlyBrandModel) {
-                return response()->json([
-                    'status' => 'not_found',
-                    'message' => 'Mobile not found'
-                ], 404);
-            }
-
             return response()->json([
-                'status' => 'not_found',
-                'message' => 'No Mobile Found'
+                'status'  => 'not_found',
+                'message' => $checkBase ? 'Mobile not found' : 'No Mobile Found'
             ], 404);
         }
 
-
-        // Return only selected fields
+        // ---------------------------
+        // FORMAT OUTPUT
+        // ---------------------------
         $response = $listings->map(function ($item) {
             return [
-                'image'     => $item->image,
-                'title'     => $item->title,
-                'price'     => $item->price,
-                'shop_name' => $item->shop_name,
-                'location'  => $item->location,
-                'condition' => $item->condition,
+                'image'          => $item->image,
+                'title'          => $item->model->name ?? null,
+                'price'          => $item->price,
+                'shop_name'      => $item->shop_name,
+                'location'       => $item->vendor->location ?? null,
+                'latitude'       => $item->vendor->latitude ?? null,
+                'longitude'      => $item->vendor->longitude ?? null,
+                'condition'      => $item->condition,
             ];
         });
 
         return response()->json([
             'status' => 'success',
-            'data' => $response
+            'data'   => $response
         ], 200);
 
     } catch (\Exception $e) {
@@ -238,6 +370,8 @@ class MobileFilterController extends Controller
         ], 500);
     }
 }
+
+
 
 
 }

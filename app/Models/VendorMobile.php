@@ -22,8 +22,11 @@ class VendorMobile extends Model
         return $this->belongsTo(MobileModel::class, 'model_id');
     }
 
-    public function Vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
-    }
+    // VendorMobile.php
+		public function vendor()
+		{
+			return $this->belongsTo(Vendor::class, 'vendor_id', 'id'); 
+			// assuming VendorMobile me vendor_id field hai
+		}
+
 }
