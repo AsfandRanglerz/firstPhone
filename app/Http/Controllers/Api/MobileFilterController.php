@@ -74,85 +74,170 @@ class MobileFilterController extends Controller
     /**
      * Get filtered listings by brand, model, storage, ram, etc.
      */
-    public function getData(Request $request)
-    {
-        try {
-            $query = VendorMobile::query();
+    // public function getData(Request $request)
+    // {
+    //     try {
+    //         $query = VendorMobile::query();
 
-            // ✅ Optional brand filter
-            if ($request->filled('brand_id')) {
-                $query->where('brand_id', $request->brand_id);
-            }
+    //         // ✅ Optional brand filter
+    //         if ($request->filled('brand_id')) {
+    //             $query->where('brand_id', $request->brand_id);
+    //         }
 
-            // ✅ Optional model filter
-            if ($request->filled('model_id')) {
-                $query->where('model_id', $request->model_id);
-            }
+    //         // ✅ Optional model filter
+    //         if ($request->filled('model_id')) {
+    //             $query->where('model_id', $request->model_id);
+    //         }
 
-            // ✅ Optional storage filter
-            if ($request->filled('storage')) {
-                $query->where('storage', $request->storage);
-            }
+    //         // ✅ Optional storage filter
+    //         if ($request->filled('storage')) {
+    //             $query->where('storage', $request->storage);
+    //         }
 
-            // ✅ Optional ram filter
-            if ($request->filled('ram')) {
-                $query->where('ram', $request->ram);
-            }
+    //         // ✅ Optional ram filter
+    //         if ($request->filled('ram')) {
+    //             $query->where('ram', $request->ram);
+    //         }
 
-            // ✅ Optional condition filter
-            if ($request->filled('condition')) {
-                $query->where('condition', $request->condition);
-            }
+    //         // ✅ Optional condition filter
+    //         if ($request->filled('condition')) {
+    //             $query->where('condition', $request->condition);
+    //         }
 
-            // ✅ Optional color filter
-            if ($request->filled('color')) {
-                $query->where('color', $request->color);
-            }
+    //         // ✅ Optional color filter
+    //         if ($request->filled('color')) {
+    //             $query->where('color', $request->color);
+    //         }
 
-            // ✅ Optional latitude filter
-            if ($request->filled('latitude')) {
-                $query->where('latitude', $request->latitude);
-            }
+    //         // ✅ Optional latitude filter
+    //         if ($request->filled('latitude')) {
+    //             $query->where('latitude', $request->latitude);
+    //         }
 
-            // ✅ Optional longitude filter
-            if ($request->filled('longitude')) {
-                $query->where('longitude', $request->longitude);
-            }
+    //         // ✅ Optional longitude filter
+    //         if ($request->filled('longitude')) {
+    //             $query->where('longitude', $request->longitude);
+    //         }
 
-            // ✅ Optional city / location filter
-            if ($request->filled('city')) {
-                $query->where('location', $request->city);
-            }
+    //         // ✅ Optional city / location filter
+    //         if ($request->filled('city')) {
+    //             $query->where('location', $request->city);
+    //         }
 
-            // ✅ Optional price range filter
-            if ($request->filled('min_price') && $request->filled('max_price')) {
-                $query->whereBetween('price', [$request->min_price, $request->max_price]);
-            } elseif ($request->filled('min_price')) {
-                $query->where('price', '>=', $request->min_price);
-            } elseif ($request->filled('max_price')) {
-                $query->where('price', '<=', $request->max_price);
-            }
+    //         // ✅ Optional price range filter
+    //         if ($request->filled('min_price') && $request->filled('max_price')) {
+    //             $query->whereBetween('price', [$request->min_price, $request->max_price]);
+    //         } elseif ($request->filled('min_price')) {
+    //             $query->where('price', '>=', $request->min_price);
+    //         } elseif ($request->filled('max_price')) {
+    //             $query->where('price', '<=', $request->max_price);
+    //         }
 
             
-            $listings = $query->get();
+    //         $listings = $query->get();
 
-            // ✅ Check if no data found
-            if ($listings->isEmpty()) {
+    //         // ✅ Check if no data found
+    //         if ($listings->isEmpty()) {
+    //             return response()->json([
+    //                 'status' => 'not_found',
+    //                 'message' => 'No Data Found For The Given Filters'
+    //             ], 404);
+    //         }
+
+    //         return response()->json([
+    //             'data' => $listings
+    //         ], 200);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+	public function getData(Request $request)
+{
+    try {
+        // Brand and model required
+        if (!$request->filled('brand_id') || !$request->filled('model_id')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please enter required details first'
+            ], 400);
+        }
+
+        $query = VendorMobile::query();
+
+        // Mandatory filters
+        $query->where('brand_id', $request->brand_id)
+              ->where('model_id', $request->model_id);
+
+        // Optional filters
+        if ($request->filled('storage')) $query->where('storage', $request->storage);
+        if ($request->filled('ram')) $query->where('ram', $request->ram);
+        if ($request->filled('condition')) $query->where('condition', $request->condition);
+        if ($request->filled('color')) $query->where('color', $request->color);
+        if ($request->filled('latitude')) $query->where('latitude', $request->latitude);
+        if ($request->filled('longitude')) $query->where('longitude', $request->longitude);
+        if ($request->filled('city')) $query->where('location', $request->city);
+
+        // Price filters
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $query->whereBetween('price', [$request->min_price, $request->max_price]);
+        } elseif ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        } elseif ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Fetch Data
+        $listings = $query->get();
+
+        // If model & brand exist but filters mismatch
+        if ($listings->isEmpty()) {
+            
+            // Check if brand & model exist without extra filters
+            $checkOnlyBrandModel = VendorMobile::where('brand_id', $request->brand_id)
+                ->where('model_id', $request->model_id)
+                ->exists();
+
+            if ($checkOnlyBrandModel) {
                 return response()->json([
                     'status' => 'not_found',
-                    'message' => 'No Data Found For The Given Filters'
+                    'message' => 'Mobile not found'
                 ], 404);
             }
 
             return response()->json([
-                'data' => $listings
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+                'status' => 'not_found',
+                'message' => 'No Mobile Found'
+            ], 404);
         }
+
+
+        // Return only selected fields
+        $response = $listings->map(function ($item) {
+            return [
+                'image'     => $item->image,
+                'title'     => $item->title,
+                'price'     => $item->price,
+                'shop_name' => $item->shop_name,
+                'location'  => $item->location,
+                'condition' => $item->condition,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $response
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
 
 }
