@@ -334,7 +334,6 @@ public function getData(Request $request)
                 'image'     => $item->image,
                 'title'     => $item->model->name ?? null,
                 'price'     => $item->price,
-                'shop_name' => $item->vendor->location ?? null,
                 'latitude'  => $item->vendor->latitude ?? null,
                 'longitude' => $item->vendor->longitude ?? null,
                 'condition' => $item->condition,
