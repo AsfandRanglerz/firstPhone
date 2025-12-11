@@ -211,7 +211,6 @@ class MobileFilterController extends Controller
 public function getData(Request $request)
 {
     try {
-
         // ---------------------------
         // REQUIRED FIELDS
         // ---------------------------
@@ -229,7 +228,9 @@ public function getData(Request $request)
             ->where('brand_id', $request->brand_id)
             ->where('model_id', $request->model_id);
 
+        // ---------------------------
         // OPTIONAL FILTERS
+        // ---------------------------
         if ($request->filled('repair_service')) {
             $query->whereHas('vendor', function ($q) use ($request) {
                 $q->where('repair_service', $request->repair_service);
@@ -243,107 +244,96 @@ public function getData(Request $request)
         // ---------------------------
         // PRICE FILTER (LIKE)
         // ---------------------------
-        $min = trim($request->min_price ?? '');
-        $max = trim($request->max_price ?? '');
+        // ---------------------------
+// PRICE FILTER (BETWEEN)
+// ---------------------------
+if ($request->filled('min_price') && $request->filled('max_price')) {
 
-        if ($min !== '' && $max !== '') {
-            if ($min > $max) [$min, $max] = [$max, $min];
-            $query->where(function ($q) use ($min, $max) {
-                $q->whereRaw("CAST(price AS CHAR) LIKE ?", ["%$min%"])
-                  ->orWhereRaw("CAST(price AS CHAR) LIKE ?", ["%$max%"]);
-            });
-        } elseif ($min !== '') {
-            $query->whereRaw("CAST(price AS CHAR) LIKE ?", ["%$min%"]);
-        } elseif ($max !== '') {
-            $query->whereRaw("CAST(price AS CHAR) LIKE ?", ["%$max%"]);
-        }
+    $min = (int) $request->min_price;
+    $max = (int) $request->max_price;
+
+    if ($min > $max) {
+        [$min, $max] = [$max, $min];
+    }
+
+    $query->whereBetween('price', [$min, $max]);
+
+} elseif ($request->filled('min_price')) {
+
+    $query->where('price', '>=', (int) $request->min_price);
+
+} elseif ($request->filled('max_price')) {
+
+    $query->where('price', '<=', (int) $request->max_price);
+}
+
 
         // ---------------------------
-        // GET RESULTS FIRST
+        // FETCH RESULTS
         // ---------------------------
         $listings = $query->get();
 
         // ---------------------------
-        // LOCATION FILTERS
+        // LOCATION LOGIC
         // ---------------------------
-        $cityMode   = $request->filled('city');
-        $radiusMode = $request->filled('latitude') && $request->filled('longitude');
+        $radius = null;
+       $hasCity   = $request->filled('city');
+$hasLatLng = $request->filled('latitude') && $request->filled('longitude');
+$hasRadius = $request->filled('radius');
 
-        $latReq  = $request->latitude;
-        $lngReq  = $request->longitude;
-        $radius  = $request->radius ?? 50;
+$latReq = $request->latitude;
+$lngReq = $request->longitude;
 
-        // PRIORITY
-        // 1. If radius + city → use radius only
-        // 2. If radius only → use radius
-        // 3. If city only → use city
+// CASE 1: City filter takes priority
+if ($hasCity) {
+    $city = strtolower($request->city);
+    $listings = $listings->filter(function ($item) use ($city) {
+         $vendorLocation = $item->vendor->location ?? '';
+        // case-insensitive search
+        return stripos($vendorLocation, $city) !== false;
+    })->values();
+}
+// CASE 2: Latitude/longitude with optional radius
+elseif ($hasLatLng) {
+    $radius = $hasRadius ? $request->radius : 50; // default 50 km
+    $listings = $listings->filter(function ($item) use ($latReq, $lngReq, $radius) {
+        if (!$item->vendor?->latitude || !$item->vendor?->longitude) return false;
 
-        if ($radiusMode) {
+        $theta = $lngReq - $item->vendor->longitude;
+        $dist = sin(deg2rad($latReq)) * sin(deg2rad($item->vendor->latitude)) +
+                cos(deg2rad($latReq)) * cos(deg2rad($item->vendor->latitude)) * cos(deg2rad($theta));
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $km   = $dist * 60 * 1.1515 * 1.609344;
 
-            // Radius filter only
-            $listings = $listings->filter(function ($item) use ($latReq, $lngReq, $radius) {
-
-                if (!$item->vendor?->latitude || !$item->vendor?->longitude) return false;
-
-                $lat2 = $item->vendor->latitude;
-                $lng2 = $item->vendor->longitude;
-
-                // Haversine Formula
-                $theta = $lngReq - $lng2;
-                $dist = sin(deg2rad($latReq)) * sin(deg2rad($lat2)) +
-                        cos(deg2rad($latReq)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
-                $dist = acos($dist);
-                $dist = rad2deg($dist);
-                $km   = $dist * 60 * 1.1515 * 1.609344;
-
-                return $km <= $radius;
-            })->values();
-
-        } elseif ($cityMode) {
-
-            // City filter only
-            $city = strtolower($request->city);
-
-            $listings = $listings->filter(function ($item) use ($city) {
-                return strtolower($item->vendor->location ?? '') === $city;
-            })->values();
-        }
+        return $km <= $radius;
+    })->values();
+}
 
         // ---------------------------
-        // FORMAT FOR RESPONSE
+        // FORMAT RESPONSE
         // ---------------------------
-        $formatted = $listings->map(function ($item) use ($radiusMode, $latReq, $lngReq) {
-
-            // Calculate distance ONLY IF radius filter applied
+        $formatted = $listings->map(function ($item) use ($radius, $latReq, $lngReq) {
             $distance = null;
-
-            if ($radiusMode && $item->vendor?->latitude && $item->vendor?->longitude) {
-
+            if ($radius !== null && $item->vendor?->latitude && $item->vendor?->longitude) {
                 $theta = $lngReq - $item->vendor->longitude;
                 $dist = sin(deg2rad($latReq)) * sin(deg2rad($item->vendor->latitude)) +
                         cos(deg2rad($latReq)) * cos(deg2rad($item->vendor->latitude)) * cos(deg2rad($theta));
-
                 $dist = acos($dist);
                 $dist = rad2deg($dist);
-                $km   = $dist * 60 * 1.1515 * 1.609344;
-
-                $distance = round($km, 2);
+                $distance = round($dist * 60 * 1.1515 * 1.609344, 2);
             }
 
             return [
-                'image'     => $item->image,
-                'title'     => $item->model->name ?? null,
+                "vendor"    => $item->vendor->name ?? null,
+                'model'     => $item->model->name ?? null,
                 'price'     => $item->price,
-                'latitude'  => $item->vendor->latitude ?? null,
-                'longitude' => $item->vendor->longitude ?? null,
-                'condition' => $item->condition,
-                'distance'  => $distance
+                'distance'  => round($distance) . ' km',
+				"repair_service" => $item->vendor->	repair_service ?? null,
+                'image'     => asset($item->image),
             ];
         });
 
-        // ---------------------------
-        // RETURN FINAL RESPONSE
-        // ---------------------------
         return response()->json([
             'status' => 'success',
             'count'  => $formatted->count(),

@@ -5,7 +5,7 @@
     <div class="main-content" style="min-height: 562px;">
         <section class="section">
             <div class="section-body">
-                <a class="btn btn-primary mb-3" href="{{ route('mobile.index') }}">Back</a>
+                <a class="btn btn-primary mb-3" href="{{ route('vendormobile.index') }}">Back</a>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">

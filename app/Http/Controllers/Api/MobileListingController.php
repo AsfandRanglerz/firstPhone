@@ -25,15 +25,18 @@ public function getmobileListing()
 {
     try{
         $vendor = Auth::id();
-        $listings = VendorMobile::with('model')
+        $listings = VendorMobile::with('brand')
             ->where('vendor_id', $vendor)
             ->get()
             ->map(function ($listing) {
                 $images = json_decode($listing->image, true) ?? [];
                 $firstImage = !empty($images) ? asset($images[0]) : null;
                 return [
-                    'model' => $listing->model ? $listing->model->name : null,
+                    'id' => $listing->id,
+                    'brand' => $listing->brand ? $listing->brand->name : null,
+                    'vendor' => $listing->vendor->name,
                     'price' => $listing->price,
+                    'stock' => $listing->stock,
                     // 'image' => $listing->image ? array_map(function ($path) {
                     //     return asset($path);
                     // }, json_decode($listing->image, true) ?? []) : [],

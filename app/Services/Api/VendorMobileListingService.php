@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use App\Models\VendorMobile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -57,16 +58,33 @@ class VendorMobileListingService
             'os_version' => $request->os_version,
             'warranty_start' => $request->warranty_start,
             'warranty_end' => $request->warranty_end,
+            'pta_approved' => $request->pta_approved,
             'vendor_id' => $vendorId,
             'image' => json_encode($mediaPaths),
         ];
 
         $listing = $this->vendormobileListingRepo->create($data);
+        $listing->load('brand', 'model');
 
-        $data['id'] = $listing->id;
-        $data['image'] = array_map(fn($path) => asset($path), $mediaPaths);
+        // Convert listing to array
+        $listingArray = $listing->toArray();
 
-        return $data;
+        // Prepend brand & model at the top
+        $response = array_merge(
+        [
+            'id' => $listing->id,
+            'brand' => $listing->brand->name ?? null,
+            'model' => $listing->model->name ?? null,
+        ],
+        // Remove brand_id & model_id
+        Arr::except($listingArray, ['brand_id', 'model_id', 'brand', 'model']),
+        [
+            // Replace image paths with full asset URLs
+            'image' => array_map(fn($path) => asset($path), $mediaPaths),
+        ]
+    );
+
+        return $response;
     }
 
     public function previewListing($id)
