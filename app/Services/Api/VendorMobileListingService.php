@@ -33,6 +33,17 @@ class VendorMobileListingService
             }
         }
 
+        // ✅ Handle video upload
+        $videoPaths = [];
+        if ($request->hasFile('video')) {
+            foreach ($request->file('video') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $file->move(public_path('admin/assets/videos/'), $filename);
+                $videoPaths[] = 'public/admin/assets/videos/' . $filename;
+            }
+        }
+
         $data = [
             'brand_id' => $request->brand_id,
             'model_id' => $request->model_id,
@@ -59,8 +70,10 @@ class VendorMobileListingService
             'warranty_start' => $request->warranty_start,
             'warranty_end' => $request->warranty_end,
             'pta_approved' => $request->pta_approved,
+            'location' => $request->location,
             'vendor_id' => $vendorId,
             'image' => json_encode($mediaPaths),
+            'video' => json_encode($videoPaths),
         ];
 
         $listing = $this->vendormobileListingRepo->create($data);
@@ -81,6 +94,7 @@ class VendorMobileListingService
         [
             // Replace image paths with full asset URLs
             'image' => array_map(fn($path) => asset($path), $mediaPaths),
+            'video' => array_map(fn($path) => asset($path), $videoPaths),
         ]
     );
 
@@ -92,6 +106,7 @@ class VendorMobileListingService
         $listing = $this->vendormobileListingRepo->findWithRelations($id);
 
         $images = json_decode($listing->image, true) ?? [];
+        $videos = json_decode($listing->video, true) ?? [];
 
         return [
             'id'        => $listing->id,
@@ -119,9 +134,10 @@ class VendorMobileListingService
             'os_version' => $listing->os_version,
             'warranty_start' => $listing->warranty_start,
             'warranty_end' => $listing->warranty_end,
-            'quantity' => $listing->quantity,
+            // 'quantity' => $listing->quantity,
             'vendor_id' => $listing->vendor_id,
             'image'     => array_map(fn($path) => asset($path), $images),
+            'video'     => array_map(fn($path) => asset($path), $videos),
         ];
     }
 }

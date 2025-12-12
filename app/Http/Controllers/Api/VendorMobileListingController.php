@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Api\VendorMobileListingService;
 
 class VendorMobileListingController extends Controller
@@ -36,4 +38,37 @@ class VendorMobileListingController extends Controller
             return ResponseHelper::error($e->getMessage(), 'An error occurred while generating preview', 'error', 500);
         }
     }
+
+    public function deleteMobileListing(Request $request)
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Unauthorized',
+        ], 401);
+    }
+
+    $id = $request->query('id');
+
+    // Find cart item
+    $mobile = VendorMobile::where('id', $id)
+        ->where('user_id', $user->id) // ensure item belongs to the logged-in user
+        ->first();
+
+    if (!$mobile) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Mobile Listing not found',
+        ], 404);
+    }
+
+    // Delete the record
+    $mobile->delete();
+
+    return response()->json([
+        'message' => 'Mobile Listing deleted successfully',
+    ], 200);
+}
 }

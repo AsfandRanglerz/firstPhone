@@ -27,21 +27,43 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                   <td>
-                                                        @php
-                                                            $images = json_decode($mobile->image, true);
-                                                        @endphp
+                                                                                                                    @php
+                                                                $images = json_decode($mobile->image, true) ?? [];
+                                                                $videos = json_decode($mobile->video, true) ?? [];
 
-                                                            @if(!empty($images))
-                                                                {{-- Show only first image in table --}}
-                                                                <img src="{{ asset($images[0]) }}" 
-                                                                    alt="Mobile Image" 
-                                                                    style="width: 50px; height: 50px; cursor: pointer;" 
-                                                                    data-bs-toggle="modal" 
-                                                                    data-bs-target="#imageModal" 
-                                                                    data-images='@json(array_map("asset", $images))'
-                                                                    data-start-index="0">
+                                                                $media = [];
+
+                                                                foreach ($images as $img) {
+                                                                    $media[] = ['type' => 'image', 'src' => asset($img)];
+                                                                }
+
+                                                                foreach ($videos as $vid) {
+                                                                    $media[] = ['type' => 'video', 'src' => asset($vid)];
+                                                                }
+                                                            @endphp
+
+                                                            @if(!empty($media))
+                                                                @php $first = $media[0]; @endphp
+
+                                                                {{-- Thumbnail --}}
+                                                                @if($first['type'] === 'image')
+                                                                    <img src="{{ $first['src'] }}"
+                                                                        style="width:50px; height:50px; cursor:pointer;"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#imageModal"
+                                                                        data-media='@json($media)'
+                                                                        data-start-index="0">
+                                                                @else
+                                                                    <video width="60" height="50" style="cursor:pointer;"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#imageModal"
+                                                                        data-media='@json($media)'
+                                                                        data-start-index="0">
+                                                                        <source src="{{ $first['src'] }}">
+                                                                    </video>
+                                                                @endif
                                                             @else
-                                                                <span class="text-muted">No Image</span>
+                                                                <span class="text-muted">No Media</span>
                                                             @endif
                                                         </td>
                                                 </tr>
@@ -120,38 +142,48 @@
         });
 
         
-   document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     var imageModal = document.getElementById('imageModal');
     var carouselInner = document.getElementById('carouselImages');
 
     imageModal.addEventListener('show.bs.modal', function (event) {
-        var triggerImg = event.relatedTarget;
-        var images = JSON.parse(triggerImg.getAttribute('data-images'));
-        var startIndex = parseInt(triggerImg.getAttribute('data-start-index'), 10);
+        var trigger = event.relatedTarget;
+        var mediaList = JSON.parse(trigger.getAttribute('data-media'));
+        var startIndex = parseInt(trigger.getAttribute('data-start-index'), 10);
 
-        // Clear previous slides
         carouselInner.innerHTML = '';
 
-        images.forEach((img, index) => {
+        mediaList.forEach((item, index) => {
             var div = document.createElement('div');
             div.classList.add('carousel-item');
-            if (index === startIndex) {
-                div.classList.add('active');
+            if (index === startIndex) div.classList.add('active');
+
+            if (item.type === "image") {
+                div.innerHTML = `
+                    <img src="${item.src}" class="img-fluid"
+                         style="max-height:65vh; max-width:85%; object-fit:contain;">
+                `;
+            } else if (item.type === "video") {
+                div.innerHTML = `
+                    <video controls class="w-100" 
+                           style="max-height:65vh; max-width:85%; object-fit:contain;">
+                        <source src="${item.src}" type="video/mp4">
+                    </video>
+                `;
             }
-            div.innerHTML = `<img src="${img}" class="img-fluid" 
-             style="max-height:60vh; max-width:80%; object-fit:contain;">`;
+
             carouselInner.appendChild(div);
         });
 
-        // Force carousel to start at clicked image
-      var carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
-    interval: false,   // disables auto-slide
-    ride: false        // prevents starting automatically
-});
+        var carousel = new bootstrap.Carousel(document.getElementById('imageCarousel'), {
+            interval: false,
+            ride: false
+        });
 
         carousel.to(startIndex);
     });
 });
+
 
 
 
