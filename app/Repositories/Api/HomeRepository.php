@@ -184,6 +184,12 @@ class HomeRepository implements HomeRepositoryInterface
         ? json_decode($images, true)
         : [$images];
 
+        $videos = $listing->video;
+
+        $videos = is_string($videos) && is_array(json_decode($videos, true))
+        ? json_decode($videos, true)
+        : ($videos ? [$videos] : []);
+
         return [
             'status' => 'success',
 
@@ -230,6 +236,11 @@ class HomeRepository implements HomeRepositoryInterface
             'images' => array_map(function ($path) {
                 return asset($path);
             }, $images),
+
+            // Videos
+            'videos' => array_map(function ($path) {
+                return asset($path);
+            }, $videos),
         ];
     }
 }
