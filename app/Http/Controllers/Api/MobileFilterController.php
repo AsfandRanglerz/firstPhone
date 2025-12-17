@@ -314,6 +314,9 @@ elseif ($hasLatLng) {
         // FORMAT RESPONSE
         // ---------------------------
         $formatted = $listings->map(function ($item) use ($radius, $latReq, $lngReq) {
+            $images = is_string($item->image) && is_array(json_decode($item->image, true))
+            ? json_decode($item->image, true)
+            : ($item->image ? [$item->image] : []);
             $distance = null;
             if ($radius !== null && $item->vendor?->latitude && $item->vendor?->longitude) {
                 $theta = $lngReq - $item->vendor->longitude;
@@ -330,7 +333,7 @@ elseif ($hasLatLng) {
                 'price'     => $item->price,
                 'distance'  => round($distance) . ' km',
 				"repair_service" => $item->vendor->	repair_service ?? null,
-                'image'     => asset($item->image),
+                'image'     => array_map(fn ($path) => asset($path), $images),
             ];
         });
 
