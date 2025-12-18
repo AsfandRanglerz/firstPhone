@@ -27,7 +27,7 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                   <td>
-                                                                                                                    @php
+                                                            @php
                                                                 $images = json_decode($mobile->image, true) ?? [];
                                                                 $videos = json_decode($mobile->video, true) ?? [];
 
