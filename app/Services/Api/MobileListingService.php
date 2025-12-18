@@ -48,6 +48,16 @@ if ($alreadyExists) {
         }
     }
 
+    $videos = [];
+        if ($request->hasFile('video')) {
+            foreach ($request->file('video') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $file->move(public_path('admin/assets/videos/'), $filename);
+                $videos[] = 'public/admin/assets/videos/' . $filename;
+            }
+        }
+
     $data = [
         'brand'    => $request->brand,
         'model'    => $request->model,
@@ -61,12 +71,14 @@ if ($alreadyExists) {
         'about'       => $request->about,
         'customer_id' => $customerId,
         'image'       => json_encode($mediaPaths),
+        'video'       => json_encode($videos),
     ];
 
     $listing = $this->mobileListingRepo->create($data);
 
     $data['id'] = $listing->id;
     $data['image'] = array_map(fn($path) => asset($path), $mediaPaths);
+    $data['video'] = array_map(fn($path) => asset($path), $videos);
 
     return $data;
 }
