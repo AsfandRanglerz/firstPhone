@@ -25,8 +25,8 @@ public function createCustomerListing($request)
 
     // 🔍 Pehle check karo ke ye mobile pehle se listed to nahi
     $alreadyExists = MobileListing::where('customer_id', $customerId)
-        ->where('brand_id', $request->brand_id)
-        ->where('model_id', $request->model_id)
+        ->where('brand', $request->brand)
+        ->where('model', $request->model)
         ->exists();
 
 if ($alreadyExists) {
@@ -49,8 +49,8 @@ if ($alreadyExists) {
     }
 
     $data = [
-        'brand_id'    => $request->brand_id,
-        'model_id'    => $request->model_id,
+        'brand'    => $request->brand,
+        'model'    => $request->model,
         'location'    => $request->location,
         'latitude'    => $request->latitude,
         'longitude'   => $request->longitude,

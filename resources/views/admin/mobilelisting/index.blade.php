@@ -51,16 +51,16 @@
                                                 </td>
                                                 <td>{{ $mobile->location }}</td>
                                                 <td>
-                                                    @if (optional($mobile->brand)->name)
-                                                        {{ $mobile->brand->name }}
+                                                    @if (optional($mobile->brand))
+                                                        {{ $mobile->brand }}
                                                     @else
                                                         <span class="text-muted">No Brand</span>
                                                     @endif
                                                 </td>
 
                                                 <td>
-                                                    @if (optional($mobile->model)->name)
-                                                        {{ $mobile->model->name }}
+                                                    @if (optional($mobile->model))
+                                                        {{ $mobile->model }}
                                                     @else
                                                         <span class="text-muted">No Model</span>
                                                     @endif
