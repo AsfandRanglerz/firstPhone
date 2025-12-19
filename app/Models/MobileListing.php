@@ -43,17 +43,17 @@ class MobileListing extends Model
     }
 
 
-    protected $appends = ['brand_name', 'model_name'];
+    // protected $appends = ['brand_name', 'model_name'];
 
-    public function getBrandNameAttribute()
-    {
-        return $this->brand ? $this->brand->name : null;
-    }
+    // public function getBrandNameAttribute()
+    // {
+    //     return $this->brand ? $this->brand->name : null;
+    // }
 
-    public function getModelNameAttribute()
-    {
-        return $this->model ? $this->model->name : null;
-    }
+    // public function getModelNameAttribute()
+    // {
+    //     return $this->model ? $this->model->name : null;
+    // }
 
     public function carts()
 {

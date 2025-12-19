@@ -7,7 +7,9 @@ use Illuminate\Support\Arr;
 use App\Models\VendorMobile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Repositories\Api\VendorMobileListingRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class VendorMobileListingService
 {
@@ -101,6 +103,105 @@ class VendorMobileListingService
         return $response;
     }
 
+public function updateListing($request, $id)
+{
+    $vendorId = Auth::id();
+
+    $listing = $this->vendormobileListingRepo->find($id);
+
+    if (!$listing) {
+        throw new ModelNotFoundException('Listing not found');
+    }
+
+    if ($listing->vendor_id != $vendorId) {
+        throw new AuthorizationException('Unauthorized');
+    }
+
+    /* ---------------- IMAGE UPLOAD ---------------- */
+    if ($request->hasFile('image')) {
+        $images = [];
+        foreach ($request->file('image') as $file) {
+            $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path('admin/assets/images/users/'), $filename);
+            $images[] = 'public/admin/assets/images/users/'.$filename;
+        }
+    } else {
+        $images = json_decode($listing->image, true) ?? [];
+    }
+
+    /* ---------------- VIDEO UPLOAD ---------------- */
+    if ($request->hasFile('video')) {
+        $videos = [];
+        foreach ($request->file('video') as $file) {
+            $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path('admin/assets/videos/'), $filename);
+            $videos[] = 'public/admin/assets/videos/'.$filename;
+        }
+    } else {
+        $videos = json_decode($listing->video, true) ?? [];
+    }
+
+    /* ---------------- UPDATE DATA ---------------- */
+    $fields = [
+        'brand_id', 'model_id', 'storage', 'ram', 'color', 'price', 'condition', 
+        'about', 'processor', 'display', 'charging', 'refresh_rate', 'main_camera',
+        'ultra_camera', 'telephoto_camera', 'front_camera', 'build', 'wireless', 
+        'stock', 'ai_features', 'battery_health', 'os_version', 'pta_approved', 
+        'location', 'latitude', 'longitude'
+    ];
+
+    $data = [];
+
+    foreach ($fields as $field) {
+        // If request has this field, use it, otherwise keep old value
+        $data[$field] = $request->has($field) ? $request->$field : $listing->$field;
+    }
+
+    $data['image'] = json_encode($images);
+    $data['video'] = json_encode($videos);
+
+    $updated = $this->vendormobileListingRepo->update($id, $data);
+    $updated->refresh();
+    $updated->load('brand', 'model');
+
+    /* ---------------- FULL RESPONSE ---------------- */
+    return [
+        'id'              => $updated->id,
+        'brand'           => $updated->brand?->name,
+        'model'           => $updated->model?->name,
+        'storage'         => $updated->storage,
+        'ram'             => $updated->ram,
+        'color'           => $updated->color,
+        'price'           => $updated->price,
+        'condition'       => $updated->condition,
+        'about'           => $updated->about,
+        'processor'       => $updated->processor,
+        'display'         => $updated->display,
+        'charging'        => $updated->charging,
+        'refresh_rate'    => $updated->refresh_rate,
+        'main_camera'     => $updated->main_camera,
+        'ultra_camera'    => $updated->ultra_camera,
+        'telephoto_camera'=> $updated->telephoto_camera,
+        'front_camera'    => $updated->front_camera,
+        'build'           => $updated->build,
+        'wireless'        => $updated->wireless,
+        'stock'           => $updated->stock,
+        'ai_features'     => $updated->ai_features,
+        'battery_health'  => $updated->battery_health,
+        'os_version'      => $updated->os_version,
+        'pta_approved'    => $updated->pta_approved,
+        'location'        => $updated->location,
+        'latitude'        => $updated->latitude,
+        'longitude'       => $updated->longitude,
+
+        'image' => array_map(fn($path) => asset($path), json_decode($updated->image, true) ?? []),
+        'video' => array_map(fn($path) => asset($path), json_decode($updated->video, true) ?? []),
+
+        'created_at' => $updated->created_at,
+        'updated_at' => $updated->updated_at,
+    ];
+}   
+
     public function previewListing($id)
     {
         $listing = $this->vendormobileListingRepo->findWithRelations($id);
@@ -140,4 +241,39 @@ class VendorMobileListingService
             'video'     => array_map(fn($path) => asset($path), $videos),
         ];
     }
+
+    public function deactivateListing($id)
+{
+    $vendorId = Auth::id();
+
+    $listing = $this->vendormobileListingRepo->find($id);
+
+    if (!$listing) {
+        throw new ModelNotFoundException('Listing not found');
+    }
+
+    // 🔐 Ownership check
+    if ($listing->vendor_id !== $vendorId) {
+        throw new AuthorizationException('Unauthorized');
+    }
+
+    // 🚫 Already deactivated
+    if ($listing->status === 1) {
+        return [
+            'id'     => $listing->id,
+            'status' => 1,
+            'state'  => 'already_deactivated'
+        ];
+    }
+
+    // ✅ Deactivate
+    $listing->status = 1;
+    $listing->save();
+
+    return [
+        'id'     => $listing->id,
+        'status' => 1,
+        'state'  => 'deactivated'
+    ];
+}
 }

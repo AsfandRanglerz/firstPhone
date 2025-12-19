@@ -101,7 +101,7 @@ public function markAsSold($id)
             return ResponseHelper::error(null, 'This listing is already marked as sold', 'already_sold', 400);
         }
 
-        $listing->is_sold = true;
+        $listing->is_sold = 1;
         $listing->save();
 
         return ResponseHelper::success($listing, 'Listing marked as sold successfully');
@@ -109,6 +109,40 @@ public function markAsSold($id)
         return ResponseHelper::error($e->getMessage(), 'Failed to mark listing as sold', 'server_error', 500);
     }
 }
+
+public function customerdeleteMobileListing(Request $request)
+{
+    $customer = Auth::user();
+
+    if (!$customer) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Unauthorized',
+        ], 401);
+    }
+
+    $id = $request->query('id');
+
+    // Find cart item
+    $mobile = MobileListing::where('id', $id)
+        ->where('customer_id', $customer->id) // ensure item belongs to the logged-in user
+        ->first();
+
+    if (!$mobile) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Mobile Listing not found',
+        ], 404);
+    }
+
+    // Delete the record
+    $mobile->delete();
+
+    return response()->json([
+        'message' => 'Mobile Listing deleted successfully',
+    ], 200);
+}
+
 
 
 

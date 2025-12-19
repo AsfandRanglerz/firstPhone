@@ -29,6 +29,44 @@ class VendorMobileListingController extends Controller
         }
     }
 
+    public function editListing(Request $request, $id)
+    {
+        try {
+            $data = $this->vendorMobileService->updateListing($request, $id);
+
+            return ResponseHelper::success(
+                $data,
+                'Listing updated successfully',
+                null,
+                200
+            );
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return ResponseHelper::error(
+                'Listing not found',
+                'Listing not found',
+                'not_found',
+                404
+            );
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return ResponseHelper::error(
+                'Unauthorized',
+                'Unauthorized',
+                'unauthorized',
+                403
+            );
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error(
+                $e->getMessage(),
+                'Failed to update listing',
+                'server_error',
+                500
+            );
+        }
+    }
+
     public function previewListing($id)
     {
         try {
@@ -70,5 +108,27 @@ class VendorMobileListingController extends Controller
     return response()->json([
         'message' => 'Mobile Listing deleted successfully',
     ], 200);
+}
+
+public function deactivateMobileListing($id)
+{
+    try {
+        $data = $this->vendormobileListingService->deactivateListing($id);
+
+        return ResponseHelper::success(
+            $data,
+            'Listing deactivated successfully',
+            null,
+            200
+        );
+
+    } catch (\Exception $e) {
+        return ResponseHelper::error(
+            $e->getMessage(),
+            'An error occurred while deactivating the listing',
+            'error',
+            500
+        );
+    }
 }
 }

@@ -110,11 +110,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // vendor side Mobile Listing
     Route::post('/mobilelisting', [VendorMobileListingController::class, 'mobileListing']);
     Route::get('/getmobilelisting', [MobileListingController::class, 'getmobileListing']);
+    Route::post('/editmobilelisting/{id}', [VendorMobileListingController::class, 'editListing']);
     Route::delete('/deletemobilelisting', [VendorMobileListingController::class, 'deleteMobileListing']);
+
+    // deactivate vendor mobile listing
+    Route::post('/deactivatemobile/{id}/listings', [VendorMobileListingController::class, 'deactivateMobileListing']);
 
     // customer side mobile listing
     Route::post('/customermobilelisting', [CustomerMobileListingController::class, 'customermobileListing']);
     Route::get('/getcustomermobilelisting', [CustomerMobileListingController::class, 'getcustomermobileListing']);
+    Route::delete('/customerdeletemobilelisting', [MobileListingController::class, 'customerdeleteMobileListing']);
 
     //Nearby Customer Listings
     Route::get('/getnearbycustomerlistings', [MobileListingController::class, 'getNearbyCustomerListings']);
