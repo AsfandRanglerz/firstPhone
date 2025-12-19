@@ -139,6 +139,7 @@ public function getcustomernearbyListings($vendorLat, $vendorLng, $radius = 30)
         "))
         ->having('distance', '<=', $radius) // filter within radius (default 30 km)
         ->orderBy('distance', 'asc')
+        ->where('is_sold', 0)
         ->get()
         ->map(function ($listing) {
             $images = json_decode($listing->image, true) ?? [];
