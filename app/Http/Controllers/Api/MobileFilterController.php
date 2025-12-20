@@ -328,6 +328,7 @@ elseif ($hasLatLng) {
             }
 
             return [
+                'id' => $item->id,
                 "vendor"    => $item->vendor->name ?? null,
                 'model'     => $item->model->name ?? null,
                 'price'     => $item->price,
