@@ -26,7 +26,7 @@ class HomeRepository implements HomeRepositoryInterface
         $endDate = $request->query('end_date');
 
         $query = VendorMobile::with(['model', 'vendor'])
-            ->where('status', 0)
+            // ->where('status', 0)
             ->join('vendors', 'vendor_mobiles.vendor_id', '=', 'vendors.id')
             ->select(
                 'vendor_mobiles.id',

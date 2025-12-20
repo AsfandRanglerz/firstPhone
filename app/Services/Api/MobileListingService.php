@@ -127,9 +127,9 @@ public function getcustomermobileListing()
         return $data;
 }
 
-public function getcustomernearbyListings($vendorLat, $vendorLng, $radius = 30)
+public function getcustomernearbyListings($vendorLat, $vendorLng, $radius = 50)
 {
-    return MobileListing::with(['model','customer'])
+    return MobileListing::with('customer')
         ->select('*', DB::raw("
             (6371 * acos(
                 cos(radians($vendorLat)) * cos(radians(latitude)) *
@@ -140,21 +140,29 @@ public function getcustomernearbyListings($vendorLat, $vendorLng, $radius = 30)
         ->having('distance', '<=', $radius) // filter within radius (default 30 km)
         ->orderBy('distance', 'asc')
         ->where('is_sold', 0)
+        ->where('status', 0)
         ->get()
         ->map(function ($listing) {
+           // ✅ Images
             $images = json_decode($listing->image, true) ?? [];
+            $imageUrls = array_map(fn ($img) => asset($img), $images);
 
-            // Convert all image paths to full URLs
-            $imageUrls = array_map(function ($img) {
-                return url('admin/assets/images/users/' . basename($img));
-            }, $images);
+            // ✅ Videos
+            $videos = json_decode($listing->video, true) ?? [];
+            $videoUrls = array_map(fn ($vid) => asset($vid), $videos);
 
             return [
                 'id' => $listing->id,
-                'model' => $listing->model ? $listing->model->name : null,
+                'brand' => $listing->brand,
+                'model' => $listing->model,
+                'storage' => $listing->storage,
+                'ram' => $listing->ram,
+                'condition' => $listing->condition,
                 'customer' => $listing->customer ? $listing->customer->name : null,
                 'price' => $listing->price,
+                'about' => $listing->about,
                 'image' => $imageUrls,
+                'video' => $videoUrls,
                 'distance' => round($listing->distance, 1) . ' km',
             ];
         });
