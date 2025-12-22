@@ -21,6 +21,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sr.</th>
+                                            <th>Date & Time</th>
                                             <th>Name</th>
                                             <th>Location</th>
                                             <th>Brand</th>
@@ -40,6 +41,7 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $mobile->created_at->format('d M Y, h:i A') }}</td>
                                                 <td>
                                                     {{ $mobile->customer->name ?? '' }} <br>
                                                     <a href="mailto:{{ $mobile->customer->email ?? '' }}" class="mail-to">

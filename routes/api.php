@@ -154,6 +154,7 @@ Route::get('/listings/nearby', [HomeController::class, 'getNearbyListings']);
 Route::get('/models/{brand_id}', [MobileFilterController::class, 'getModels']);
 Route::get('/brands', [MobileFilterController::class, 'getBrands']);
 Route::post('/mobile-filters-data', [MobileFilterController::class, 'getData']);
+Route::get('/getminmaxprice', [MobileFilterController::class, 'getMinMaxPrice']);
 
 //Mobile listing preview api
 Route::get('/mobilelistingpreview/{id}', [VendorMobileListingController::class, 'previewListing']);

@@ -496,6 +496,17 @@ class AuthRepository implements AuthRepositoryInterface
     $customer = User::where('email', $email)->first();
     $vendor   = Vendor::where('email', $email)->with('images')->first();
 
+    $vendorStatusMessage = null;
+
+    if ($vendor) {
+        if ($vendor->status == 'pending') {
+            $vendorStatusMessage = 'Your account is under review. Please wait for admin approval.';
+        } elseif ($vendor->status == 'deactivated') {
+            $vendorStatusMessage = 'Your account has been deactivated.';
+        } 
+    }
+
+
     if (!$customer && !$vendor) {
         return [
             'status' => 'not_found',
@@ -545,6 +556,8 @@ class AuthRepository implements AuthRepositoryInterface
                     'cnic_front' => $vendor->cnic_front,
                     'cnic_back' => $vendor->cnic_back,
                     'images' => $vendor->images->pluck('image')->toArray(),
+                    'status' => $vendor->status,
+                    'status_message' => $vendorStatusMessage,
                 ],
                 'token' => $vendorToken,
             ],
@@ -577,6 +590,8 @@ class AuthRepository implements AuthRepositoryInterface
                 'cnic_front' => $vendor->cnic_front,
                 'cnic_back' => $vendor->cnic_back,
                 'images' => $vendor->images->pluck('image')->toArray(),
+                'status' => $vendor->status,
+                'status_message' => $vendorStatusMessage,
             ],
             'token' => $vendorToken,
         ],

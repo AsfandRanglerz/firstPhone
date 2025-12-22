@@ -350,9 +350,32 @@ elseif ($hasLatLng) {
             'message' => $e->getMessage()
         ], 500);
     }
+   
 }
 
+public function getMinMaxPrice()
+{
+    try {
+        $minPrice = VendorMobile::min('price');
+        $maxPrice = VendorMobile::max('price');
 
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Price range fetched successfully',
+            'data' => [
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to fetch price range',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 
 
