@@ -19,7 +19,7 @@
         }
 
         .banner {
-            background:  #009245;
+            background:  #4AB95A;
             padding: 60px 0;
             display: flex;
             justify-content: center;
@@ -125,7 +125,7 @@
         }
 
         input[type=submit] {
-            background-color:  #009245;
+            background-color:  #4AB95A;
             color: white;
             padding: 12px 20px;
             border: none;

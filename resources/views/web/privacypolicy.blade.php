@@ -16,7 +16,7 @@
         }
 
         .banner {
-            background: linear-gradient(115deg, #009245 0%, #009245 89%);
+            background: linear-gradient(115deg, #4AB95A 0%, #4AB95A 89%);
 
             padding: 60px 0;
             display: flex;
