@@ -23,6 +23,12 @@ class Vendor extends Authenticatable
         return $this->hasMany(MobileListing::class);
     }
 
+    public function vendorMobiles()
+    {
+        return $this->hasMany(VendorMobile::class);
+    }
+
+
 	// VendorMobile.php
 public function vendor()
 {

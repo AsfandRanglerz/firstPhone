@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Brand;
+use App\Models\Vendor;
+use App\Models\MobileModel;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\MobileRequest;
 use App\Helpers\ResponseHelper;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\NotificationHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use App\Models\Vendor;
-use App\Helpers\NotificationHelper;
 use App\Repositories\Api\Interfaces\RequestedMobileRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 
 class RequestFormController extends Controller
 {
@@ -29,12 +32,25 @@ class RequestFormController extends Controller
         try {
             $user = Auth::user();
 
+            
+            $brand = Brand::firstOrCreate(
+                ['name' => trim($request->brand_name)],
+                ['slug' => Str::slug($request->brand_name)]
+            );
+
+            $model = MobileModel::firstOrCreate(
+                [
+                    'name' => trim($request->model_name),
+                    'brand_id' => $brand->id
+                ]
+            );
+
             // Save mobile request
             $mobileRequest = MobileRequest::create([
                 'name'        => $user->name,
                 'location'    => $request->location,
-                'brand_id'    => $request->brand_id,
-                'model_id'    => $request->model_id,
+                'brand_id'    => $brand->id,
+                'model_id'    => $model->id,
                 'min_price'   => $request->min_price,
                 'max_price'   => $request->max_price,
                 'storage'     => $request->storage,
@@ -52,9 +68,9 @@ class RequestFormController extends Controller
             $radius = $request->location ?? 10; //
 
             // Vendors filter by brand/model & distance
-            $vendors = Vendor::whereHas('mobileListings', function ($q) use ($request) {
-                $q->where('brand_id', $request->brand_id)
-                    ->where('model_id', $request->model_id);
+            $vendors = Vendor::whereHas('mobileListings', function ($q) use ($brand, $model) {
+                $q->where('brand_id', $brand->id)
+                    ->where('model_id', $model->id);
             })
                 ->select('*', DB::raw("6371 * acos(cos(radians($lat)) 
                         * cos(radians(latitude)) 
@@ -71,7 +87,7 @@ class RequestFormController extends Controller
                     NotificationHelper::sendFcmNotification(
                         $vendor->fcm_token,
                         "New Mobile Request",
-                        "Customer requested {$mobileRequest->brand->name} {$mobileRequest->model->name}",
+                        "Customer requested {$brand->name} {$model->name}",
                         [
                             'request_id' => (string) $mobileRequest->id,
                             'min_price'  => (string) $mobileRequest->min_price,
@@ -90,8 +106,12 @@ class RequestFormController extends Controller
             );
         } catch (ValidationException $e) {
             return ResponseHelper::error($e->errors(), 'Validation failed', 'error', 422);
-        } catch (\Exception $e) {
-            return ResponseHelper::error($e->getMessage(), 'An error occurred while submitting the request', 'error', 500);
+        } catch (\Exception $e) { return ResponseHelper::error([ 'message' => $e->getMessage(), 'file' => $e->getFile(),'line' => $e->getLine()
+                ],
+                'Unexpected error',
+                'error',
+                500
+            );
         }
     }
 

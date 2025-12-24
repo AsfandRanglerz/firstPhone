@@ -38,7 +38,8 @@ class RequestedMobileRepository implements RequestedMobileRepositoryInterface
         return [
             'id' => $item->id,
             'name' => $item->name,
-            'brand_model' => $item->brand?->name . ' ' . $item->model?->name,
+            'brand_name'  => $item->brand?->name,
+            'model_name'  => $item->model?->name,
             'location' => $item->location,
             'latitude' => $item->latitude,
             'longitude' => $item->longitude,

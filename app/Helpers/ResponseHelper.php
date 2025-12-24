@@ -37,6 +37,7 @@ class ResponseHelper {
         return response()->json([
             'status' => $status ?: 'error',
             'message' => $message,
+            'data' => $data,
         ], $resolvedStatusCode);
     }
 
