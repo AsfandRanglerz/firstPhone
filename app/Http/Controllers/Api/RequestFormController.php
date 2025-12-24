@@ -47,6 +47,7 @@ class RequestFormController extends Controller
 
             // Save mobile request
             $mobileRequest = MobileRequest::create([
+                'customer_id' => $user->id,
                 'name'        => $user->name,
                 'location'    => $request->location,
                 'brand_id'    => $brand->id,
