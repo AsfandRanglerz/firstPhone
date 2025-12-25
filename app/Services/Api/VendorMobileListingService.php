@@ -259,23 +259,22 @@ public function updateListing($request, $id)
         throw new AuthorizationException('Unauthorized');
     }
 
-    // 🚫 Already deactivated
-    if ($listing->status === 1) {
-        return [
-            'id'     => $listing->id,
-            'status' => 1,
-            'state'  => 'already_deactivated'
-        ];
+    if ($listing->status == 1) {
+        // currently deactivated → activate it
+        $listing->status = 0;
+        $state = 'activated';
+    } else {
+        // currently active → deactivate it
+        $listing->status = 1;
+        $state = 'deactivated';
     }
 
-    // ✅ Deactivate
-    $listing->status = 1;
     $listing->save();
 
     return [
         'id'     => $listing->id,
-        'status' => 1,
-        'state'  => 'deactivated'
+        'status' => $listing->status,
+        'state'  => $state
     ];
 }
 }
