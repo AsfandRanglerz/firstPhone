@@ -226,7 +226,8 @@ public function getData(Request $request)
         // ---------------------------
         $query = VendorMobile::with('vendor', 'model')
             ->where('brand_id', $request->brand_id)
-            ->where('model_id', $request->model_id);
+            ->where('model_id', $request->model_id)
+            ->where('status', 0);
 
         // ---------------------------
         // OPTIONAL FILTERS

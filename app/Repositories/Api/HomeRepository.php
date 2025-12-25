@@ -49,6 +49,7 @@ class HomeRepository implements HomeRepositoryInterface
             ", [$customerLat, $customerLng, $customerLat])
             ->having('distance', '<=', $radius)
             ->orderBy('distance', 'asc')
+            ->where('vendor_mobiles.status', 0)
             ->where('vendor_mobiles.stock', '>', 0);
 
         if (!empty($search)) {
