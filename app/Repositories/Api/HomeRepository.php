@@ -196,6 +196,7 @@ class HomeRepository implements HomeRepositoryInterface
 
             // Specifications
             'specifications' => [[
+                'product_id' => $listing->id,
                 'brand_id' => $listing->brand->id,
                 'brand'            => $listing->brand ? $listing->brand->name : null,
                 'model_id' => $listing->model->id,

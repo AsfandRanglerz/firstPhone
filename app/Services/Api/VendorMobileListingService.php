@@ -73,6 +73,8 @@ class VendorMobileListingService
             'warranty_end' => $request->warranty_end,
             'pta_approved' => $request->pta_approved,
             'location' => $request->location,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
             'vendor_id' => $vendorId,
             'image' => json_encode($mediaPaths),
             'video' => json_encode($videoPaths),
