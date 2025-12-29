@@ -179,18 +179,31 @@ class HomeRepository implements HomeRepositoryInterface
             ->where('id', $id)
             ->firstOrFail();
 
-        $images = $listing->image;
+        if (empty($listing->image)) {
 
-    // Support both single string and JSON array
-        $images = is_string($images) && is_array(json_decode($images, true))
-        ? json_decode($images, true)
-        : [$images];
+        // If NO video uploaded → return null
+        $images = null;
 
-        $videos = $listing->video;
+    } else {
 
-        $videos = is_string($videos) && is_array(json_decode($videos, true))
-        ? json_decode($videos, true)
-        : ($videos ? [$videos] : []);
+        // If video exists → decode normally
+        $images = is_string($listing->image) && is_array(json_decode($listing->image, true))
+            ? json_decode($listing->image, true)
+            : [$listing->image];
+    }
+
+       if (empty($listing->video)) {
+
+        // If NO video uploaded → return null
+        $videos = null;
+
+    } else {
+
+        // If video exists → decode normally
+        $videos = is_string($listing->video) && is_array(json_decode($listing->video, true))
+            ? json_decode($listing->video, true)
+            : [$listing->video];
+    }
 
         return [
             'status' => 'success',
@@ -238,14 +251,14 @@ class HomeRepository implements HomeRepositoryInterface
             'description' => [$listing->about],
 
             // Images
-            'images' => array_map(function ($path) {
-                return asset($path);
-            }, $images),
+             'images' => $images
+            ? array_map(fn($p) => asset($p), $images)
+            : null,
 
             // Videos
-            'videos' => array_map(function ($path) {
-                return asset($path);
-            }, $videos),
+             'videos' => $videos
+            ? array_map(fn($p) => asset($p), $videos)
+            : null,
         ];
     }
 }
