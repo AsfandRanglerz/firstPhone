@@ -132,6 +132,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mobile-cart-get', [MobileCartController::class, 'getCart']);
     Route::post('/mobile-cart-update', [MobileCartController::class, 'updateQuantity']);
     Route::delete('/mobile-cart-delete', [MobileCartController::class, 'deleteCart']);
+    Route::post('/checkout', [MobileCartController::class, 'checkout']);
 
     //vendor subscription
     Route::post('/vendor-subscription/subscribe', [VendorSubscriptionController::class, 'subscribe']);

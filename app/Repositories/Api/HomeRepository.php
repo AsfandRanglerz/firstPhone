@@ -20,7 +20,7 @@ class HomeRepository implements HomeRepositoryInterface
             throw new \Exception('Latitude and Longitude are required to fetch nearby listings');
         }
 
-        $radius = $request->query('radius', 30);
+        $radius = $request->query('radius', 50);
         $search = $request->query('search');
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -66,7 +66,7 @@ class HomeRepository implements HomeRepositoryInterface
             $query->whereBetween('vendor_mobiles.created_at', [$startDate, $endDate]);
         }
 
-        return $query->take(6)->get()->map(function ($listing) {
+        return $query->get()->map(function ($listing) {
             $images = json_decode($listing->image, true) ?? [];
 
             return [
@@ -91,8 +91,8 @@ class HomeRepository implements HomeRepositoryInterface
         $customerLat = $request->query('latitude');
         $customerLng = $request->query('longitude');
 
-        // Radius default 30
-        $radius = $request->query('radius', 30);
+        // Radius default 50
+        $radius = $request->query('radius', 50);
 
         $query = OrderItem::with(['product.model', 'product.vendor', 'order'])
             ->whereHas('order', fn($q) => $q->where('order_status', 'delivered'))

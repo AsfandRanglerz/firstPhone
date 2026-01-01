@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\CheckOut;
 use App\Models\MobileCart;
 use App\Models\VendorMobile;
 use Illuminate\Http\Request;
@@ -103,25 +104,57 @@ public function getCart(Request $request)
         ], 401);
     }
 
-    // Get carts with related mobile listing
+    // Get cart with relations
     $carts = MobileCart::where('user_id', $user->id)
-        ->with(['mobileListing' => function($query) {
-            $query->select('id', 'model_id', 'price', 'location', 'image');
-        }])
-        ->get(['id', 'mobile_listing_id', 'quantity']);
+        ->with([
+            'mobileListing' => function($query) {
+                $query->select('id','model_id','price','location','image','vendor_id','brand_id','stock');
+            },
+            'mobileListing.vendor:id,name',
+            'mobileListing.brand:id,name',
+            'mobileListing.model:id,name'
+        ])
+        ->get(['id','mobile_listing_id','quantity']);
 
-    // Calculate subtotal (price × quantity)
-    $subtotal = $carts->sum(function ($cart) {
-        return ($cart->mobileListing->price ?? 0) * ($cart->quantity ?? 1);
-    });
+    $finalData = [];
+
+    $subtotal = 0;
+
+    foreach ($carts as $cart) {
+
+        $listing = $cart->mobileListing;
+
+        // Convert stored JSON image to real URL
+        $images = json_decode($listing->image, true);
+        $imageUrl = isset($images[0]) ? asset($images[0]) : null;
+
+        // price × quantity
+        $totalPrice = ($listing->price ?? 0) * ($cart->quantity ?? 1);
+        $subtotal += $totalPrice;
+
+        $finalData[] = [
+            'cart_id'   => $cart->id,
+            'listing_id'=> $listing->id,
+            'price'     => $listing->price,
+            'quantity'  => (int)$cart->quantity,
+            'stock'     => $listing->stock,
+            // 'total_price'=> $totalPrice,
+            'location'  => $listing->location,
+            'image'     => $imageUrl,
+            'name' => $listing->vendor->name ?? null,
+            'brand_name'  => $listing->brand->name ?? null,
+            'model_name'  => $listing->model->name ?? null,
+        ];
+    }
 
     return response()->json([
         'message' => 'Cart details fetched successfully',
         'user_id' => $user->id,
-        'data' => $carts,
-        'subtotal_price' => $subtotal
+        'data' => $finalData,
+        'subtotal_price' => $subtotal,
     ], 200);
 }
+
 
 public function updateQuantity(Request $request)
 {
@@ -205,6 +238,54 @@ public function updateQuantity(Request $request)
     return response()->json([
         'message' => 'Cart item deleted successfully',
     ], 200);
+}
+
+public function checkout(Request $request)
+{
+    try {
+
+        $userId = Auth::id();
+
+        if (!$userId) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+            if ($request->hasFile('image')) {
+
+            $file = $request->file('image');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            $file->move(public_path('admin/assets/images/users/'), $filename);
+
+            $imagePath = asset('public/admin/assets/images/users/'.$filename);
+        }
+
+
+            // 💾 Store checkout entry
+           $checkout = CheckOut::create([
+                'user_id'   => $userId,
+                'brand_name'  => $request->brand_name,
+                'model_name'  => $request->model_name,
+                'price'     => $request->price,
+                'location'  => $request->location,
+                'image'     => $imagePath ?? null,
+                'quantity'  => $request->quantity,
+            ]);
+
+
+        return response()->json([
+            'message' => 'Checkout completed successfully',
+            'checkout' => $checkout
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => 'Something went wrong!',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
 
 

@@ -19,4 +19,19 @@ class MobileCart extends Model
     return $this->belongsTo(VendorMobile::class, 'mobile_listing_id');
 }
 
+public function vendor()
+{
+    return $this->belongsTo(Vendor::class, 'vendor_id');
+}
+
+public function brand()
+{
+    return $this->belongsTo(Brand::class, 'brand_id');
+}
+
+public function model()
+{
+    return $this->belongsTo(Model::class, 'model_id');
+}
+
 }
