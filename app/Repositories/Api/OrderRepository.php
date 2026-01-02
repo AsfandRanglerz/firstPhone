@@ -4,12 +4,14 @@ namespace App\Repositories\Api;
 
 use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\CheckOut;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
 use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Models\DeviceReceipt;
 use App\Models\MobileListing;
+use App\Models\ShippingAddress;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -135,46 +137,109 @@ class OrderRepository implements OrderRepositoryInterface
 
 
     // Repository
-    public function getorderlist($orderId)
-    {
-        $order = Order::with(['items', 'customer', 'shippingAddress'])
-            ->findOrFail($orderId);
+    // public function getorderlist($orderId)
+    // {
+    //     $order = Order::with(['items', 'customer', 'shippingAddress'])
+    //         ->findOrFail($orderId);
 
-        $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
-        $shippingCharges = $order->shipping_charges ?? 0;
-        $total = $subtotal + $shippingCharges;
+    //     $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
+    //     $shippingCharges = $order->shipping_charges ?? 0;
+    //     $total = $subtotal + $shippingCharges;
 
+    //     return [
+    //         'order_id'       => $order->id,
+    //         'customer'       => [
+    //             'name'          => $order->shippingAddress->name ?? $order->customer->name,
+    //             'email'         => $order->shippingAddress->email ?? $order->customer->email,
+    //             'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
+    //             'city'          => $order->shippingAddress->city ?? null,
+    //             'postal_code'   => $order->shippingAddress->postal_code ?? null,
+    //             'street_address' => $order->shippingAddress->street_address ?? null,
+    //         ],
+    //         'products'       => $order->items->map(fn($item) => [
+    //             'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
+    //             'price'        => $item->price,
+    //             'quantity'     => $item->quantity,
+    //             'image'        => $item->product->image
+    //                 ? asset(
+    //                     is_array(json_decode($item->product->image, true))
+    //                         ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
+    //                         : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
+    //                 )
+    //                 : null,
+    //         ]),
+    //         'order_status'   => $order->order_status,
+    //         'payment_status' => $order->payment_status,
+    //         'delivery_method' => $order->delivery_method,
+    //         'subtotal'       => $subtotal,
+    //         'shipping'       => $shippingCharges,
+    //         'total'          => $total,
+    //     ];
+    // }
+
+    public function getorderlist($checkoutId)
+{
+    // 👉 Get the checkout record
+    $checkout = CheckOut::findOrFail($checkoutId);
+
+    $userId = $checkout->user_id;
+
+    // 👉 Get ALL checkout items of this same checkout reference
+    $checkoutItems = CheckOut::where('user_id', $userId)->get();
+
+    // 👉 Get shipping address of this user
+    $shipping = ShippingAddress::where('customer_id', $userId)->first();
+
+    // ❌ No checkout
+    if ($checkoutItems->isEmpty()) {
         return [
-            'order_id'       => $order->id,
-            'customer'       => [
-                'name'          => $order->shippingAddress->name ?? $order->customer->name,
-                'email'         => $order->shippingAddress->email ?? $order->customer->email,
-                'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
-                'city'          => $order->shippingAddress->city ?? null,
-                'postal_code'   => $order->shippingAddress->postal_code ?? null,
-                'street_address' => $order->shippingAddress->street_address ?? null,
-            ],
-            'products'       => $order->items->map(fn($item) => [
-                'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
-                'price'        => $item->price,
-                'quantity'     => $item->quantity,
-                'image'        => $item->product->image
-                    ? asset(
-                        is_array(json_decode($item->product->image, true))
-                            ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
-                            : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
-                    )
-                    : null,
-            ]),
-            'order_status'   => $order->order_status,
-            'payment_status' => $order->payment_status,
-            'delivery_method' => $order->delivery_method,
-            'subtotal'       => $subtotal,
-            'shipping'       => $shippingCharges,
-            'total'          => $total,
+            'message' => 'No checkout items found'
         ];
     }
 
+    // 💰 Subtotal
+    $subtotal = $checkoutItems->sum(fn($item) => $item->price * $item->quantity);
+
+    $shippingCharges = $checkout->shipping_charges ?? 0;
+    $total = $subtotal + $shippingCharges;
+
+    return [
+
+        'checkout_id' => $checkout->id,
+
+        // ⭐ CUSTOMER DATA FROM shipping_addresses
+        'customer' => [
+            'name'           => $shipping->name ?? null,
+            'email'          => $shipping->email ?? null,
+            'phone_number'   => $shipping->phone ?? null,
+            'city'           => $shipping->city ?? null,
+            'postal_code'    => $shipping->postal_code ?? null,
+            'street_address' => $shipping->street_address ?? null,
+        ],
+
+        // ⭐ PRODUCT DATA FROM CHECKOUT TABLE
+        'products' => $checkoutItems->map(function ($item) {
+
+            return [
+                'brand_name' => $item->brand_name ?? null,
+                'model_name' => $item->model_name ?? null,
+                'price'        => $item->price ?? null,
+                'quantity'     => $item->quantity ?? null,
+                'image'        => $item->image
+                    ? asset(
+                        is_array(json_decode($item->image, true))
+                            ? ltrim(json_decode($item->image, true)[0], '/')   // ✅ First from JSON array
+                            : ltrim(explode(',', $item->image)[0], '/')       // ✅ First from comma string
+                    )
+                    : null,
+            ];
+        }),
+
+        'subtotal' => $subtotal,
+        'shipping' => $shippingCharges,
+        'total'    => $total,
+    ];
+}
     public function createDeviceReceipts(int $orderId, array $devices): array
     {
         $vendor = Auth::id();

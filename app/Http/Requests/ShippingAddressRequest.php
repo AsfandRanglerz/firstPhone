@@ -24,13 +24,13 @@ class ShippingAddressRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'            => 'required|string|max:255',
-            'email'           => 'nullable|email|max:255',
-            'phone'           => 'nullable|string|max:20',
-            'street_address'  => 'required|string|max:255',
-            'city'            => 'required|string|max:100',
-            'postal_code'     => 'required|string|max:20',
-            'country'         => 'required|string|max:100',
+            'name'            => 'nullable',
+            'email'           => 'nullable',
+            'phone'           => 'nullable',
+            'street_address'  => 'nullable',
+            'city'            => 'nullable',
+            'postal_code'     => 'nullable',
+            // 'country'         => 'required|string|max:100',
         ];
     }
 }

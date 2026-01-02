@@ -125,7 +125,7 @@ class OrderController extends Controller
     public function shippingAddress(ShippingAddressRequest $request)
     {
         try {
-            $data = $request->validated();
+            // $data = $request->validated();
             $data['customer_id'] = Auth::id();
             $shippingAddress = ShippingAddress::create($data);
             return ResponseHelper::success($shippingAddress, 'Shipping address saved successfully', 200);

@@ -276,6 +276,7 @@ public function checkout(Request $request)
 
         return response()->json([
             'message' => 'Checkout completed successfully',
+            'id' => $checkout->id,
             'checkout' => $checkout
         ], 200);
 
