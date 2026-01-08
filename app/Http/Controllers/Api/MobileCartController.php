@@ -53,7 +53,7 @@ class MobileCartController extends Controller
             // 🛑 Block if trying to add item from DIFFERENT vendor
             if ($currentVendorId != $mobile->vendor_id) {
                 return response()->json([
-                    'message' => 'Please place order or clear your cart before adding another item from a different vendor'
+                    'message' => 'Clear your cart to add items from a different vendor'
                 ], 409);
             }
 
@@ -251,33 +251,33 @@ public function checkout(Request $request)
                 'message' => 'Unauthorized'
             ], 401);
         }
-            if ($request->hasFile('image')) {
 
-            $file = $request->file('image');
-            $filename = time().'_'.$file->getClientOriginalName();
-
-            $file->move(public_path('admin/assets/images/users/'), $filename);
-
-            $imagePath = asset('public/admin/assets/images/users/'.$filename);
+        if (!$request->has('items') || !is_array($request->items)) {
+            return response()->json([
+                'message' => 'Invalid checkout data'
+            ], 422);
         }
 
+        $checkouts = [];
 
-            // 💾 Store checkout entry
-           $checkout = CheckOut::create([
-                'user_id'   => $userId,
-                'brand_name'  => $request->brand_name,
-                'model_name'  => $request->model_name,
-                'price'     => $request->price,
-                'location'  => $request->location,
-                'image'     => $imagePath ?? null,
-                'quantity'  => $request->quantity,
+        foreach ($request->items as $item) {
+
+            $checkout = CheckOut::create([
+                'user_id'    => $userId,
+                'brand_name' => $item['brand_name'] ?? null,
+                'model_name' => $item['model_name'] ?? null,
+                'price'      => $item['price'] ?? 0,
+                'location'   => $item['location'] ?? null,
+                'image'      => $item['image'] ?? null, // from cart or listing
+                'quantity'   => $item['quantity'] ?? 1,
             ]);
 
+            $checkouts[] = $checkout;
+        }
 
         return response()->json([
             'message' => 'Checkout completed successfully',
-            'id' => $checkout->id,
-            'checkout' => $checkout
+            'checkout_items' => $checkouts
         ], 200);
 
     } catch (\Exception $e) {

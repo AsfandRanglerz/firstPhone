@@ -177,37 +177,41 @@ class OrderRepository implements OrderRepositoryInterface
     //     ];
     // }
 
-    public function getorderlist($checkoutId)
+    public function getorderlist()
 {
-    // 👉 Get the checkout record
-    $checkout = CheckOut::findOrFail($checkoutId);
+    $userId = Auth::id();
 
-    $userId = $checkout->user_id;
+    if (!$userId) {
+        return [
+            'message' => 'Unauthorized'
+        ];
+    }
 
-    // 👉 Get ALL checkout items of this same checkout reference
+    // 👉 Get all checkout items of this user
     $checkoutItems = CheckOut::where('user_id', $userId)->get();
 
-    // 👉 Get shipping address of this user
-    $shipping = ShippingAddress::where('customer_id', $userId)->first();
-
-    // ❌ No checkout
     if ($checkoutItems->isEmpty()) {
         return [
             'message' => 'No checkout items found'
         ];
     }
 
-    // 💰 Subtotal
-    $subtotal = $checkoutItems->sum(fn($item) => $item->price * $item->quantity);
+    // 👉 Get shipping address of this user
+    $shipping = ShippingAddress::where('customer_id', $userId)->first();
 
-    $shippingCharges = $checkout->shipping_charges ?? 0;
+    // 💰 Subtotal calculation
+    $subtotal = $checkoutItems->sum(function ($item) {
+        return ($item->price ?? 0) * ($item->quantity ?? 0);
+    });
+
+    $shippingCharges = 0; // or fetch dynamically if needed
     $total = $subtotal + $shippingCharges;
 
     return [
 
-        'checkout_id' => $checkout->id,
+        'user_id' => $userId,
 
-        // ⭐ CUSTOMER DATA FROM shipping_addresses
+        // ⭐ CUSTOMER DATA
         'customer' => [
             'name'           => $shipping->name ?? null,
             'email'          => $shipping->email ?? null,
@@ -217,20 +221,16 @@ class OrderRepository implements OrderRepositoryInterface
             'street_address' => $shipping->street_address ?? null,
         ],
 
-        // ⭐ PRODUCT DATA FROM CHECKOUT TABLE
+        // ⭐ PRODUCTS FROM CHECKOUT TABLE
         'products' => $checkoutItems->map(function ($item) {
 
             return [
-                'brand_name' => $item->brand_name ?? null,
-                'model_name' => $item->model_name ?? null,
-                'price'        => $item->price ?? null,
-                'quantity'     => $item->quantity ?? null,
-                'image'        => $item->image
-                    ? asset(
-                        is_array(json_decode($item->image, true))
-                            ? ltrim(json_decode($item->image, true)[0], '/')   // ✅ First from JSON array
-                            : ltrim(explode(',', $item->image)[0], '/')       // ✅ First from comma string
-                    )
+                'brand_name' => $item->brand_name,
+                'model_name' => $item->model_name,
+                'price'      => $item->price,
+                'quantity'   => $item->quantity,
+                'image'      => $item->image
+                    ? asset(ltrim($item->image, '/'))
                     : null,
             ];
         }),
@@ -240,6 +240,7 @@ class OrderRepository implements OrderRepositoryInterface
         'total'    => $total,
     ];
 }
+
     public function createDeviceReceipts(int $orderId, array $devices): array
     {
         $vendor = Auth::id();
