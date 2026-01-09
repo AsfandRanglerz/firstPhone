@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\MobileCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class OnlinePaymentController extends Controller
 {
@@ -35,10 +36,12 @@ class OnlinePaymentController extends Controller
             ]);
 
             $vendorIds = [];
+            $orderedListingIds = [];
 
             // Handle Single Product
             if (isset($products['product_id'])) {
                 $totalAmount = $products['price'];
+                $orderedListingIds[] = $products['product_id'];
                 $vendorIds[] = $products['vendor_id'];
 
                 OrderItem::create([
@@ -52,6 +55,7 @@ class OnlinePaymentController extends Controller
                 // Handle Multiple Products
                 foreach ($products as $product) {
                     $vendorIds[] = $product['vendor_id'];
+                    $orderedListingIds[] = $product['product_id'];
 
                     OrderItem::create([
                         'order_id'   => $order->id,
@@ -67,6 +71,10 @@ class OnlinePaymentController extends Controller
 
             // Update order total
             $order->update(['total_amount' => $totalAmount]);
+
+            MobileCart::where('user_id', auth()->id())
+            ->whereIn('mobile_listing_id', $orderedListingIds)
+            ->update(['is_ordered' => 1]);
 
             // Notify all unique vendors
             foreach (array_unique($vendorIds) as $vendorId) {

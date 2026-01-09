@@ -195,12 +195,19 @@ class OrderRepository implements OrderRepositoryInterface
         throw new \Exception('No checkout items found', 404);
     }
 
+    $uniqueItems = $checkoutItems->unique(function ($item) {
+    return $item->brand_name
+        . '|' . $item->model_name
+        . '|' . $item->price
+        . '|' . $item->quantity;
+    })->values();
+
 
     // 👉 Get shipping address of this user
     $shipping = ShippingAddress::where('customer_id', $userId)->first();
 
     // 💰 Subtotal calculation
-    $subtotal = $checkoutItems->sum(function ($item) {
+    $subtotal = $uniqueItems->sum(function ($item) {
         return ($item->price ?? 0) * ($item->quantity ?? 0);
     });
 
@@ -222,7 +229,7 @@ class OrderRepository implements OrderRepositoryInterface
         ],
 
         // ⭐ PRODUCTS FROM CHECKOUT TABLE
-        'products' => $checkoutItems->map(function ($item) {
+        'products' => $uniqueItems->map(function ($item) {
 
             return [
                 'brand_name' => $item->brand_name,
