@@ -203,10 +203,10 @@ class OrderController extends Controller
         }
     }
 
-    public function getorderlist($orderId)
+    public function getorderlist()
     {
         try {
-            $orders = $this->orderRepository->getorderlist($orderId);
+            $orders = $this->orderRepository->getorderlist(Auth::id());
             return ResponseHelper::success($orders, 'Orders list fetched successfully', 'success');
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');

@@ -180,21 +180,21 @@ class OrderRepository implements OrderRepositoryInterface
     public function getorderlist()
 {
     $userId = Auth::id();
+    
 
-    if (!$userId) {
-        return [
-            'message' => 'Unauthorized'
-        ];
+   if (!$userId) {
+        throw new \Exception('Unauthorized', 401);
     }
+
 
     // 👉 Get all checkout items of this user
     $checkoutItems = CheckOut::where('user_id', $userId)->get();
 
+    
     if ($checkoutItems->isEmpty()) {
-        return [
-            'message' => 'No checkout items found'
-        ];
+        throw new \Exception('No checkout items found', 404);
     }
+
 
     // 👉 Get shipping address of this user
     $shipping = ShippingAddress::where('customer_id', $userId)->first();
@@ -229,8 +229,12 @@ class OrderRepository implements OrderRepositoryInterface
                 'model_name' => $item->model_name,
                 'price'      => $item->price,
                 'quantity'   => $item->quantity,
-                'image'      => $item->image
-                    ? asset(ltrim($item->image, '/'))
+                'image'        => $item->image
+                    ? asset(
+                        is_array(json_decode($item->image, true))
+                            ? ltrim(json_decode($item->image, true)[0], '/')   // ✅ First from JSON array
+                            : ltrim(explode(',', $item->image)[0], '/')       // ✅ First from comma string
+                    )
                     : null,
             ];
         }),

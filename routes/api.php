@@ -146,6 +146,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/mobile/recent-search/delete', [MobileSearchController::class, 'delete']);
     Route::delete('/mobile/recent-search/delete-all', [MobileSearchController::class, 'deleteAll']);
 
+    // Order list api
+    Route::get('/orderlist', [OrderController::class, 'getorderlist']);
+
 });
 
 // customer side Home Screen API
@@ -168,6 +171,5 @@ Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 // Customer device details api
 Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getCustomerDeviceDetail']);
 
-// Order list api
-Route::get('/orderlist', [OrderController::class, 'getorderlist']);
+
 
