@@ -106,6 +106,7 @@ public function getCart(Request $request)
 
     // Get cart with relations
     $carts = MobileCart::where('user_id', $user->id)
+    ->where('is_ordered', 0)
         ->with([
             'mobileListing' => function($query) {
                 $query->select('id','model_id','price','location','image','vendor_id','brand_id','stock');
