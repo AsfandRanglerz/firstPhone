@@ -118,4 +118,26 @@ class OnlinePaymentController extends Controller
             ], 500);
         }
     }
+
+    public function deliveryMethods()
+{
+    return response()->json([
+        'message' => 'Delivery methods fetched successfully',
+        'data' => [
+            [
+                'key'   => 'go_shop',
+                // 'label' => 'Go to Shop'
+            ],
+            [
+                'key'   => 'cod',
+                // 'label' => 'Cash on Delivery'
+            ],
+            [
+                'key'   => 'online',
+                // 'label' => 'Online Payment'
+            ],
+        ]
+    ], 200);
+}
+
 }

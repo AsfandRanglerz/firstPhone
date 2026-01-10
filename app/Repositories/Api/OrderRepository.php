@@ -248,12 +248,14 @@ class OrderRepository implements OrderRepositoryInterface
 
                 if ($vendorMobile) {
                     $productId = $vendorMobile->id;
+                    $vendorId  = $vendorMobile->vendor_id;
                 }
             }
 
 
             return [
                 'product_id' => $productId,
+                'vendor_id'  => $vendorId,
                 'shop_name'  => $item->vendor_name,
                 'brand_name' => $item->brand_name,
                 'model_name' => $item->model_name,

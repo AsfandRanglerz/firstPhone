@@ -171,5 +171,8 @@ Route::get('/devicedetails/{id}', [HomeController::class, 'deviceDetails']);
 // Customer device details api
 Route::get('/customerdevicedetails/{id}', [MobileListingController::class, 'getCustomerDeviceDetail']);
 
+// delivery methods
+Route::get('/delivery-method', [OnlinePaymentController::class, 'deliveryMethods']);
+
 
 
