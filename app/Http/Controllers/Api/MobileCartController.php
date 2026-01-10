@@ -135,6 +135,7 @@ public function getCart(Request $request)
 
         $finalData[] = [
             'cart_id'   => $cart->id,
+            'mobile_listing_id'=> $cart->mobile_listing_id,
             'listing_id'=> $listing->id,
             'price'     => $listing->price,
             'quantity'  => (int)$cart->quantity,
@@ -223,7 +224,8 @@ public function updateQuantity(Request $request)
 
     // Find cart item
     $cart = MobileCart::where('id', $id)
-        ->where('user_id', $user->id) // ensure item belongs to the logged-in user
+        ->where('user_id', $user->id)
+        ->with(['mobileListing.brand', 'mobileListing.model'])
         ->first();
 
     if (!$cart) {
@@ -233,13 +235,20 @@ public function updateQuantity(Request $request)
         ], 404);
     }
 
-    // Delete the record
+    // ✅ Delete related checkout item
+    CheckOut::where('user_id', $user->id)
+        ->where('brand_name', $cart->mobileListing->brand->name ?? null)
+        ->where('model_name', $cart->mobileListing->model->name ?? null)
+        ->delete();
+
+    // ✅ Delete cart item
     $cart->delete();
 
     return response()->json([
-        'message' => 'Cart item deleted successfully',
+        'message' => 'Cart item and related checkout item deleted successfully',
     ], 200);
 }
+
 
 public function checkout(Request $request)
 {
@@ -263,8 +272,18 @@ public function checkout(Request $request)
 
         foreach ($request->items as $item) {
 
+            $vendorId = null;
+
+            if (!empty($item['mobile_listing_id'])) {
+                $vendorId = VendorMobile::where(
+                    'id',
+                    $item['mobile_listing_id']
+                )->value('vendor_id');
+            }
+
             $checkout = CheckOut::create([
                 'user_id'    => $userId,
+                'vendor_name' => $item['shop_name'] ?? null,
                 'brand_name' => $item['brand_name'] ?? null,
                 'model_name' => $item['model_name'] ?? null,
                 'price'      => $item['price'] ?? 0,
@@ -273,7 +292,16 @@ public function checkout(Request $request)
                 'quantity'   => $item['quantity'] ?? 1,
             ]);
 
-            $checkouts[] = $checkout;
+            $checkouts[] = [
+                // 'checkout_id' => $checkout->id,
+                'vendor_id'   => $vendorId,
+                'shop_name'   => $checkout->vendor_name,
+                'brand_name'  => $checkout->brand_name,
+                'model_name'  => $checkout->model_name,
+                'price'       => $checkout->price,
+                'quantity'    => $checkout->quantity,
+                'image'       => $checkout->image,
+            ];
         }
 
         return response()->json([

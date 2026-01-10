@@ -3,9 +3,12 @@
 namespace App\Repositories\Api;
 
 use Carbon\Carbon;
+use App\Models\Brand;
 use App\Models\Order;
+use App\Models\Vendor;
 use App\Models\CheckOut;
 use App\Models\OrderItem;
+use App\Models\MobileModel;
 use Illuminate\Support\Str;
 use App\Models\VendorMobile;
 use Illuminate\Http\Request;
@@ -231,7 +234,27 @@ class OrderRepository implements OrderRepositoryInterface
         // ⭐ PRODUCTS FROM CHECKOUT TABLE
         'products' => $uniqueItems->map(function ($item) {
 
+            $vendor = Vendor::where('name', $item->vendor_name)->first();
+            $brand = Brand::where('name', $item->brand_name)->first();
+            $model = MobileModel::where('name', $item->model_name)->first();
+
+            $productId = null;
+
+            if ($vendor && $brand && $model) {
+                $vendorMobile = VendorMobile::where('vendor_id', $vendor->id)
+                    ->where('brand_id', $brand->id)
+                    ->where('model_id', $model->id)
+                    ->first();
+
+                if ($vendorMobile) {
+                    $productId = $vendorMobile->id;
+                }
+            }
+
+
             return [
+                'product_id' => $productId,
+                'shop_name'  => $item->vendor_name,
                 'brand_name' => $item->brand_name,
                 'model_name' => $item->model_name,
                 'price'      => $item->price,
