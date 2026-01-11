@@ -272,17 +272,20 @@ public function checkout(Request $request)
 
         foreach ($request->items as $item) {
 
-            $vendorId = null;
+            // ✅ product_id = vendor_mobiles.id
+            $productId = $item['mobile_listing_id'] ?? null;
 
-            if (!empty($item['mobile_listing_id'])) {
-                $vendorId = VendorMobile::where(
-                    'id',
-                    $item['mobile_listing_id']
-                )->value('vendor_id');
+             // ✅ get vendor_id from vendor_mobiles
+            $vendorId = null;
+            if ($productId) {
+                $vendorId = VendorMobile::where('id', $productId)
+                    ->value('vendor_id');
             }
 
             $checkout = CheckOut::create([
                 'user_id'    => $userId,
+                'vendor_id'   => $vendorId,        
+                'product_id'  => $productId, 
                 'vendor_name' => $item['shop_name'] ?? null,
                 'brand_name' => $item['brand_name'] ?? null,
                 'model_name' => $item['model_name'] ?? null,
@@ -294,7 +297,8 @@ public function checkout(Request $request)
 
             $checkouts[] = [
                 // 'checkout_id' => $checkout->id,
-                'vendor_id'   => $vendorId,
+                'product_id' => $checkout->product_id,
+                'vendor_id'  => $checkout->vendor_id,
                 'shop_name'   => $checkout->vendor_name,
                 'brand_name'  => $checkout->brand_name,
                 'model_name'  => $checkout->model_name,

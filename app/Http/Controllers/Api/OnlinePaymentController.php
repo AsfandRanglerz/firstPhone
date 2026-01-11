@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
+use App\Models\CheckOut;
 use App\Models\OrderItem;
 use App\Models\MobileCart;
 use Illuminate\Http\Request;
@@ -94,6 +95,8 @@ class OnlinePaymentController extends Controller
             }
 
             DB::commit();
+
+            CheckOut::where('user_id', auth()->id())->delete();
 
             return response()->json([
                 'status'  => true,
