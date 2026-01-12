@@ -18,6 +18,9 @@ class MobileSearchController extends Controller
         try {
             $user = Auth::user();
             $query = trim($request->input('name'));
+            $customerLat = $request->input('latitude');
+            $customerLng = $request->input('longitude');
+
 
             if (!$query) {
                 return response()->json([
@@ -60,8 +63,20 @@ class MobileSearchController extends Controller
             }
 
             // Format response
-            $response = $mobiles->map(function ($m) {
+            $response = $mobiles->map(function ($m) use ($customerLat, $customerLng) {
                 $images = json_decode($m->image, true) ?? [];
+
+                $distance = null;
+
+                if ($customerLat && $customerLng && $m->vendor?->latitude && $m->vendor?->longitude) {
+                    $theta = $customerLng - $m->vendor->longitude;
+                    $dist = sin(deg2rad($customerLat)) * sin(deg2rad($m->vendor->latitude)) +
+                            cos(deg2rad($customerLat)) * cos(deg2rad($m->vendor->latitude)) *
+                            cos(deg2rad($theta));
+                    $dist = acos($dist);
+                    $dist = rad2deg($dist);
+                    $distance = round($dist * 60 * 1.1515 * 1.609344, 2); // KM
+                }
 
                 return [
                     'id'            => $m->id,
@@ -74,6 +89,7 @@ class MobileSearchController extends Controller
 
                     'vendor'       => $m->vendor?->name,
                     'repair_service'    => $m->vendor?->repair_service,
+                    'distance'        => $distance ? $distance . ' km' : null,
                 ];
             });
 
