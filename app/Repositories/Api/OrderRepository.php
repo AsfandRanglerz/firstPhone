@@ -23,13 +23,35 @@ use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 class OrderRepository implements OrderRepositoryInterface
 {
     public function getOrdersByCustomerAndStatus(int $customerId, string $status): Collection
-    {
-        return Order::with(['items.product', 'items.vendor'])
-            ->where('customer_id', $customerId)
-            ->where('order_status', $status)
-            ->latest()
-            ->get();
-    }
+{
+    return Order::with(['items.product', 'items.vendor'])
+        ->where('customer_id', $customerId)
+        ->where('order_status', $status)
+        ->latest()
+        ->get()
+        ->map(function ($order) {
+
+            $order->items = $order->items->map(function ($item) {
+
+                // Decode images
+                $images = json_decode($item->product->image ?? '[]', true);
+                $videos = json_decode($item->product->video ?? '[]', true);
+
+                $item->product->image = collect($images)
+                    ->map(fn ($path) => asset($path))
+                    ->values();
+
+                $item->product->video = collect($videos)
+                    ->map(fn ($path) => asset($path))
+                    ->values();
+
+                return $item;
+            });
+
+            return $order;
+        });
+}
+
 
     public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
     {
