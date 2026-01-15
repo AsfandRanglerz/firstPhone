@@ -295,7 +295,8 @@
             });
 
             // ===== Order Status Change via AJAX =====
-            $('.change-order-status').on('click', function() {
+            $(document).on('click', '.change-order-status', function () {
+
                 let orderId = $(this).data('order-id');
                 let newStatus = $(this).data('new-status');
 
@@ -325,6 +326,9 @@
                                     `btn btn-sm dropdown-toggle ${colorClasses[newStatus]}`);
 
                             toastr.success(data.message);
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1200);
                         } else {
                             toastr.error('Something went wrong');
                         }

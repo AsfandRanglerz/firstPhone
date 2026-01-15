@@ -237,4 +237,37 @@ class OrderController extends Controller
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');
         }
     }
+
+    public function updateOrderStatusByVendor(Request $request, int $id)
+    {
+        try {
+            $request->validate([
+                'action' => 'required|in:cancel,mark_paid'
+            ]);
+
+            $vendorId = Auth::id();
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
+            }
+
+            $order = $this->orderRepository
+                ->updateOrderStatusByVendor($vendorId, $id, $request->action);
+
+            return ResponseHelper::success(
+                $order, 'Order updated successfully','success'
+            );
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return ResponseHelper::error(null, 'Order not found', 'not_found');
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'unauthorized');
+
+        } catch (\InvalidArgumentException $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'error');
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
+        }
+    }
 }

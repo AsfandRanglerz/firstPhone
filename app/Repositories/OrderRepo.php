@@ -26,7 +26,7 @@ class OrderRepo implements OrderRepoInterface
     public function updateOrderStatus(Request $request, $id)
 {
     $request->validate([
-        'order_status' => 'required|string|in:pending,confirmed,in_progress,shipped,delivered,cancelled'
+        'order_status' => 'required|string|in:pending,confirmed,inprogress,shipped,delivered,cancelled'
     ]);
 
     // ✅ Load order with items
@@ -58,7 +58,7 @@ class OrderRepo implements OrderRepoInterface
     public function updatePaymentStatus(Request $request, $id)
     {
         $request->validate([
-            'payment_status' => 'required|in:paid,pending,failed,refunded',
+            'payment_status' => 'required|in:paid,pending,failed,refunded,unpaid',
         ]);
 
         $order = Order::findOrFail($id);

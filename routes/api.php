@@ -99,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //vendor side track order
     Route::get('/vendor-orders', [OrderController::class, 'vendorOrders']);
     Route::get('/orders-vendor/{id}/track', [OrderController::class, 'trackVendor']);
+    Route::post('/vendor/order/{id}/update-status',[OrderController::class, 'updateOrderStatusByVendor']);
     Route::get('/sales-report', [OrderController::class, 'salesReport']);
     Route::get('/orders-statistics', [OrderController::class, 'getOrderStatistics']);
 

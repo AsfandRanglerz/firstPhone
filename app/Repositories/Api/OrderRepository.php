@@ -202,7 +202,7 @@ class OrderRepository implements OrderRepositoryInterface
     //     ];
     // }
 
-    public function getorderlist()
+   public function getorderlist()
 {
     $userId = Auth::id();
     
@@ -256,28 +256,11 @@ class OrderRepository implements OrderRepositoryInterface
         // ⭐ PRODUCTS FROM CHECKOUT TABLE
         'products' => $uniqueItems->map(function ($item) {
 
-            $vendor = Vendor::where('name', $item->vendor_name)->first();
-            $brand = Brand::where('name', $item->brand_name)->first();
-            $model = MobileModel::where('name', $item->model_name)->first();
-
-            $productId = null;
-
-            if ($vendor && $brand && $model) {
-                $vendorMobile = VendorMobile::where('vendor_id', $vendor->id)
-                    ->where('brand_id', $brand->id)
-                    ->where('model_id', $model->id)
-                    ->first();
-
-                if ($vendorMobile) {
-                    $productId = $vendorMobile->id;
-                    $vendorId  = $vendorMobile->vendor_id;
-                }
-            }
-
+           
 
             return [
-                'product_id' => $productId,
-                'vendor_id'  => $vendorId,
+                'product_id' => $item->product_id,   // ✅ ALWAYS correct
+                'vendor_id'  => $item->vendor_id,
                 'shop_name'  => $item->vendor_name,
                 'brand_name' => $item->brand_name,
                 'model_name' => $item->model_name,
@@ -389,5 +372,57 @@ class OrderRepository implements OrderRepositoryInterface
         $response['total_amount'] = collect($response['products'])->sum('total');
 
         return $response;
+    }
+
+    public function updateOrderStatusByVendor(int $vendorId,int $orderId,string $action): array {
+        return DB::transaction(function () use ($vendorId, $orderId, $action) {
+
+            $order = Order::with('items')->findOrFail($orderId);
+
+            // ✅ Vendor ownership check
+            $belongsToVendor = $order->items
+                ->where('vendor_id', $vendorId)
+                ->isNotEmpty();
+
+            if (!$belongsToVendor) {
+                throw new AuthorizationException('Unauthorized action');
+            }
+
+            /* ---------------- ACTION LOGIC ---------------- */
+
+            if ($action === 'cancel') {
+
+                if ($order->order_status === 'delivered') {
+                    throw new InvalidArgumentException(
+                        'Delivered order cannot be cancelled'
+                    );
+                }
+
+                $order->order_status = 'cancelled';
+            }
+
+            if ($action === 'mark_paid') {
+
+                if ($order->payment_status === 'paid') {
+                    throw new InvalidArgumentException(
+                        'Order already marked as paid'
+                    );
+                }
+
+                $order->payment_status = 'paid';
+            }
+
+            $order->save();
+
+            /* ---------------- RESPONSE FORMAT ---------------- */
+
+            return [
+                'order_id'       => $order->id,
+                'order_number'   => $order->order_number,
+                'order_status'   => $order->order_status,
+                'payment_status' => $order->payment_status,
+                'updated_at'     => $order->updated_at,
+            ];
+        });
     }
 }
