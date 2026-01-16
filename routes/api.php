@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/track', [OrderController::class, 'track']);
+    Route::post('/reorder/{orderId}', [OrderController::class, 'reOrder']);
     Route::post('/shipping', [OrderController::class, 'shippingAddress']);
     Route::get('/shipping-address', [OrderController::class, 'getShippingAddress']);
     Route::delete('/shipping-address/{id}', [OrderController::class, 'deleteShippingAddress']);
@@ -149,6 +150,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Order list api
     Route::get('/orderlist', [OrderController::class, 'getorderlist']);
+    Route::get('/customer-orderlist/{orderId}', [OrderController::class, 'customerorderlist']);
+
+    // Get vendor order list api
+     Route::get('/vendor-orderlist/{orderId}', [OrderController::class, 'vendorOrderList']);
 
 });
 

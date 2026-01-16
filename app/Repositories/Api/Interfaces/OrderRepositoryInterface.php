@@ -47,4 +47,8 @@ interface OrderRepositoryInterface
 
     public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection;
 
+    public function getVendorOrderDetails(int $vendorId, int $orderId): array;
+
+    public function reOrder(int $orderId, int $customerId);
+
 }

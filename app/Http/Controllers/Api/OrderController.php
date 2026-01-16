@@ -213,6 +213,24 @@ class OrderController extends Controller
         }
     }
 
+    public function vendorOrderList($orderId)
+    {
+        try {
+            $vendorId = Auth::id();
+
+            if (!$vendorId) {
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
+            }
+
+            $order = $this->orderRepository->getVendorOrderDetails($vendorId, $orderId);
+
+            return ResponseHelper::success($order, 'Order details fetched successfully', 'success');
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'error');
+        }
+    }
+
     public function deviceReceipt(Request $request, $orderId)
     {
         try {
@@ -242,7 +260,7 @@ class OrderController extends Controller
     {
         try {
             $request->validate([
-                'action' => 'required|in:cancel,mark_paid'
+                'action' => 'required|in:cancel,mark_paid,shipped,delivered',
             ]);
 
             $vendorId = Auth::id();
@@ -250,8 +268,14 @@ class OrderController extends Controller
                 return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
             }
 
-            $order = $this->orderRepository
-                ->updateOrderStatusByVendor($vendorId, $id, $request->action);
+            $order = $this->orderRepository->updateOrderStatusByVendor(
+                $vendorId,
+                $id,
+                $request->action,
+                $request->order_item_id ?? null,
+                $request->reason ?? null
+            );
+
 
             return ResponseHelper::success(
                 $order, 'Order updated successfully','success'
@@ -268,6 +292,32 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');
+        }
+    }
+
+    public function reOrder($orderId)
+    {
+        try {
+            $customerId = Auth::id();
+
+            if (!$customerId) {
+                return ResponseHelper::error(null, 'Unauthorized', 'unauthorized');
+            }
+
+            $cartItems = $this->orderRepository->reOrder($orderId, $customerId);
+
+            return ResponseHelper::success(
+                $cartItems,
+                'Order items added to cart successfully',
+                'success'
+            );
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error(
+                null,
+                $e->getMessage(),
+                'server_error'
+            );
         }
     }
 }

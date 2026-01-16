@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Vendor;
 use App\Models\CheckOut;
 use App\Models\OrderItem;
+use App\Models\MobileCart;
+use App\Models\CancelOrder;
 use App\Models\MobileModel;
 use Illuminate\Support\Str;
 use App\Models\VendorMobile;
@@ -22,46 +24,60 @@ use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class OrderRepository implements OrderRepositoryInterface
 {
-    public function getOrdersByCustomerAndStatus(int $customerId, string $status): Collection
+   public function getOrdersByCustomerAndStatus(int $customerId, string $status): Collection
 {
-    return Order::with(['items.product', 'items.vendor'])
+    return Order::with(['items.vendor'])
         ->where('customer_id', $customerId)
         ->where('order_status', $status)
         ->latest()
         ->get()
         ->map(function ($order) {
 
-            $order->items = $order->items->map(function ($item) {
+            // Vendor name from first item
+            $vendorName = optional($order->items->first()?->vendor)->name;
 
-                // Decode images
-                $images = json_decode($item->product->image ?? '[]', true);
-                $videos = json_decode($item->product->video ?? '[]', true);
-
-                $item->product->image = collect($images)
-                    ->map(fn ($path) => asset($path))
-                    ->values();
-
-                $item->product->video = collect($videos)
-                    ->map(fn ($path) => asset($path))
-                    ->values();
-
-                return $item;
-            });
-
-            return $order;
+            return [
+                'id' =>$order->id,
+                'order_id'        => '#' . $order->order_number,
+                'shop_name'       => $vendorName,
+                'total_price'     => $order->total_amount,
+                'total_products'  => $order->items->sum('quantity'),
+                'date'            => Carbon::parse($order->created_at)->format('F d, Y'),
+                'order_status'    => $order->order_status,
+            ];
         });
 }
 
 
-    public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
+   public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
     {
-        return Order::with(['items.product', 'items.vendor'])
-            ->whereHas('items', function($q) use ($vendorId) {
-                $q->where('vendor_id', $vendorId);
-            })
-            ->where('order_status', $status)
-            ->latest()
-            ->get();
+        return Order::with(['items.vendor'])
+        ->whereHas('items', function ($q) use ($vendorId) {
+            $q->where('vendor_id', $vendorId);
+        })
+        ->where('order_status', $status)
+        ->latest()
+        ->get()
+        ->map(function ($order) use ($vendorId) {
+
+            // Only items of this vendor
+            $vendorItems = $order->items->where('vendor_id', $vendorId);
+
+            // Vendor name
+            $vendorName = optional($vendorItems->first()?->vendor)->name;
+
+            return [
+                'id' => $order->id,
+                'order_item_ids'  => $vendorItems->pluck('id')->values(),
+                'order_id'       => '#' . $order->order_number,
+                'customer_id'    => $order->customer_id,
+                'shop_name'      => $vendorName,
+                'total_price'    => $vendorItems->sum(fn ($item) => $item->price * $item->quantity),
+                'total_products' => $vendorItems->sum('quantity'),
+                'date'           => Carbon::parse($order->created_at)->format('F d, Y'),
+                'order_status'   => $order->order_status,
+            ];
+        });
     }
 
 
@@ -162,45 +178,45 @@ class OrderRepository implements OrderRepositoryInterface
 
 
     // Repository
-    // public function getorderlist($orderId)
-    // {
-    //     $order = Order::with(['items', 'customer', 'shippingAddress'])
-    //         ->findOrFail($orderId);
+    public function customerorderlist($orderId)
+    {
+        $order = Order::with(['items', 'customer', 'shippingAddress'])
+            ->findOrFail($orderId);
 
-    //     $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
-    //     $shippingCharges = $order->shipping_charges ?? 0;
-    //     $total = $subtotal + $shippingCharges;
+        $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
+        $shippingCharges = $order->shipping_charges ?? 0;
+        $total = $subtotal + $shippingCharges;
 
-    //     return [
-    //         'order_id'       => $order->id,
-    //         'customer'       => [
-    //             'name'          => $order->shippingAddress->name ?? $order->customer->name,
-    //             'email'         => $order->shippingAddress->email ?? $order->customer->email,
-    //             'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
-    //             'city'          => $order->shippingAddress->city ?? null,
-    //             'postal_code'   => $order->shippingAddress->postal_code ?? null,
-    //             'street_address' => $order->shippingAddress->street_address ?? null,
-    //         ],
-    //         'products'       => $order->items->map(fn($item) => [
-    //             'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
-    //             'price'        => $item->price,
-    //             'quantity'     => $item->quantity,
-    //             'image'        => $item->product->image
-    //                 ? asset(
-    //                     is_array(json_decode($item->product->image, true))
-    //                         ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
-    //                         : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
-    //                 )
-    //                 : null,
-    //         ]),
-    //         'order_status'   => $order->order_status,
-    //         'payment_status' => $order->payment_status,
-    //         'delivery_method' => $order->delivery_method,
-    //         'subtotal'       => $subtotal,
-    //         'shipping'       => $shippingCharges,
-    //         'total'          => $total,
-    //     ];
-    // }
+        return [
+            'order_id'       => $order->id,
+            'customer'       => [
+                'name'          => $order->shippingAddress->name ?? $order->customer->name,
+                'email'         => $order->shippingAddress->email ?? $order->customer->email,
+                'phone_number'  => $order->shippingAddress->phone_number ?? $order->customer->phone,
+                'city'          => $order->shippingAddress->city ?? null,
+                'postal_code'   => $order->shippingAddress->postal_code ?? null,
+                'street_address' => $order->shippingAddress->street_address ?? null,
+            ],
+            'products'       => $order->items->map(fn($item) => [
+                'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
+                'price'        => $item->price,
+                'quantity'     => $item->quantity,
+                'image'        => $item->product->image
+                    ? asset(
+                        is_array(json_decode($item->product->image, true))
+                            ? ltrim(json_decode($item->product->image, true)[0], '/')   // ✅ First from JSON array
+                            : ltrim(explode(',', $item->product->image)[0], '/')       // ✅ First from comma string
+                    )
+                    : null,
+            ]),
+            'order_status'   => $order->order_status,
+            'payment_status' => $order->payment_status,
+            // 'delivery_method' => $order->delivery_method,
+            // 'subtotal'       => $subtotal,
+            // 'shipping'       => $shippingCharges,
+            'total'          => $total,
+        ];
+    }
 
    public function getorderlist()
 {
@@ -219,6 +235,10 @@ class OrderRepository implements OrderRepositoryInterface
     if ($checkoutItems->isEmpty()) {
         throw new \Exception('No checkout items found', 404);
     }
+
+    $order = Order::where('customer_id', $userId)
+        ->latest()
+        ->first();
 
     $uniqueItems = $checkoutItems->unique(function ($item) {
     return $item->brand_name
@@ -276,11 +296,78 @@ class OrderRepository implements OrderRepositoryInterface
             ];
         }),
 
+        'order_status'   => $order?->order_status ?? null,
+        'payment_status' => $order?->payment_status ?? null,
         'subtotal' => $subtotal,
         'shipping' => $shippingCharges,
         'total'    => $total,
     ];
 }
+
+public function getVendorOrderDetails(int $vendorId, int $orderId): array
+    {
+        $order = Order::with([
+            'items.product.brand',
+            'items.product.model',
+            'shippingAddress'
+        ])->findOrFail($orderId);
+
+        // ✅ Vendor-specific items
+        $vendorItems = $order->items->where('vendor_id', $vendorId);
+
+        if ($vendorItems->isEmpty()) {
+            throw new \Exception('Unauthorized access to this order');
+        }
+
+        // 💰 Subtotal for vendor only
+        $subtotal = $vendorItems->sum(fn ($item) =>
+            ($item->price ?? 0) * ($item->quantity ?? 0)
+        );
+
+        $shippingCharges = 0;
+        $total = $subtotal + $shippingCharges;
+
+        return [
+            'order_id'        => '#' . $order->order_number,
+            'order_status'    => ucfirst($order->order_status),
+            'delivery_method'  => ucfirst($order->delivery_method ?? 'online'),
+            'payment_status'  => ucfirst($order->payment_status),
+
+            // ⭐ PRODUCTS
+            'products' => $vendorItems->map(function ($item) {
+
+                $images = json_decode($item->product->image ?? '[]', true);
+
+                return [
+                    'product_id' => $item->product_id,
+                    'title'      => trim(
+                        ($item->product->brand->name ?? '') . ' ' .
+                        ($item->product->model->name ?? '')
+                    ),
+                    'price'      => $item->price,
+                    'quantity'   => $item->quantity,
+                    'image'      => !empty($images)
+                        ? asset(ltrim($images[0], '/'))
+                        : null,
+                ];
+            })->values(),
+
+            // ⭐ CUSTOMER DETAILS
+            'customer' => [
+                'name'           => $order->shippingAddress->name ?? null,
+                'email'          => $order->shippingAddress->email ?? null,
+                'phone'          => $order->shippingAddress->phone ?? null,
+                'city'           => $order->shippingAddress->city ?? null,
+                'postal_code'    => $order->shippingAddress->postal_code ?? null,
+                'street_address' => $order->shippingAddress->street_address ?? null,
+            ],
+
+            // ⭐ PRICE SUMMARY
+            'subtotal' => $subtotal,
+            'shipping' => $shippingCharges,
+            'total'    => $total,
+        ];
+    }
 
     public function createDeviceReceipts(int $orderId, array $devices): array
     {
@@ -374,55 +461,192 @@ class OrderRepository implements OrderRepositoryInterface
         return $response;
     }
 
-    public function updateOrderStatusByVendor(int $vendorId,int $orderId,string $action): array {
-        return DB::transaction(function () use ($vendorId, $orderId, $action) {
+    public function updateOrderStatusByVendor(
+    int $vendorId,
+    int $orderId,
+    string $action,
+    ?int $orderItemId = null,
+    ?string $reason = null
+): array {
 
-            $order = Order::with('items')->findOrFail($orderId);
+    return DB::transaction(function () use (
+        $vendorId,
+        $orderId,
+        $action,
+        $orderItemId,
+        $reason
+    ) {
 
-            // ✅ Vendor ownership check
-            $belongsToVendor = $order->items
+        $order = Order::with('items')->findOrFail($orderId);
+
+        /* ---------------- CANCEL REQUEST ---------------- */
+        if ($action === 'cancel') {
+
+            if (!$orderItemId) {
+                throw new InvalidArgumentException('Order item ID is required');
+            }
+
+            if ($order->order_status === 'delivered') {
+                throw new InvalidArgumentException(
+                    'Delivered order cannot be cancelled'
+                );
+            }
+
+            // ✅ Verify order item belongs to vendor
+            $orderItem = $order->items
+                ->where('id', $orderItemId)
                 ->where('vendor_id', $vendorId)
-                ->isNotEmpty();
+                ->first();
 
-            if (!$belongsToVendor) {
-                throw new AuthorizationException('Unauthorized action');
+            if (!$orderItem) {
+                throw new AuthorizationException('Unauthorized order item');
             }
 
-            /* ---------------- ACTION LOGIC ---------------- */
-
-            if ($action === 'cancel') {
-
-                if ($order->order_status === 'delivered') {
-                    throw new InvalidArgumentException(
-                        'Delivered order cannot be cancelled'
-                    );
-                }
-
-                $order->order_status = 'cancelled';
+            if (empty($reason)) {
+                throw new InvalidArgumentException(
+                    'Cancellation reason is required'
+                );
             }
 
-            if ($action === 'mark_paid') {
+            $alreadyRequested = CancelOrder::where('order_item_id', $orderItemId)
+                ->where('status', 'requested')
+                ->exists();
 
-                if ($order->payment_status === 'paid') {
-                    throw new InvalidArgumentException(
-                        'Order already marked as paid'
-                    );
-                }
-
-                $order->payment_status = 'paid';
+            if ($alreadyRequested) {
+                throw new InvalidArgumentException(
+                    'Cancellation request already submitted'
+                );
             }
 
+            CancelOrder::create([
+                'order_id'      => $order->id,
+                'order_item_id' => $orderItem->id,
+                'reason'        => $reason,
+                'status'        => 'requested',
+            ]);
+
+            return [
+                'order_id'      => $order->id,
+                'order_item_id' => $orderItem->id,
+                'order_status'  => $order->order_status,
+                'payment_status'=> $order->payment_status,
+                'message'       => 'Cancellation request sent to admin',
+            ];
+        }
+
+        /* ---------------- SHIPPED ---------------- */
+        if ($action === 'shipped') {
+
+            if (!in_array($order->order_status, ['confirmed', 'inprogress'])) {
+                throw new InvalidArgumentException(
+                    'Order cannot be marked as shipped'
+                );
+            }
+
+            $order->order_status = 'shipped';
             $order->save();
 
-            /* ---------------- RESPONSE FORMAT ---------------- */
+            return [
+                'order_id'     => $order->id,
+                'order_status' => 'shipped',
+                // 'payment_status'=> $order->payment_status,
+                'message'      => 'Order marked as shipped',
+            ];
+        }
+
+        /* ---------------- DELIVERED ---------------- */
+        if ($action === 'delivered') {
+
+            if ($order->order_status !== 'shipped') {
+                throw new InvalidArgumentException(
+                    'Only shipped orders can be delivered'
+                );
+            }
+
+            $order->order_status = 'delivered';
+            $order->save();
+
+            return [
+                'order_id'     => $order->id,
+                'order_status' => 'delivered',
+                // 'payment_status'=> $order->payment_status,
+                'message'      => 'Order marked as delivered',
+            ];
+        }
+
+        /* ---------------- MARK PAID ---------------- */
+        if ($action === 'mark_paid') {
+
+            if ($order->payment_status === 'paid') {
+                throw new InvalidArgumentException(
+                    'Order already marked as paid'
+                );
+            }
+
+            $order->payment_status = 'paid';
+            $order->save();
 
             return [
                 'order_id'       => $order->id,
-                'order_number'   => $order->order_number,
                 'order_status'   => $order->order_status,
-                'payment_status' => $order->payment_status,
-                'updated_at'     => $order->updated_at,
+                'payment_status' => 'paid',
+                'message'        => 'Payment marked as paid',
             ];
+        }
+
+        throw new InvalidArgumentException('Invalid action');
+    });
+}
+
+    public function reOrder(int $orderId, int $customerId)
+    {
+        return DB::transaction(function () use ($orderId, $customerId) {
+
+            // ✅ Fetch delivered order
+            $order = Order::with('items')
+                ->where('id', $orderId)
+                ->where('customer_id', $customerId)
+                ->where('order_status', 'delivered')
+                ->first();
+
+            if (!$order) {
+                throw new \Exception('Delivered order not found');
+            }
+
+            // 🧹 Clear existing active cart
+            MobileCart::where('user_id', $customerId)
+                ->where('is_ordered', 0)
+                ->delete();
+
+            $addedItems = [];
+
+            foreach ($order->items as $item) {
+
+                $mobile = VendorMobile::find($item->product_id);
+
+                if (!$mobile) {
+                    continue; // Skip deleted products
+                }
+
+                // 🛑 Stock validation
+                if ($item->quantity > $mobile->stock) {
+                    throw new \Exception(
+                        "{$mobile->model->name} does not have enough stock"
+                    );
+                }
+
+                // ✅ Add to cart
+                $cartItem = MobileCart::create([
+                    'user_id'            => $customerId,
+                    'mobile_listing_id'  => $mobile->id,
+                    'quantity'           => $item->quantity,
+                    'is_ordered'         => 0,
+                ]);
+
+                $addedItems[] = $cartItem;
+            }
+
+            return $addedItems;
         });
     }
 }
