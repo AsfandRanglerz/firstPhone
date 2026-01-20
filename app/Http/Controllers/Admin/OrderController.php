@@ -110,8 +110,15 @@ class OrderController extends Controller
             $cancelOrder->proof_file_image = 'uploads/cancel_proofs/' . $filename;
         }
 
-        $cancelOrder->status = $request->status ?? 'approved';
+        $cancelOrder->status = $request->status;
         $cancelOrder->save();
+
+        if ($request->status === 'approved') {
+        $order = Order::findOrFail($cancelOrder->order_id);
+        $order->order_status = 'cancelled';
+        $order->save();
+
+        }
 
         return response()->json([
             'success' => true,

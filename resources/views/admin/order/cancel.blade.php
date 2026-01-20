@@ -191,6 +191,7 @@
                 let formData = new FormData(this);
                 let id = $('#cancel_order_id').val();
 
+                formData.append('status', 'approved');
                 $.ajax({
                     url: "{{ route('cancel-orders.updateStatus', ':id') }}".replace(':id', id),
                     type: 'POST',
