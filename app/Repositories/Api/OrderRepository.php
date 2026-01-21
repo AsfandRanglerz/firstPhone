@@ -180,7 +180,7 @@ class OrderRepository implements OrderRepositoryInterface
     // Repository
     public function customerorderlist($orderId)
     {
-        $order = Order::with(['items', 'customer', 'shippingAddress'])
+        $order = Order::with(['items', 'customer', 'shippingAddress','items.vendor'])
             ->findOrFail($orderId);
 
         $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
@@ -198,6 +198,7 @@ class OrderRepository implements OrderRepositoryInterface
                 'street_address' => $order->shippingAddress->street_address ?? null,
             ],
             'products'       => $order->items->map(fn($item) => [
+                'vendor_name' => $item->vendor->name ?? null,
                 'product_name' => ($item->product->brand->name ?? '') . ' ' . ($item->product->model->name ?? $item->product_name),
                 'price'        => $item->price,
                 'quantity'     => $item->quantity,
