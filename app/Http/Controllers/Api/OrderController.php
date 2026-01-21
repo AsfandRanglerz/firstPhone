@@ -203,6 +203,17 @@ class OrderController extends Controller
         }
     }
 
+    public function customerorderlist($orderId)
+    {
+        try {
+            $customerId = Auth::id();
+            $orders = $this->orderRepository->customerorderlist($orderId);
+            return ResponseHelper::success($orders, 'Orders list fetched successfully', 'success');
+        } catch (\Exception $e) {
+            return ResponseHelper::error(null, $e->getMessage(), 'server_error');
+        }
+    }
+
     public function getorderlist()
     {
         try {
