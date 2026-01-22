@@ -11,6 +11,10 @@ class Order extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+    'delivered_at' => 'datetime',
+    ];
+
      public function items()
     {
         return $this->hasMany(OrderItem::class);

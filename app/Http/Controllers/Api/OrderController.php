@@ -97,6 +97,9 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
+                'delivered_at' => $order->order_status === 'delivered'
+                ? optional($order->delivered_at)->format('d M Y')
+                : null,
             ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');
@@ -116,6 +119,9 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
+                'delivered_at' => $order->order_status === 'delivered'
+                ? optional($order->delivered_at)->format('d M Y')
+                : null,
             ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {
             return ResponseHelper::error(null, $e->getMessage(), 'server_error');

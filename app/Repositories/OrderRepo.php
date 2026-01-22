@@ -36,6 +36,13 @@ class OrderRepo implements OrderRepoInterface
     $previousStatus = $order->order_status;
 
     $order->order_status = $request->order_status;
+    if (
+        $request->order_status === 'delivered'
+        && $previousStatus !== 'delivered'
+        && is_null($order->delivered_at)
+    ) {
+        $order->delivered_at = now();
+    }
     $order->save();
 
     // ✅ If delivered and not previously delivered → subtract stock

@@ -310,7 +310,8 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
         $order = Order::with([
             'items.product.brand',
             'items.product.model',
-            'shippingAddress'
+            'shippingAddress',
+            'items.vendor'
         ])->findOrFail($orderId);
 
         // ✅ Vendor-specific items
@@ -340,6 +341,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
                 $images = json_decode($item->product->image ?? '[]', true);
 
                 return [
+                    'vendor_name' => $item->vendor->name ?? null, 
                     'product_id' => $item->product_id,
                     'title'      => trim(
                         ($item->product->brand->name ?? '') . ' ' .
