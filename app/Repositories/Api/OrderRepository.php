@@ -66,9 +66,11 @@ class OrderRepository implements OrderRepositoryInterface
             // Vendor name
             $vendorName = optional($vendorItems->first()?->vendor)->name;
 
+            $vendorItem = $vendorItems->first();
+
             return [
                 'id' => $order->id,
-                'order_item_ids'  => $vendorItems->pluck('id')->values(),
+                'order_item_id'  => $vendorItem->id,
                 'order_id'       => '#' . $order->order_number,
                 'customer_id'    => $order->customer_id,
                 'shop_name'      => $vendorName,
