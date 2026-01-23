@@ -15,6 +15,7 @@ class AddDeliveredAtToOrdersTable extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->timestamp('delivered_at')->nullable()->after('order_status');
+            $table->timestamp('shipped_at')->nullable();
         });
     }
 

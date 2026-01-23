@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $casts = [
     'delivered_at' => 'datetime',
+    'shipped_at' => 'datetime',
     ];
 
      public function items()

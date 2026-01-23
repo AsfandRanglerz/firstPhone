@@ -97,8 +97,8 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
-                'delivered_at' => $order->order_status === 'delivered'
-                ? optional($order->delivered_at)->format('d M Y')
+                'created_at' => $order->order_status === 'inprogress'
+                ? optional($order->created_at)->format('d M Y')
                 : null,
             ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {
@@ -119,8 +119,8 @@ class OrderController extends Controller
             return ResponseHelper::success([
                 'order_id' => $order->id,
                 'status'   => $order->order_status,
-                'delivered_at' => $order->order_status === 'delivered'
-                ? optional($order->delivered_at)->format('d M Y')
+                'created_at' => $order->order_status === 'inprogress'
+                ? optional($order->created_at)->format('d M Y')
                 : null,
             ], 'Order status fetched successfully', 'success');
         } catch (\Exception $e) {

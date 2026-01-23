@@ -186,8 +186,9 @@ class OrderRepository implements OrderRepositoryInterface
             ->findOrFail($orderId);
 
         $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
-        $shippingCharges = $order->shipping_charges ?? 0;
-        $total = $subtotal + $shippingCharges;
+        // $shippingCharges = $order->shipping_charges ?? 0;
+        // $total = $subtotal + $shippingCharges;
+        $total = $subtotal;
 
         return [
             'order_id'       => $order->id,
@@ -259,8 +260,9 @@ class OrderRepository implements OrderRepositoryInterface
         return ($item->price ?? 0) * ($item->quantity ?? 0);
     });
 
-    $shippingCharges = 0; // or fetch dynamically if needed
-    $total = $subtotal + $shippingCharges;
+    // $shippingCharges = 0; // or fetch dynamically if needed
+    // $total = $subtotal + $shippingCharges;
+    $total = $subtotal;
 
     return [
 
@@ -302,7 +304,7 @@ class OrderRepository implements OrderRepositoryInterface
         'order_status'   => $order?->order_status ?? null,
         'payment_status' => $order?->payment_status ?? null,
         'subtotal' => $subtotal,
-        'shipping' => $shippingCharges,
+        // 'shipping' => $shippingCharges,
         'total'    => $total,
     ];
 }
@@ -328,8 +330,9 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
             ($item->price ?? 0) * ($item->quantity ?? 0)
         );
 
-        $shippingCharges = 0;
-        $total = $subtotal + $shippingCharges;
+        // $shippingCharges = 0;
+        // $total = $subtotal + $shippingCharges;
+        $total = $subtotal;
 
         return [
             'order_id'        => '#' . $order->order_number,
@@ -369,7 +372,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
 
             // ⭐ PRICE SUMMARY
             'subtotal' => $subtotal,
-            'shipping' => $shippingCharges,
+            // 'shipping' => $shippingCharges,
             'total'    => $total,
         ];
     }
@@ -549,11 +552,15 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
             }
 
             $order->order_status = 'shipped';
+            if (is_null($order->shipped_at)) {
+                $order->shipped_at = now();
+            }
             $order->save();
 
             return [
                 'order_id'     => $order->id,
                 'order_status' => 'shipped',
+                'shipped_at'   => $order->shipped_at->format('d M Y'),
                 // 'payment_status'=> $order->payment_status,
                 'message'      => 'Order marked as shipped',
             ];
@@ -569,11 +576,15 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
             }
 
             $order->order_status = 'delivered';
+            if (is_null($order->delivered_at)) {
+                $order->delivered_at = now();
+            }
             $order->save();
 
             return [
                 'order_id'     => $order->id,
                 'order_status' => 'delivered',
+                'delivered_at' => $order->delivered_at->format('d M Y'),
                 // 'payment_status'=> $order->payment_status,
                 'message'      => 'Order marked as delivered',
             ];
