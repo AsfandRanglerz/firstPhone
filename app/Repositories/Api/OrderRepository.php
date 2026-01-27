@@ -16,15 +16,17 @@ use App\Models\VendorMobile;
 use Illuminate\Http\Request;
 use App\Models\DeviceReceipt;
 use App\Models\MobileListing;
+use InvalidArgumentException;
 use App\Models\ShippingAddress;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Repositories\Api\Interfaces\OrderRepositoryInterface;
 
 class OrderRepository implements OrderRepositoryInterface
 {
-   public function getOrdersByCustomerAndStatus(int $customerId, string $status): Collection
+    public function getOrdersByCustomerAndStatus(int $customerId, string $status): Collection
 {
     return Order::with(['items.vendor'])
         ->where('customer_id', $customerId)
@@ -49,7 +51,7 @@ class OrderRepository implements OrderRepositoryInterface
 }
 
 
-   public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
+public function getOrdersByVendorAndStatus(int $vendorId, string $status): Collection
     {
         return Order::with(['items.vendor'])
         ->whereHas('items', function ($q) use ($vendorId) {
@@ -83,6 +85,7 @@ class OrderRepository implements OrderRepositoryInterface
     }
 
 
+
     public function getOrderWithRelations(int $orderId, int $customerId): Order
     {
         return Order::with(['items.product', 'items.vendor'])
@@ -92,8 +95,9 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function getOrderByIdAndCustomer(int $orderId, int $customerId): Order
     {
-        return Order::where('customer_id', $customerId)
-            ->findOrFail($orderId);
+        return Order::where('id', $orderId)
+            ->where('customer_id', $customerId)
+            ->firstOrFail();
     }
 
     public function getOrderByIdAndVendor(int $orderId, int $vendorId): Order
@@ -103,6 +107,7 @@ class OrderRepository implements OrderRepositoryInterface
                 $query->where('vendor_id', $vendorId);
             })
             ->firstOrFail();
+            
     }
 
     public function getSalesReport(int $vendorId): array
@@ -189,7 +194,6 @@ class OrderRepository implements OrderRepositoryInterface
         // $shippingCharges = $order->shipping_charges ?? 0;
         // $total = $subtotal + $shippingCharges;
         $total = $subtotal;
-
         return [
             'order_id'       => $order->id,
             'customer'       => [
@@ -222,7 +226,7 @@ class OrderRepository implements OrderRepositoryInterface
         ];
     }
 
-   public function getorderlist()
+public function getorderlist()
 {
     $userId = Auth::id();
     
@@ -240,9 +244,7 @@ class OrderRepository implements OrderRepositoryInterface
         throw new \Exception('No checkout items found', 404);
     }
 
-    $order = Order::where('customer_id', $userId)
-        ->latest()
-        ->first();
+    
 
     $uniqueItems = $checkoutItems->unique(function ($item) {
     return $item->brand_name
@@ -301,8 +303,6 @@ class OrderRepository implements OrderRepositoryInterface
             ];
         }),
 
-        'order_status'   => $order?->order_status ?? null,
-        'payment_status' => $order?->payment_status ?? null,
         'subtotal' => $subtotal,
         // 'shipping' => $shippingCharges,
         'total'    => $total,
@@ -346,7 +346,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
                 $images = json_decode($item->product->image ?? '[]', true);
 
                 return [
-                    'vendor_name' => $item->vendor->name ?? null, 
+                    'vendor_name' => $item->vendor->name ?? null,       
                     'product_id' => $item->product_id,
                     'title'      => trim(
                         ($item->product->brand->name ?? '') . ' ' .
@@ -429,9 +429,12 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
     public function getReceiptById(int $deviceReceiptId): array
     {
         $deviceReceipt = DeviceReceipt::with([
+            'brand:id,name',
+            'model:id,name',
             'order.customer',
             'order.vendor',
-            'order.items.deviceReceipts',
+            'order.items.deviceReceipts.brand',
+            'order.items.deviceReceipts.model',
             'order.items.vendor',
         ])->findOrFail($deviceReceiptId);
 
@@ -453,8 +456,8 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
         foreach ($order->items as $item) {
             foreach ($item->deviceReceipts as $receipt) {
                 $response['products'][] = [
-                    'brand'    => $receipt->brand,
-                    'model'    => $receipt->model,
+                    'brand'    => $receipt->brand?->name ?? 'N/A',
+                    'model'    => $receipt->model?->name ?? 'N/A',
                     'imei_one' => $receipt->imei_one,
                     'imei_two' => $receipt->imei_two,
                     'quantity' => $item->quantity,
@@ -486,7 +489,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
     ) {
 
         $order = Order::with('items')->findOrFail($orderId);
-
+    
         /* ---------------- CANCEL REQUEST ---------------- */
         if ($action === 'cancel') {
 
@@ -525,7 +528,8 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
                     'Cancellation request already submitted'
                 );
             }
-
+            $order->order_status = 'cancelled';
+            $order->save();
             CancelOrder::create([
                 'order_id'      => $order->id,
                 'order_item_id' => $orderItem->id,
@@ -552,6 +556,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
             }
 
             $order->order_status = 'shipped';
+            // ✅ Set shipped_at only once
             if (is_null($order->shipped_at)) {
                 $order->shipped_at = now();
             }
@@ -576,6 +581,7 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
             }
 
             $order->order_status = 'delivered';
+            // ✅ Set shipped_at only once
             if (is_null($order->delivered_at)) {
                 $order->delivered_at = now();
             }
@@ -613,6 +619,9 @@ public function getVendorOrderDetails(int $vendorId, int $orderId): array
         throw new InvalidArgumentException('Invalid action');
     });
 }
+
+
+
 
     public function reOrder(int $orderId, int $customerId)
     {
